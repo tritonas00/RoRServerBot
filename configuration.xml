@@ -29,7 +29,7 @@
 
 	<general>
 		<version>0.03</version>
-		<fullversion>0.03E</fullversion>
+		<fullversion>0.03F</fullversion>
 		<logfile append="yes" level="debug">RoRservices.log</logfile> <!-- that doesn't work -->
 		<admins> <!-- global - root - admins here -->
 			<!-- these admins have access to advanced functionality of the bot itself

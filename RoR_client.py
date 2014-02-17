@@ -180,6 +180,8 @@ class streamManager:
 			self.D[user_info.uniqueID] = user_t(user_info)
 			self.globalStats['usernames'].add(user_info.username)
 			self.globalStats['userCount'] += 1
+		else:
+			self.D[user_info.uniqueID].user = user_info
 	
 	def delClient(self, uid):
 		if uid in self.D:
@@ -372,6 +374,7 @@ class streamManager:
 		for p in self.D.itervalues():
 			if p.user.username==name:
 				return p.user.uniqueID
+		return 0
 			
 	
 	def clear(self):
@@ -735,11 +738,11 @@ class RoR_Connection:
 		self.uid = user.uniqueID
 		
 		# Receive the user join message
-		packet = self.receiveMsg()
-		if packet.command != MSG2_USER_JOIN:
-			self.logger.error("Missing message USER_JOIN. Connection failed.")
-			self.disconnect()
-			return False
+		#packet = self.receiveMsg()
+		#if packet.command != MSG2_USER_JOIN:
+		#	self.logger.error("Missing message USER_JOIN. Connection failed.")
+		#	self.disconnect()
+		#	return False
 			
 		# register character stream
 		s = stream_info_t()

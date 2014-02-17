@@ -542,7 +542,7 @@ class IRC_client(threading.Thread):
 		elif a[0] == "!list" :
 			# returns a list of the players ingame
 			self.main.messageRoRclientByChannel(channel, ("msg", "!list"))
-		elif a[0] == "!pl":
+		elif a[0] == "!pl" or a[0]=="!playerlist":
 			self.main.messageRoRclientByChannel(channel, ("list_players",))
 		elif a[0] == "!info" or a[0] == "!gi":
 			# returns the server info (name, ip, port, terrain, players, ...)
