@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+	This is XML, if you don't know XML, look it up.
+	It's really easy, if you can host a RoR-server, host an IRC-server,
+	host this bot, then I assume that you can read/write XML as well.
+	
+	There're 3 sections in this file:
+	  - The general configuration with some general stuff in it
+	  - The IRC configuration
+	  - The RoR-server(s) configuration
+	Quite self-explanatory.
+	
+	Minimal configuration:
+		<configuration>
+			<IRCclient>
+				<server host="yourHost" />
+			</IRCclient>
+			<RoRclients>
+				<RoRclient>
+					<server host="yourHost" port=somePort />
+					<irc channel="#someChannel" />
+				</RoRclient>
+			</RoRclients>
+		</configuration>
+	
+	note: IRCclient has 3 capitals and RoRclient(s) has 2 capitals. All the rest has no capitals
+ -->
+<configuration>
+
+	<general>
+		<version>0.03</version>
+		<fullversion>0.03E</fullversion>
+		<logfile append="yes" level="debug">RoRservices.log</logfile> <!-- that doesn't work -->
+		<admins> <!-- global - root - admins here -->
+			<!-- these admins have access to advanced functionality of the bot itself
+			e.g.: restart/shutdown/add a server/...
+			login via IRC using the identify command:
+			/msg myRoRbot identify uUsername aPassword-->
+			<admin username="aUsername" password="aPassword" />
+		</admins>
+	</general>
+
+	<IRCclient>
+		<server host="ezzg.be" port="6667" />
+		<user nickname="myRoRbot" realname="RoR server monitor" username="" password="" />
+		<oper username="" password="" />
+		<nickserv servicename="" username="" password="" />
+		<local address="" port="0" />
+		<ssl>no</ssl>
+		<ipv6>no</ipv6>
+	</IRCclient>
+	
+	<RoRclients>
+		<RoRclient id="myServer1" enabled="yes">
+			<server host="ror.ezzg.be" port="14005" password="" />
+			<user name="services" token="dh6dg565gf52f54g5fdv1f5g4fd5v1f" language="en_GB" />
+			<irc channel="#RigsOfRods" />
+			<admins>
+				<admin username="andYetAnotherUsername" password="andYetanotherPassword" />
+			</admins>
+			<announcements delay="900" enabled="yes"> <!-- delay in seconds -->
+				<announcement>Hi, I'm an announcement</announcement>
+				<announcement>And I'm the second announcement.</announcement>
+				<announcement>And I'm the last one. After me, you'll see number 1 again</announcement>
+			</announcements>
+		</RoRclient>
+	</RoRclients>
+
+</configuration>
