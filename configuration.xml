@@ -29,7 +29,7 @@
 
 	<general>
 		<version>0.03</version>
-		<fullversion>0.03F</fullversion>
+		<fullversion>0.03G</fullversion>
 		<logfile append="yes" level="debug">RoRservices.log</logfile> <!-- that doesn't work -->
 		<admins> <!-- global - root - admins here -->
 			<!-- these admins have access to advanced functionality of the bot itself
@@ -41,8 +41,8 @@
 	</general>
 
 	<IRCclient>
-		<server host="ezzg.be" port="6667" />
-		<user nickname="myRoRbot" realname="RoR server monitor" username="" password="" />
+		<server host="" port="6667" />
+		<user nickname="" realname="RoR server monitor" username="" password="" />
 		<oper username="" password="" />
 		<nickserv servicename="" username="" password="" />
 		<local address="" port="0" />
@@ -52,11 +52,11 @@
 	
 	<RoRclients>
 		<RoRclient id="myServer1" enabled="yes">
-			<server host="ror.ezzg.be" port="14005" password="" />
+			<server host="" port="" password="" />
 			<user name="services" token="dh6dg565gf52f54g5fdv1f5g4fd5v1f" language="en_GB" />
-			<irc channel="#RigsOfRods" />
+			<irc channel="#" />
 			<admins>
-				<admin username="andYetAnotherUsername" password="andYetanotherPassword" />
+				<admin username="" password="" />
 			</admins>
 			<announcements delay="900" enabled="yes"> <!-- delay in seconds -->
 				<announcement>Hi, I'm an announcement</announcement>
