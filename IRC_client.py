@@ -650,7 +650,7 @@ class IRC_client(threading.Thread):
 						if admins[type][nick]['identified']:
 							self.notice(nickname, "%-11s| %-11s| %s" % (nm_to_n(nick), admins[type][nick]['username'], type), "syst")
 			else:
-				self.notice(nickname, "Please log in first.", "syst")
+				self.notice(nickname, "Please login first.", "syst")
 		elif a[0] == "!fps":
 			self.main.messageRoRclientByChannel(channel, ("fps", ""))
 
