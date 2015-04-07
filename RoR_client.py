@@ -497,7 +497,7 @@ class IRC_Layer:
 		else:
 			stats = self.sm.getStats(uid)
 			self.__privmsg("%s (%s): using %s %s in a %s session since %s." % (self.__getUsernameColoured(uid), self.sm.getLanguage(uid), self.sm.getClientName(uid), self.sm.getClientVersion(uid), self.sm.getSessionType(uid), time.ctime(self.sm.getOnlineSince(uid))), "info")
-			self.__privmsg("%s has %d vehicles and drove %.2f meters, flew %.2f meters, sailed %.2f meters and walked %.2f (%.2f) meters." % (self.__getUsernameColoured(uid), self.sm.countStreams(uid)-2, stats.distanceDriven, stats.distanceFlown, stats.distanceSailed, stats.distanceWalked, stats.distanceWalked), "info")
+			self.__privmsg("%s has %d vehicles and has driven %.2f meters, has flown %.2f meters, has sailed %.2f meters and has walked %.2f (%.2f) meters." % (self.__getUsernameColoured(uid), self.sm.countStreams(uid)-2, stats.distanceDriven, stats.distanceFlown, stats.distanceSailed, stats.distanceWalked, stats.distanceWalked), "info")
 			
 			msg = "Streams: "
 			for sid in self.sm.getStreamIdentifiers(uid):
@@ -1506,14 +1506,14 @@ class eventHandler:
 		
 		elif a[0] == "-countdown":
 			# Initialize a countdown
-			self.__sendChat_delayed("Countdown initiated by %s" % self.sm.getUsernameColoured(source))
-			self.countDown = 3
+			self.__sendChat_delayed("Countdown started by %s" % self.sm.getUsernameColoured(source))
+			self.countDown = 5
 		
 		elif a[0] == "-brb":
 			self.__sendChat_delayed("%s will be right back!" % self.sm.getUsernameColoured(source))
 		
 		elif a[0] == "-afk":
-			self.__sendChat_delayed("%s is now away from keyboard! :(" % self.sm.getUsernameColoured(source))
+			self.__sendChat_delayed("%s is now afk! :(" % self.sm.getUsernameColoured(source))
 		
 		elif a[0] == "-back":
 			self.__sendChat_delayed("%s is now back! :D" % self.sm.getUsernameColoured(source))
@@ -1526,7 +1526,7 @@ class eventHandler:
 		
 		elif a[0] == "-kickme":
 			# this can be abused. ("How do I do this or that" -> "Say -kickme to do that")
-			self.server.kick(source, "He asked for it... Literally!")
+			self.server.kick(source, "He asked for it... literally!")
 		
 		elif a[0] == "-give":
 			if len(a)>1:
@@ -1536,10 +1536,9 @@ class eventHandler:
 			self.__sendChat_delayed("Available commands: -version, -countdown, !version, !rules, !motd, !vehiclelimit")
 		
 		elif a[0] == "-record":
-			# if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
-				# self.__sendChat_delayed("You don't have permission to use this command!")
-			# else:
-			if len(args)<1:
+			if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
+				 self.__sendChat_delayed("You don't have permission to use this command!")
+			elif len(args)<1:
 				self.__sendChat_delayed("Usage: -record <start|stop|pause|continue>")
 				pass
 			elif args[0] == "start":
@@ -1719,7 +1718,7 @@ class eventHandler:
 			
 			# anouncement system
 			if self.settings.getSetting('RoRclients', self.serverID, 'announcementsEnabled') and self.time_sec % self.settings.getSetting('RoRclients', self.serverID, 'announcementsDelay') == 0:
-				self.server.sendChat("#999999ANNOUNCEMENT: %s" % self.settings.getSetting('RoRclients', self.serverID, 'announcementList', (self.time_sec/self.settings.getSetting('RoRclients', self.serverID, 'announcementsDelay'))%len(self.settings.getSetting('RoRclients', self.serverID, 'announcementList'))))
+				self.server.sendChat("#FF0000ANNOUNCEMENT: %s" % self.settings.getSetting('RoRclients', self.serverID, 'announcementList', (self.time_sec/self.settings.getSetting('RoRclients', self.serverID, 'announcementsDelay'))%len(self.settings.getSetting('RoRclients', self.serverID, 'announcementList'))))
 	
 		
 			# To keep our socket open, we just stream some character data every second
