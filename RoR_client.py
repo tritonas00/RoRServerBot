@@ -1619,7 +1619,7 @@ class eventHandler:
 				self.__sendChat_delayed("OK")
 		
 		elif a[0] == "-fps":
-			self.__sendChat_delayed("current FPS of Skynet: %d" % self.lastFps)
+			self.__sendChat_delayed("current FPS of Services: %d" % self.lastFps)
 		
 		else:
 			pass
