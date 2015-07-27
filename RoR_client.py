@@ -1511,7 +1511,7 @@ class eventHandler:
 		
 		elif a[0] == "-brb":
 			self.__sendChat_delayed("%s will be right back!" % self.sm.getUsernameColoured(source))
-		
+
 		elif a[0] == "-afk":
 			self.__sendChat_delayed("%s is now afk! :(" % self.sm.getUsernameColoured(source))
 		
@@ -1531,7 +1531,11 @@ class eventHandler:
 		elif a[0] == "-give":
 			if len(a)>1:
 				self.__sendChat_delayed("%s gives %s" % (self.sm.getUsernameColoured(source), a[1]))
-		
+
+		elif a[0] == "-radio" or a[0] == "-r":
+			if len(a)>1:
+				self.__sendChat_delayed("#0066B3[RADIO]: %s: %s" % (self.sm.getUsernameColoured(source), a[1]))
+
 		elif a[0] == "-help":
 			self.__sendChat_delayed("Available commands: -version, -countdown, !version, !rules, !motd, !vehiclelimit")
 		
@@ -1615,7 +1619,7 @@ class eventHandler:
 				self.__sendChat_delayed("OK")
 		
 		elif a[0] == "-fps":
-			self.__sendChat_delayed("current FPS of services: %d" % self.lastFps)
+			self.__sendChat_delayed("current FPS of Skynet: %d" % self.lastFps)
 		
 		else:
 			pass
