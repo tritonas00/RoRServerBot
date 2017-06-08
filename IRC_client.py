@@ -393,10 +393,11 @@ class IRC_client(threading.Thread):
 				self.notice(nickname, "You have no permission to use this command!", "syst")
 		elif a[0] == "!msg":
 			# send a chat message on the server
-			if len(a)>1:
-				self.main.messageRoRclientByChannel(channel, ("msg_with_source", a[1], nickname))
+			if self.users.isServerAdmin(source, channel):
+				if len(a)>1:
+					self.main.messageRoRclientByChannel(channel, ("msg_with_source", a[1], nickname))
 			else:
-				self.notice(nickname, "Syntax: !msg <message>", "syst")
+				self.notice(nickname, "You have no permission to use this command!", "syst")
 		elif a[0] == "!op":
 			# send a chat message on the server
 			if self.users.isServerAdmin(source, channel):
@@ -550,16 +551,8 @@ class IRC_client(threading.Thread):
 		elif a[0] == "!stats":
 			self.main.messageRoRclientByChannel(channel, ("global_stats",))
 		elif a[0] == "!pinfo" or a[0] == "!pi" or a[0] == "!playerinfo":
-			# returns the player info
-				if len(a) < 2:
-					self.msg(channel, "Syntax: !pi <uid>", "syst")
-				else:			
-					try:
-						a[1] = int(a[1])
-					except ValueError:
-						self.msg(channel, "Syntax error, first parameter should be numeric (unique ID of user)", "syst")
-					else:
-						self.main.messageRoRclientByChannel(channel, ("player_info", a[1]))
+			# returns the player info (disabled)
+					self.msg(channel, "This command is disabled since it can crash the bot.", "info")
 		elif a[0] == "!terrain":
 			# returns the server info (name, terrain, players)
 			self.main.messageRoRclientByChannel(channel, ("info", "short"))
@@ -602,18 +595,6 @@ class IRC_client(threading.Thread):
 				self.main.messageMain(("IRC", "connect", channel))
 			else:
 				self.notice(nickname, "You have no permission to use this command!", "syst")
-		elif a[0] == "!irckick":
-			# server-admin only
-			# kicks someone out of the IRC channel
-			pass
-		elif a[0] == "!ircban":
-			# server-admin only
-			# bans and kicks someone from the IRC channel
-			pass
-		elif a[0] == "!ircunban":
-			# server-admin only
-			# unbans someone from the IRC channel
-			pass
 		elif a[0] == "!serverlist" or a[0] == "!servlist":
 			# returns a list of RoR servers we're connected to (with ID, name, ip and port) CIFPO_serv | servername | players/maxplayers | online
 			if self.users.isGlobalAdmin(source):
