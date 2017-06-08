@@ -1540,6 +1540,26 @@ class eventHandler:
 		elif a[0] == "-r":
 			if len(a)>1:
 				self.__sendChat_delayed("[RADIO] %s: %s" % (self.sm.getUsernameColoured(source), a[1]))	
+				
+		# Roleplay commands
+		
+		elif a[0] == "-police":
+			if len(a)>1:
+				self.__sendChat_delayed("%s is requesting law enforcement at %s" % (self.sm.getUsernameColoured(source), a[1]))	
+	
+		elif a[0] == "-ems":
+			if len(a)>1:
+				self.__sendChat_delayed("%s is requesting emergency medical services at %s" % (self.sm.getUsernameColoured(source), a[1]))
+
+		elif a[0] == "-fire":
+			if len(a)>1:
+				self.__sendChat_delayed("%s is requesting the fire department at %s" % (self.sm.getUsernameColoured(source), a[1]))	
+
+		elif a[0] == "-towtruck":
+			if len(a)>1:
+				self.__sendChat_delayed("%s is requesting a tow truck at %s" % (self.sm.getUsernameColoured(source), a[1]))						
+		
+		# End roleplay commands
 		
 		elif a[0] == "-help":
 			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2 -r, !version, !rules, !motd, !vehiclelimit !boost")
