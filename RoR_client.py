@@ -1340,7 +1340,7 @@ class Client(threading.Thread):
 				break
 			else:
 				if data[0] == "disconnect":
-					self.server.sendChat("%sServices are shutting down... Be nice while we're gone! :)" % (COLOUR_BLUE))
+					self.server.sendChat("%sServices is shutting down... Be nice while I'm gone! :)" % (COLOUR_BLUE))
 					time.sleep(0.5)
 					self.irc.sayInfo("Disconnecting on demand.")
 					self.irc.sayLeave(self.server.uid)
@@ -1507,11 +1507,16 @@ class eventHandler:
 		elif a[0] == "-countdown":
 			# Initialize a countdown
 			self.__sendChat_delayed("Countdown started by %s" % self.sm.getUsernameColoured(source))
+			self.countDown = 3
+
+		elif a[0] == "-countdown2":
+			# Initialize a countdown
+			self.__sendChat_delayed("Countdown started by %s" % self.sm.getUsernameColoured(source))
 			self.countDown = 5
 		
 		elif a[0] == "-brb":
 			self.__sendChat_delayed("%s will be right back!" % self.sm.getUsernameColoured(source))
-
+		
 		elif a[0] == "-afk":
 			self.__sendChat_delayed("%s is now afk! :(" % self.sm.getUsernameColoured(source))
 		
@@ -1523,7 +1528,7 @@ class eventHandler:
 		
 		elif a[0] == "-version":
 			self.__sendChat_delayed("version: %s" % self.settings.getSetting('general', 'version_str'))
-		
+			
 		elif a[0] == "-kickme":
 			# this can be abused. ("How do I do this or that" -> "Say -kickme to do that")
 			self.server.kick(source, "He asked for it... literally!")
@@ -1531,13 +1536,13 @@ class eventHandler:
 		elif a[0] == "-give":
 			if len(a)>1:
 				self.__sendChat_delayed("%s gives %s" % (self.sm.getUsernameColoured(source), a[1]))
-
-		elif a[0] == "-radio" or a[0] == "-r":
+				
+		elif a[0] == "-r":
 			if len(a)>1:
-				self.__sendChat_delayed("#0066B3[RADIO]: %s: %s" % (self.sm.getUsernameColoured(source), a[1]))
-
+				self.__sendChat_delayed("[RADIO] %s: %s" % (self.sm.getUsernameColoured(source), a[1]))	
+		
 		elif a[0] == "-help":
-			self.__sendChat_delayed("Available commands: -version, -countdown, !version, !rules, !motd, !vehiclelimit")
+			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2 -r, !version, !rules, !motd, !vehiclelimit !boost")
 		
 		elif a[0] == "-record":
 			if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
@@ -1607,16 +1612,16 @@ class eventHandler:
 					pos = self.sm.getPosition(source, a[1])
 					self.__sendChat_delayed("%s, position of %d is: (%f, %f, %f)" % (self.sm.getUsernameColoured(source), a[1], pos.x, pos.y, pos.z))
 		
-		elif a[0] == "-test":
-			if isPointIn2DSquare(vector3(5,5,0), (vector3(0,0,0), vector3(0,10,0), vector3(10,10,0), vector3(10,0,0))):
-				self.__sendChat_delayed("OK")
-			else:
-				self.__sendChat_delayed("not OK")
-				
-			if isPointIn2DSquare(vector3(20,20,0), (vector3(0,0,0), vector3(0,10,0), vector3(10,10,0), vector3(10,0,0))):
-				self.__sendChat_delayed("not OK")
-			else:
-				self.__sendChat_delayed("OK")
+		#elif a[0] == "-test":
+		#	if isPointIn2DSquare(vector3(5,5,0), (vector3(0,0,0), vector3(0,10,0), vector3(10,10,0), vector3(10,0,0))):
+		#		self.__sendChat_delayed("OK")
+		#	else:
+		#		self.__sendChat_delayed("not OK")
+		#		
+		#	if isPointIn2DSquare(vector3(20,20,0), (vector3(0,0,0), vector3(0,10,0), vector3(10,10,0), vector3(10,0,0))):
+		#		self.__sendChat_delayed("not OK")
+		#	else:
+		#		self.__sendChat_delayed("OK")
 		
 		elif a[0] == "-fps":
 			self.__sendChat_delayed("current FPS of Services: %d" % self.lastFps)
@@ -1730,7 +1735,7 @@ class eventHandler:
 			if RORNET_VERSION == "RoRnet_2.34":
 				# if self.serverinfo['terrain'] 
 				self.server.streamCharacter(
-					vector3(1167.339844, 930.709961, 39.633202),      # (posx, posy, posz)
+					vector3(2540.9, 100.958, 2140.68),      # (posx, posy, posz)
 					vector4(0.000000, 0.000000, 1.000000, 0.000000), # (rotx, roty, rotz, rotw)
 					'\xbe\x52\xda\x62\x49\x64\x6C\x65\x5f\x73\x77\x61\x79\x00\xd6\x0b\xa8\x46\x2f\x03\x09\x00\x00\x00\x0f\x00\x00\x00',                         # animationMode[28]
 					0.332736                                   # animationTime
@@ -1746,26 +1751,35 @@ class eventHandler:
 				#nhelens
 				if self.time_sec%3==0:
 					self.server.streamCharacter(
-						vector3(1159.744141, 938.638794, 34.133007),      # (posx, posy, posz)
-						vector4(0.000000, -0.255470, 0.000000, 0.966817), # (rotx, roty, rotz, rotw)
+						vector3(2540.9, 100.958, 2140.68),      # (posx, posy, posz)
+						vector4(0.000000, 0, 0.000000, 0), # (rotx, roty, rotz, rotw)
 						CHAR_SPOT_SWIM,                               # animationMode[255]
-						0.332736                                   # animationTime
+						0.0                                   # animationTime
 					)					
 				elif self.time_sec%3==1:
 					self.server.streamCharacter(
-							vector3(1159.744141, 938.638794, 34.133007),      # (posx, posy, posz)
-							vector4(0.000000, -0.255470, 0.000000, 0.966817), # (rotx, roty, rotz, rotw)
+							vector3(2540.9, 100.958, 2140.68),      # (posx, posy, posz)
+							vector4(0.000000, 0, 0.000000, 0.0), # (rotx, roty, rotz, rotw)
 							CHAR_SWIM_LOOP,                               # animationMode[255]
-							0.332736                                   # animationTime
+							0.0                                   # animationTime
 					)
 
 				elif self.time_sec%3==2:
 					self.server.streamCharacter(
-							vector3(1159.744141, 938.638794, 34.133007),      # (posx, posy, posz)
-							vector4(0.000000, -0.255470, 0.000000, 0.966817), # (rotx, roty, rotz, rotw)
+							vector3(2540.9, 100.958, 2140.68),      # (posx, posy, posz)
+							vector4(0.000000, 0, 0.000000, 0), # (rotx, roty, rotz, rotw)
 							CHAR_TURN,                               # animationMode[255]
-							0.332736                                   # animationTime
+							0.0                                   # animationTime
 					)
+					#train valley
+				elif self.time_sec%3==3:
+					self.server.streamCharacter(
+							vector3(2540.9, 100.958, 2140.68),      # (posx, posy, posz)
+							vector4(0.000000, 358.763, 0.000000, 0), # (rotx, roty, rotz, rotw)
+							CHAR_TURN,                               # animationMode[255]
+							0.0                                   # animationTime
+					)
+					
 
 				
 				#penguinville
