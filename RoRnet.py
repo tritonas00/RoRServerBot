@@ -1,52 +1,39 @@
 import struct, logging, time
 
-RORNET_VERSION = "RoRnet_2.37"
+RORNET_VERSION = "RoRnet_2.41"
 
-MSG2_HELLO                      = 1000                #!< client sends its version as first message
+MSG2_HELLO                      = 1025                #!< client sends its version as first message
 # hello responses
-MSG2_FULL                       = 1001                #!< no more slots for us
-MSG2_WRONG_PW                   = 1002                #!< server send that on wrong pw
-MSG2_WRONG_VER                  = 1003                #!< wrong version
-MSG2_BANNED                     = 1004                #!< client not allowed to join
-MSG2_WELCOME                    = 1005                #!< we can proceed
+MSG2_FULL                       = 1026                #!< no more slots for us
+MSG2_WRONG_PW                   = 1027                #!< server send that on wrong pw
+MSG2_WRONG_VER                  = 1028                #!< wrong version
+MSG2_BANNED                     = 1029                #!< client not allowed to join
+MSG2_WELCOME                    = 1030                #!< we can proceed
 
-MSG2_VERSION                    = 1006                #!< server responds with its version
+# Technical
+MSG2_VERSION                    = 1031                #!< server responds with its version
+MSG2_SERVER_SETTINGS            = 1032                #!< server send client the terrain name: server_info_t
+MSG2_USER_INFO                  = 1033                #!< user data that is sent from the server to the clients
+MSG2_MASTERINFO                 = 1034                #!< master information response
+MSG2_NETQUALITY                 = 1035                #!< network quality information
 
-MSG2_CHAT_OBSOLETE              = 1007                #!< chat line (deprecated, use the UTF VERSIONS BELOW!)
+# Gameplay
+MSG2_GAME_CMD                   = 1036                #!< Script message. Can be sent in both directions.
+MSG2_USER_JOIN                  = 1037                #!< new user joined
+MSG2_USER_LEAVE                 = 1038                #!< user leaves
+MSG2_UTF_CHAT                   = 1039                #!< chat line in UTF8 encoding
+MSG2_UTF_PRIVCHAT               = 1040                #!< private chat line in UTF8 encoding
 
-MSG2_SERVER_SETTINGS            = 1008                #!< server send client the terrain name: server_info_t
-
-MSG2_GAME_CMD                   = 1009                #!< Script message. Can be sent in both directions.
-
-MSG2_USER_INFO                  = 1010                #!< user data that is sent from the server to the clients
-MSG2_PRIVCHAT_OBSOLETE          = 1011                #!< sent from client to server to send private chat messages
-                                                      #!<  (deprecated, use the UTF VERSIONS BELOW!)
-
-# stream functions
-MSG2_STREAM_REGISTER            = 1012                #!< create new stream
-MSG2_STREAM_REGISTER_RESULT     = 1013                #!< result of a stream creation
-#MSG2_STREAM_REGISTER_RESP      				      #!< reply from server to registering client
-#MSG2_STREAM_CONTROL_FLOW          					  #!< suspend/unsuspend streams
-#MSG2_STREAM_CONTROL_FLOW_RESP     			 		  #!< reply from server to requesting client
-#MSG2_STREAM_UNREGISTER            					  #!< remove stream
-#MSG2_STREAM_UNREGISTER_RESP       					  #!< remove stream response from server to requsting client
-#MSG2_STREAM_TAKEOVER              					  #!< stream takeover
-#MSG2_STREAM_TAKEOVER_RESP        					  #!< stream takeover response from server
-MSG2_STREAM_DATA                = 1014                #!< stream data
-MSG2_USER_JOIN                  = 1015                #!< new user joined
-MSG2_USER_LEAVE                 = 1016                #!< user leaves
-
-MSG2_NETQUALITY                 = 1017                #!< network quality information
-
-# master server interaction
-MSG2_MASTERINFO                 = 1018                #!< master information response
-
-MSG2_UTF_CHAT                   = 1019                #!< chat line in UTF encoding
-MSG2_UTF_PRIVCHAT               = 1020                #!< private chat line in UTF encoding
+#Stream functions
+MSG2_STREAM_REGISTER            = 1041                #!< create new stream
+MSG2_STREAM_REGISTER_RESULT     = 1042                #!< result of a stream creation
+MSG2_STREAM_UNREGISTER          = 1043	               #!< remove stream
+MSG2_STREAM_DATA                = 1044                #!< stream data
+MSG2_STREAM_DATA_DISCARDABLE    = 1045                #!< stream data that is allowed to be discarded
 
 #Character commands
-CHARCMD_POSITION = 0
-CHARCMD_ATTACH   = 1
+CHARACTER_CMD_POSITION = 1
+CHARACTER_CMD_ATTACH   = 2
 
 #Character modes
 CHAR_IDLE_SWAY = "Idle_sway"
@@ -110,9 +97,9 @@ def processCharacterPosData(data):
 
 def processCharacterData(data):
 	thecommand = struct.unpack('i', data[0:4])[0]
-	if thecommand == CHARCMD_POSITION:
+	if thecommand == CHARACTER_CMD_POSITION:
 		return processCharacterPosData(data)
-	if thecommand == CHARCMD_ATTACH:
+	if thecommand == CHARACTER_CMD_ATTACH:
 		return processCharacterAttachData(data)
 	else:
 		return charPos_data_t()
@@ -127,7 +114,7 @@ def processRegisterStreamData(data):
 	s = stream_info_t()
 	type = struct.unpack('i', data[128:132])[0]
 	if type == TYPE_CHAT or type == TYPE_CHARACTER:
-		s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, s.regdata = struct.unpack('128s4i8000s', data)
+	        s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.regdata = struct.unpack('iiii128s128s', data)
 	elif type == TYPE_TRUCK:
 		if len(data) == 8144:
 			s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, s.regdata = struct.unpack('128s4i8000s', data)
@@ -144,7 +131,7 @@ def processRegisterTruckData(data):
 
 def processUserInfo(data):
 	u = user_info_t()
-	u.uniqueID, u.username, u.usertoken, u.serverpassword, u.language, u.clientname, u.clientversion, u.clientGUID, u.sessiontype, u.sessionoptions, u.authstatus, u.slotnum, u.colournum = struct.unpack('I40s40s40s10s10s25s40s10s128s3i', data)
+	u.uniqueID, u.authstatus, u.slotnum, u.colournum, u.username, u.usertoken, u.serverpassword, u.language, u.clientname, u.clientversion, u.clientGUID, u.sessiontype, u.sessionoptions = struct.unpack('Iiii40s40s40s10s10s25s40s10s128s', data)
 	u.username       = u.username.decode('utf-8').strip('\0')
 	u.usertoken      = u.usertoken.strip('\0')
 	u.serverpassword = u.serverpassword.strip('\0')

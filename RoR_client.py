@@ -780,8 +780,11 @@ class RoR_Connection:
 	
 	# Internal use only!
 	def __sendUserInfo(self, user):
-		data = struct.pack('I40s40s40s10s10s25s40s10s128siii', 
+		data = struct.pack('Iiii40s40s40s10s10s25s40s10s128s',
 			int(user.uniqueID),
+			int(user.authstatus),
+			int(user.slotnum),
+			int(user.colournum),
 			user.username,
 			string.upper(hashlib.sha1(user.usertoken).hexdigest()),
 			string.upper(hashlib.sha1(user.serverpassword).hexdigest()),
@@ -790,10 +793,7 @@ class RoR_Connection:
 			str(user.clientversion),
 			str(user.clientGUID),
 			str(user.sessiontype),
-			str(user.sessionoptions),
-			int(user.authstatus),
-			int(user.slotnum),
-			int(user.colournum)
+			str(user.sessionoptions)
 		)		
 		self.sendMsg(DataPacket(MSG2_USER_INFO, 0, 0, len(data), data))
 	
@@ -814,7 +814,7 @@ class RoR_Connection:
 		if s.type==TYPE_TRUCK:
 			data = struct.pack('128siiiii600s', s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, s.bufferSize, str(s.regdata))
 		else:
-			data = struct.pack('128siiii8000s', s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, str(s.regdata))
+			data = struct.pack('iiii128s128s', s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, str(s.regdata))
 		self.sendMsg(DataPacket(MSG2_STREAM_REGISTER, s.origin_sourceid, s.origin_streamid, len(data), data))
 		self.sm.addStream(s)
 		self.streamID += 1	
@@ -840,9 +840,9 @@ class RoR_Connection:
 	def streamCharacter(self, pos, rot, animMode, animTime):
 		# pack: command, posx, posy, posz, rotx, roty, rotz, rotw, animationMode[255], animationTime
 		if RORNET_VERSION == "RoRnet_2.34":
-			data = struct.pack('i7f28sf', CHARCMD_POSITION, pos.x, pos.z, pos.y, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
+			data = struct.pack('i7f28sf', CHARACTER_CMD_POSITION, pos.x, pos.z, pos.y, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
 		else:
-			data = struct.pack('i7f255sf', CHARCMD_POSITION, pos.x, pos.z, pos.y, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
+			data = struct.pack('i7f255sf', CHARACTER_CMD_POSITION, pos.x, pos.z, pos.y, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
 		self.sendMsg(DataPacket(MSG2_STREAM_DATA, self.uid, self.sm.getCharSID(self.uid), len(data), data))
 	
 	#  pre: A truck stream has been registered
@@ -1065,11 +1065,12 @@ class RoR_Connection:
 				self.runCondition = 0
 				break
 
-			if not data or errorCount > 3:
-				# lost connection
-				self.logger.error("Connection error #ERROR_CON007")
-				self.runCondition = 0
-				break
+                        if command != MSG2_STREAM_UNREGISTER: # Prevents bot to leave/rejoin on actor removal. Temporary patch until MSG2_STREAM_UNREGISTER handling is properly implemented
+				if not data or errorCount > 3:
+					# lost connection
+			         	self.logger.error("Connection error #ERROR_CON007")
+				 	self.runCondition = 0
+				 	break
 		
 			content = struct.unpack(str(size) + 's', data)[0]
 
@@ -1233,10 +1234,10 @@ class Client(threading.Thread):
 
 			if(stream.type == TYPE_CHARACTER):
 				streamData = processCharacterData(packet.data)
-				if streamData.command == CHARCMD_POSITION:
+				if streamData.command == CHARACTER_CMD_POSITION:
 					self.sm.setPosition(packet.source, packet.streamid, streamData.pos)
 					self.sm.setCurrentStream(packet.source, packet.source, packet.streamid)
-				elif streamData.command == CHARCMD_ATTACH:
+				elif streamData.command == CHARACTER_CMD_ATTACH:
 					self.sm.setCurrentStream(packet.source, streamData.source_id, streamData.stream_id)
 				self.eh.on_stream_data(packet.source, stream, streamData)
 				
@@ -1327,6 +1328,10 @@ class Client(threading.Thread):
 			if (len(str_tmp) > 0) and (packet.source != self.server.uid):
 				self.eh.on_private_chat(packet.source, str_tmp)
 				# self.processCommand(str_tmp, packet)
+
+                # not implemented yet
+		elif packet.command == MSG2_STREAM_UNREGISTER:
+                        str_tmp = str(packet.data).strip('\0')
 		
 		else:
 			str_tmp = str(packet.data).strip('\0')
