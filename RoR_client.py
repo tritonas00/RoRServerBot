@@ -1345,7 +1345,7 @@ class Client(threading.Thread):
 				break
 			else:
 				if data[0] == "disconnect":
-					self.server.sendChat("%sServices is shutting down... Be nice while I'm gone! :)" % (COLOUR_BLUE))
+					self.server.sendChat("%sServices is shutting down... Be nice while I'm gone! :)" % (COLOUR_CYAN))
 					time.sleep(0.5)
 					self.irc.sayInfo("Disconnecting on demand.")
 					self.irc.sayLeave(self.server.uid)
@@ -1357,7 +1357,7 @@ class Client(threading.Thread):
 				elif data[0] == "cmd":
 					self.server.sendGameCmd(data[1])
 				elif data[0] == "msg_with_source":
-					self.server.sendChat("%s[%s%s%s@IRC%s]: %s" % (COLOUR_BLACK, COLOUR_WHISPER, data[2], COLOUR_RED, COLOUR_BLACK, data[1]))
+					self.server.sendChat("%s[%s%s%s@IRC%s]: %s" % (COLOUR_BLACK, COLOUR_GREEN, data[2], COLOUR_RED, COLOUR_BLACK, data[1]))
 					#self.server.sendUserChat("%s%s%s@IRC%s" % (COLOUR_WHISPER, data[2], COLOUR_RED, COLOUR_BLACK), data[1])
 				elif data[0] == "privmsg":
 					self.server.privChat(data[1], data[2])
@@ -1719,8 +1719,8 @@ class eventHandler:
 		
 		if self.fps%3==0:
 			self.server.streamCharacter(
-				vector3(719.088867, 2423.736816, 45.511509),      # (posx, posy, posz)
-				vector4(0.000000, -0.255470, 0.000000, 0.966817), # (rotx, roty, rotz, rotw)
+				vector3(2432.702, 1713.555, 507.300),      # (posx, posy, posz)
+				vector4(0, 149.5, 0, 0), # (rotx, roty, rotz, rotw)
 				CHAR_TURN,                               # animationMode[255]
 				self.time_ms                                   # animationTime
 			)
@@ -1744,10 +1744,10 @@ class eventHandler:
 			
 			# countdown system
 			if self.countDown > 0:
-				self.server.sendChat("%s          %d" % (COLOUR_BLUE, self.countDown))
+				self.server.sendChat("%s          %d" % (COLOUR_CYAN, self.countDown))
 				self.countDown -= 1
 			elif self.countDown == 0:
-				self.server.sendChat("%s          0    !!! GO !!! GO !!! GO !!! GO !!!" % COLOUR_BLUE)
+				self.server.sendChat("%s          0    !!! GO !!! GO !!! GO !!! GO !!!" % COLOUR_CYAN)
 				self.countDown -= 1
 			
 			# anouncement system
