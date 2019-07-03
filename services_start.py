@@ -127,8 +127,8 @@ class Config:
 				'log_file': 'configuration.xml',
 				'log_level': logging.INFO,
 				'log_filemode': 'w',
-				'version_str': 'RoR server-services v0.03',
-				'version_num': "0.03",
+				'version_str': 'RoR server-services v0.48',
+				'version_num': "0.48",
 				'clientname': 'RoR_bot',
 				
 				'admins': {
