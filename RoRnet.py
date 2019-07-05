@@ -42,7 +42,7 @@ CHAR_WALK      = "Walk"
 CHAR_RUN       = "Run"
 CHAR_SWIM_LOOP = "Swim_loop"
 CHAR_TURN      = "Turn"
-CHAR_DRIVING   = "driving"
+CHAR_DRIVING   = "Driving"
 
 # authoirizations
 AUTH_NONE   = 0          #!< no authentication
