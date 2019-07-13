@@ -812,7 +812,7 @@ class RoR_Connection:
 		s.origin_sourceid = self.uid
 		s.origin_streamid = self.streamID
 		if s.type==TYPE_TRUCK:
-			data = struct.pack('128siiiii600s', s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, s.bufferSize, str(s.regdata))
+			data = struct.pack('4i128s2i60s60s', s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig)
 		else:
 			data = struct.pack('iiii128s128s', s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, str(s.regdata))
 		self.sendMsg(DataPacket(MSG2_STREAM_REGISTER, s.origin_sourceid, s.origin_streamid, len(data), data))
@@ -832,17 +832,14 @@ class RoR_Connection:
 	# post: A positive/negative reply has been sent back
 	def replyToStreamRegister(self, data, status):
 		# TODO: Is this correct, according to the RoRnet_2.3 specifications?
-		data_out = struct.pack('128siiii8000s', data.name, data.type, status, data.origin_sourceid, data.origin_streamid, data.regdata)
+		data_out = struct.pack('iiii128s128s', data.type, status, data.origin_sourceid, data.origin_streamid, data.name, data.regdata)
 		self.sendMsg(DataPacket(MSG2_STREAM_REGISTER_RESULT, self.uid, data.origin_streamid, len(data_out), data_out))
 	
 	#  pre: A character stream has been registered
 	# post: The data is sent
 	def streamCharacter(self, pos, rot, animMode, animTime):
 		# pack: command, posx, posy, posz, rotx, roty, rotz, rotw, animationMode[255], animationTime
-		if RORNET_VERSION == "RoRnet_2.34":
-			data = struct.pack('i7f28sf', CHARACTER_CMD_POSITION, pos.x, pos.z, pos.y, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
-		else:
-			data = struct.pack('i7f255sf', CHARACTER_CMD_POSITION, pos.x, pos.z, pos.y, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
+		data = struct.pack('i7f255sf', CHARACTER_CMD_POSITION, pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
 		self.sendMsg(DataPacket(MSG2_STREAM_DATA, self.uid, self.sm.getCharSID(self.uid), len(data), data))
 	
 	#  pre: A truck stream has been registered
@@ -852,7 +849,7 @@ class RoR_Connection:
 			theTime = math.floor((time.time()-self.connectTime)*1000)
 		else:
 			theTime = s.time
-		data = struct.pack('i2fI3f%ds' % len(s.node_data), theTime, s.engine_speed, s.engine_force, s.flagmask, s.refpos.x, s.refpos.z, s.refpos.y, s.node_data)
+		data = struct.pack('i2fI3f%ds' % len(s.node_data), theTime, s.engine_speed, s.engine_force, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data)
 		self.sendMsg(DataPacket(MSG2_STREAM_DATA, self.uid, streamID, len(data), data))
 
 	#  pre: A character stream has been registered
@@ -1627,7 +1624,7 @@ class eventHandler:
 		elif a[0] == "-getpos":
 			if len(a)<=1:
 				pos = self.sm.getPosition(source)
-				self.__sendChat_delayed("%s, your position is: (%f, %f, %f)" % (self.sm.getUsernameColoured(source), pos.x, pos.y, pos.z))
+				self.__sendChat_delayed("%s your position is: (x: %f, y: %f, z: %f)" % (COLOUR_CYAN, pos.x, pos.y, pos.z))
 			else:
 				try:
 					a[1] = int(a[1])
@@ -1719,7 +1716,7 @@ class eventHandler:
 		
 		if self.fps%3==0:
 			self.server.streamCharacter(
-				vector3(2432.702, 1713.555, 507.300),      # (posx, posy, posz)
+				vector3(2432.702, 507.300, 1713.555),      # (posx, posy, posz)
 				vector4(0, 149.5, 0, 0), # (rotx, roty, rotz, rotw)
 				CHAR_TURN,                               # animationMode[255]
 				self.time_ms                                   # animationTime
@@ -1757,21 +1754,7 @@ class eventHandler:
 		
 			# To keep our socket open, we just stream some character data every second
 			# We let it stand somewhere on the map, not moving at all...
-			if RORNET_VERSION == "RoRnet_2.34":
-				# if self.serverinfo['terrain'] 
-				self.server.streamCharacter(
-					vector3(2540.9, 100.958, 2140.68),      # (posx, posy, posz)
-					vector4(0.000000, 0.000000, 1.000000, 0.000000), # (rotx, roty, rotz, rotw)
-					'\xbe\x52\xda\x62\x49\x64\x6C\x65\x5f\x73\x77\x61\x79\x00\xd6\x0b\xa8\x46\x2f\x03\x09\x00\x00\x00\x0f\x00\x00\x00',                         # animationMode[28]
-					0.332736                                   # animationTime
-				)
-				# self.server.streamCharacter(
-					# vector3(1200.180664, 61.882416, 1705.664062),    # (posx, posy, posz)
-					# vector4(1.000000, 0.000000, 0.000000, 0.000000), # (rotx, roty, rotz, rotw)
-					# '\xbe\x52\xda\x62\x49\x64\x6C\x65\x5f\x73\x77\x61\x79\x00\xd6\x0b\xa8\x46\x2f\x03\x09\x00\x00\x00\x0f\x00\x00\x00',                         # animationMode[28]
-					# 0.203200                                   # animationTime
-				# )
-			elif False:
+                        if False:
 				# RoRnet_2.35 and later
 				#nhelens
 				if self.time_sec%3==0:

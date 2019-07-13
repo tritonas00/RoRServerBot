@@ -83,15 +83,14 @@ def commandName(cmd):
 
 def processCharacterAttachData(data):
 	s = charAttach_data_t()
-	s.command, s.enabled, s.source_id, s.stream_id, s.position = struct.unpack('i?3i', data)
+	s.command, s.source_id, s.stream_id, s.position = struct.unpack('4i', data)
 	return s
 
 def processCharacterPosData(data):
 	s = charPos_data_t()
-	if RORNET_VERSION == "RoRnet_2.34":
-		s.command, s.pos.x, s.pos.z, s.pos.y, s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationMode, s.animationTime = struct.unpack('i7f28sf', data)
-	else: # RoRnet_2.35 and later
-		s.command, s.pos.x, s.pos.z, s.pos.y, s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationMode, s.animationTime = struct.unpack('i7f255sf', data)
+	unpacked = struct.unpack("i5f10s", data)
+        s.command, s.pos.x, s.pos.y, s.pos.z = unpacked[:4]
+        s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked[1:]
 	s.animationMode = s.animationMode.strip('\0')
 	return s
 
@@ -107,20 +106,21 @@ def processCharacterData(data):
 
 def processTruckData(data):
 	s = truckStream_data_t()
-	s.time, s.engine_speed, s.engine_force, s.flagmask, s.refpos.x, s.refpos.z, s.refpos.y, s.node_data = struct.unpack('i2fI3f%ds' % (len(data)-28), data)
+	s.time, s.engine_speed, s.engine_force, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data = struct.unpack('i2fI3f%ds' % (len(data)-28), data)
 	return s
 	
 def processRegisterStreamData(data):
 	s = stream_info_t()
-	type = struct.unpack('i', data[128:132])[0]
+	type = struct.unpack("i", data[:4])[0]
 	if type == TYPE_CHAT or type == TYPE_CHARACTER:
-	        s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.regdata = struct.unpack('iiii128s128s', data)
+	        unpacked = struct.unpack("iiii128s128s", data)
+                s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.regdata = unpacked
 	elif type == TYPE_TRUCK:
-		if len(data) == 8144:
-			s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, s.regdata = struct.unpack('128s4i8000s', data)
-		elif len(data)==748:
-			s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, s.bufferSize, s.regdata = struct.unpack('128s5i600s', data)
+		unpacked = struct.unpack("4i128s2i60s60s", data)
+                s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = unpacked
 	s.name = s.name.strip('\0')
+        s.skin = s.skin.strip("\0")
+        s.sectionConfig = s.sectionConfig.strip("\0")
 	return s
 	
 def processRegisterTruckData(data):
@@ -185,7 +185,7 @@ class vector4:
 		self.z = float(z)
 		self.w = float(w)
 	def __repr__(self):
-		return "vector3(%f, %f, %f, %f)" % (self.x, self.y, self.z, self.w)
+		return "vector4(%f, %f, %f, %f)" % (self.x, self.y, self.z, self.w)
 
 class user_info_t:
 	def __init__(self):
@@ -248,6 +248,9 @@ class stream_info_t:
 		self.regdata = ""
 		self.refpos = vector3()
 		self.rot = vector4()
+                self.time = -1
+                self.skin = ""
+                self.sectionConfig = ""
 
 class truckStream_data_t:
 	def __init__(self):
