@@ -551,8 +551,16 @@ class IRC_client(threading.Thread):
 		elif a[0] == "!stats":
 			self.main.messageRoRclientByChannel(channel, ("global_stats",))
 		elif a[0] == "!pinfo" or a[0] == "!pi" or a[0] == "!playerinfo":
-			# returns the player info (disabled)
-					self.msg(channel, "This command is disabled since it can crash the bot.", "info")
+			# returns the player info
+				if len(a) < 2:
+					self.msg(channel, "Syntax: !pi <uid>", "syst")
+				else:			
+					try:
+						a[1] = int(a[1])
+					except ValueError:
+						self.msg(channel, "Syntax error, first parameter should be numeric (unique ID of user)", "syst")
+					else:
+						self.main.messageRoRclientByChannel(channel, ("player_info", a[1]))
 		elif a[0] == "!terrain":
 			# returns the server info (name, terrain, players)
 			self.main.messageRoRclientByChannel(channel, ("info", "short"))
