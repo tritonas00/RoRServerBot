@@ -125,8 +125,10 @@ def processRegisterStreamData(data):
 	
 def processRegisterTruckData(data):
 	s = stream_info_t()
-	s.name, s.type, s.status, s.origin_sourceid, s.origin_streamid, s.bufferSize, s.regdata = struct.unpack('128s5i600s', data)
+	s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = struct.unpack('4i128s2i60s60s', data)
 	s.name = s.name.strip('\0')
+	s.skin = s.skin.strip("\0")
+	s.sectionConfig = s.sectionConfig.strip("\0")
 	return s
 
 def processUserInfo(data):

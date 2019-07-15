@@ -811,6 +811,7 @@ class RoR_Connection:
 	def registerStream(self, s):
 		s.origin_sourceid = self.uid
 		s.origin_streamid = self.streamID
+		s.time = -1
 		if s.type==TYPE_TRUCK:
 			data = struct.pack('4i128s2i60s60s', s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig)
 		else:
