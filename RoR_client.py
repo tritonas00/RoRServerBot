@@ -305,9 +305,9 @@ class streamManager:
 			
 	def getUsernameColoured(self, uid):
 		try:
-			return "%s%s%s" % (playerColours[self.D[uid].user.colournum], self.D[uid].user.username, COLOUR_BLACK)
+			return "%s%s%s" % (playerColours[self.D[uid].user.colournum], self.D[uid].user.username, COLOUR_WHITE)
 		except:
-			return "%s%s" % (self.D[uid].user.username, COLOUR_BLACK);
+			return "%s%s" % (self.D[uid].user.username, COLOUR_WHITE);
 	
 	def getUsername(self, uid):
 		if uid in self.D:
@@ -1354,8 +1354,8 @@ class Client(threading.Thread):
 				elif data[0] == "cmd":
 					self.server.sendGameCmd(data[1])
 				elif data[0] == "msg_with_source":
-					self.server.sendChat("%s[%s%s%s@IRC%s]: %s" % (COLOUR_BLACK, COLOUR_GREEN, data[2], COLOUR_RED, COLOUR_BLACK, data[1]))
-					#self.server.sendUserChat("%s%s%s@IRC%s" % (COLOUR_WHISPER, data[2], COLOUR_RED, COLOUR_BLACK), data[1])
+					self.server.sendChat("%s[%s%s%s@IRC%s]: %s" % (COLOUR_WHITE, COLOUR_GREEN, data[2], COLOUR_RED, COLOUR_WHITE, data[1]))
+					#self.server.sendUserChat("%s%s%s@IRC%s" % (COLOUR_WHISPER, data[2], COLOUR_RED, COLOUR_WHITE), data[1])
 				elif data[0] == "privmsg":
 					self.server.privChat(data[1], data[2])
 				elif data[0] == "kick":
@@ -1534,37 +1534,43 @@ class eventHandler:
 		elif a[0] == "-kickme":
 			# this can be abused. ("How do I do this or that" -> "Say -kickme to do that")
 			self.server.kick(source, "He asked for it... literally!")
-		
+				
+		# Roleplay commands
+				
 		elif a[0] == "-give":
 			if len(a)>1:
-				self.__sendChat_delayed("%s gives %s" % (self.sm.getUsernameColoured(source), a[1]))
+				self.__sendChat_delayed("%s gives %s" % (self.sm.getUsernameColoured(source), a[1]))	
+			else:
+				self.__sendChat_delayed("Usage: -give item")				
 				
 		elif a[0] == "-r":
 			if len(a)>1:
-				self.__sendChat_delayed("[RADIO] %s: %s" % (self.sm.getUsernameColoured(source), a[1]))	
-				
-		# Roleplay commands
+				self.__sendChat_delayed("[RADIO] %s: %s" % (self.sm.getUsernameColoured(source), a[1]))
+			else:
+				self.__sendChat_delayed("Usage: -r important message")
 		
 		elif a[0] == "-police":
 			if len(a)>1:
 				self.__sendChat_delayed("%s is requesting law enforcement at %s" % (self.sm.getUsernameColoured(source), a[1]))	
-	
+			else:
+				self.__sendChat_delayed("Usage: -police location")
+				
 		elif a[0] == "-ems":
 			if len(a)>1:
 				self.__sendChat_delayed("%s is requesting emergency medical services at %s" % (self.sm.getUsernameColoured(source), a[1]))
+			else:
+				self.__sendChat_delayed("Usage: -ems location")
 
 		elif a[0] == "-fire":
 			if len(a)>1:
-				self.__sendChat_delayed("%s is requesting the fire department at %s" % (self.sm.getUsernameColoured(source), a[1]))	
+				self.__sendChat_delayed("%s is requesting the fire department at %s" % (self.sm.getUsernameColoured(source), a[1]))						
+			else:
+				self.__sendChat_delayed("Usage: -fire location")		
 
-		elif a[0] == "-towtruck":
-			if len(a)>1:
-				self.__sendChat_delayed("%s is requesting a tow truck at %s" % (self.sm.getUsernameColoured(source), a[1]))						
-		
 		# End roleplay commands
 		
 		elif a[0] == "-help":
-			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2 -r, !version, !rules, !motd, !vehiclelimit !boost")
+			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2 -r, -give, -police, -ems, -fire, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
 		
 		elif a[0] == "-record":
 			if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
