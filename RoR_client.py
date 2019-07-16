@@ -1343,7 +1343,7 @@ class Client(threading.Thread):
 				break
 			else:
 				if data[0] == "disconnect":
-					self.server.sendChat("%sServices is shutting down... Be nice while I'm gone! :)" % (COLOUR_CYAN))
+					self.server.sendChat("%sServices is shutting down/restarting... Be nice while I'm gone! :)" % (COLOUR_CYAN))
 					time.sleep(0.5)
 					self.irc.sayInfo("Disconnecting on demand.")
 					self.irc.sayLeave(self.server.uid)
