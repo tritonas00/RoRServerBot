@@ -1571,7 +1571,7 @@ class eventHandler:
 		# End roleplay commands
 		
 		elif a[0] == "-help":
-			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2 -r, -give, -police, -ems, -fire, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
+			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -r, -give, -police, -ems, -fire, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
 		
 		elif a[0] == "-record":
 			if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
