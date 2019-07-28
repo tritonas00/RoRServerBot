@@ -1484,9 +1484,10 @@ class eventHandler:
 		if source == -1:
 			return
 		
-		#if "fuck" in message.lower():
-		#	self.server.sendChat("!say %d This is an official warning. Please mind your language!" % source)
-		#	return
+		if "http" in message.lower():
+			# Simple anti-link protection
+			self.server.kick(source, "Links are prohibited [auto-kick]")
+			return
 		
 		if len(a[0])==0:
 			return
@@ -1535,7 +1536,7 @@ class eventHandler:
 		elif a[0] == "-kickme":
 			# this can be abused. ("How do I do this or that" -> "Say -kickme to do that")
 			self.server.kick(source, "He asked for it... literally!")
-				
+			
 		# Roleplay commands
 				
 		elif a[0] == "-give":
@@ -1577,7 +1578,7 @@ class eventHandler:
 		# End roleplay commands
 		
 		elif a[0] == "-help":
-			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -r, -give, -police, -ems, -fire, -rip, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
+			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -r, -give, -police, -ems, -fire, -rip, -kickme, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
 		
 		elif a[0] == "-record":
 			if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
