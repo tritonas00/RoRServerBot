@@ -1763,7 +1763,7 @@ class eventHandler:
 			
 			# anouncement system
 			if self.settings.getSetting('RoRclients', self.serverID, 'announcementsEnabled') and self.time_sec % self.settings.getSetting('RoRclients', self.serverID, 'announcementsDelay') == 0:
-				self.server.sendChat("#FF0000ANNOUNCEMENT: %s" % self.settings.getSetting('RoRclients', self.serverID, 'announcementList', (self.time_sec/self.settings.getSetting('RoRclients', self.serverID, 'announcementsDelay'))%len(self.settings.getSetting('RoRclients', self.serverID, 'announcementList'))))
+				self.server.sendChat("#FFFF00ANNOUNCEMENT: %s" % self.settings.getSetting('RoRclients', self.serverID, 'announcementList', (self.time_sec/self.settings.getSetting('RoRclients', self.serverID, 'announcementsDelay'))%len(self.settings.getSetting('RoRclients', self.serverID, 'announcementList'))))
 	
 		
 			# To keep our socket open, we just stream some character data every second
@@ -1793,7 +1793,6 @@ class eventHandler:
 							CHAR_TURN,                               # animationMode[255]
 							0.0                                   # animationTime
 					)
-					#train valley
 				elif self.time_sec%3==3:
 					self.server.streamCharacter(
 							vector3(2540.9, 100.958, 2140.68),      # (posx, posy, posz)
