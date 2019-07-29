@@ -51,7 +51,7 @@ playerColours = [
 def getTruckName(filename):
 	if filename in TruckToName.list:
 		return TruckToName.list[filename]
-	return re.sub(r'''([a-z0-9]*\-)?((.*)UID\-)?(.*)\.(truck|load|airplane|boat|trailer|train|fixed)''', r'''\4''', filename.lower())
+	return re.sub(r'''([a-z0-9]*\-)?((.*)UID\-)?(.*)\.(truck|car|load|airplane|boat|trailer|train|fixed)''', r'''\4''', filename.lower())
 
 def getTruckType(filename):
 	return filename.split('.').pop().lower()
@@ -475,6 +475,8 @@ class IRC_Layer:
 	def sayStreamReg(self, uid, stream):
 		truckinfo =  getTruckInfo(stream.name);
 		if truckinfo['type'] == "truck":
+			self.sayGame("%s %c14is now driving a %s" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name']))
+		elif truckinfo['type'] == "car":
 			self.sayGame("%s %c14is now driving a %s" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name']))
 		elif truckinfo['type'] == "airplane":
 			self.sayGame("%s %c14is now flying a %s" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name']))
