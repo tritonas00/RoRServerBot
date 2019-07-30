@@ -1581,7 +1581,28 @@ class eventHandler:
 		
 		elif a[0] == "-help":
 			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -r, -give, -police, -ems, -fire, -rip, -kickme, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
-		
+			
+		elif a[0] == "-rules":
+			self.__sendChat_delayed("Wrong prefix. Correct form is: !rules")
+			
+		elif a[0] == "-motd":
+			self.__sendChat_delayed("Wrong prefix. Correct form is: !motd")
+			
+		elif a[0] == "-vehiclelimit":
+			self.__sendChat_delayed("Wrong prefix. Correct form is: !vehiclelimit")
+
+		elif a[0] == "-boost":
+			self.__sendChat_delayed("Wrong prefix. Correct form is: !boost")
+			
+		elif a[0] == "-boost2":
+			self.__sendChat_delayed("Wrong prefix. Correct form is: !boost2")
+			
+		elif a[0] == "-boost3":
+			self.__sendChat_delayed("Wrong prefix. Correct form is: !boost3")
+			
+		elif a[0] == "-boost4":
+			self.__sendChat_delayed("Wrong prefix. Correct form is: !boost4")
+			
 		elif a[0] == "-record":
 			if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
 				 self.__sendChat_delayed("You don't have permission to use this command!")
