@@ -261,7 +261,7 @@ class truckStream_data_t:
 		self.engine_speed = 0.0
 		self.engine_force = 0.0
                 self.engine_clutch = 0.0
-                self.engine_gear = -1
+                self.engine_gear = 0
                 self.hydrodirstate = 0.0
                 self.brake = 0.0
                 self.wheelspeed = 0.0
