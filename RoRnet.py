@@ -106,7 +106,8 @@ def processCharacterData(data):
 
 def processTruckData(data):
 	s = truckStream_data_t()
-	s.time, s.engine_speed, s.engine_force, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data = struct.unpack('i2fI3f%ds' % (len(data)-28), data)
+        fmt = '=IfffIfffIfff{0}s'.format(len(data) - 48)
+	s.time, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data = struct.unpack(fmt, data)
 	return s
 	
 def processRegisterStreamData(data):
@@ -259,6 +260,11 @@ class truckStream_data_t:
 		self.time = -1
 		self.engine_speed = 0.0
 		self.engine_force = 0.0
+                self.engine_clutch = 0.0
+                self.engine_gear = -1
+                self.hydrodirstate = 0.0
+                self.brake = 0.0
+                self.wheelspeed = 0.0
 		self.flagmask = 0
 		self.refpos = vector3()
 		self.node_data = ""
