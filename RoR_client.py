@@ -1524,7 +1524,7 @@ class eventHandler:
 			self.__sendChat_delayed("%s will be right back!" % self.sm.getUsernameColoured(source))
 		
 		elif a[0] == "-afk":
-			self.__sendChat_delayed("%s is now afk! :(" % self.sm.getUsernameColoured(source))
+			self.__sendChat_delayed("%s is now away from keyboard! :(" % self.sm.getUsernameColoured(source))
 		
 		elif a[0] == "-back":
 			self.__sendChat_delayed("%s is now back! :D" % self.sm.getUsernameColoured(source))
