@@ -12,7 +12,7 @@ COLOUR_BLUE     = "#0000FF"
 COLOUR_GREEN    = "#00FF00"
 COLOUR_MAGENTA  = "#FF00FF"
 COLOUR_COMMAND  = "#941e8d"
-COLOUR_NORMAL   = "#000000"
+COLOUR_NORMAL   = "#FFFFFF"
 COLOUR_WHISPER  = "#967417"
 COLOUR_SCRIPT   = "#32436f"
 
@@ -1486,10 +1486,10 @@ class eventHandler:
 		if source == -1:
 			return
 		
-		if "http" in message.lower():
+		#if "http" in message.lower():
 			# Simple anti-link protection
-			self.server.kick(source, "Links are prohibited [auto-kick]")
-			return
+		#	self.server.kick(source, "Links are prohibited [auto-kick]")
+		#	return
 		
 		if len(a[0])==0:
 			return
