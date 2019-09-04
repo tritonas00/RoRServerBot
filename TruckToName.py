@@ -1123,7 +1123,7 @@ list = {
 	'852330c5fa103d1e3f281a346dfc5da59e653fbf-renault_express.truck': 'Renault Express',
 	'24a159b6dc749abb4a38edbaef41f90d0229c2ee-ltm1095.truck': 'Liebherr LTM 1095-5.1',
 	'ViperGTS.car': 'Dodge Viper GTS',
-	'ViperGTSRace.car': 'Dodge Viper GTS (Race)',
+	'ViperGTS_Race.car': 'Dodge Viper GTS (Race)',
 	'Chevrolet-G30-Camper.truck': 'Chevrolet G30 Camper',
 	'Chevrolet-G30-Ambulance-v2.truck': 'Chevrolet G30 Ambulance',
 	'1988AudiQuattro.car': '1988 Audi Quattro',
