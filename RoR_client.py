@@ -852,7 +852,7 @@ class RoR_Connection:
 			theTime = math.floor((time.time()-self.connectTime)*1000)
 		else:
 			theTime = s.time
-		data = struct.pack('i2fI3f%ds' % len(s.node_data), theTime, s.engine_speed, s.engine_force, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data)
+		data = struct.pack('=IfffIfffIfff{0}s'.format(len(s.node_data)), theTime, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data)
 		self.sendMsg(DataPacket(MSG2_STREAM_DATA, self.uid, streamID, len(data), data))
 
 	#  pre: A character stream has been registered
