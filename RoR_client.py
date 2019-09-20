@@ -1542,16 +1542,10 @@ class eventHandler:
 		# Roleplay commands
 				
 		elif a[0] == "-give":
-			if len(a)>1:
-				self.__sendChat_delayed("%s gives %s" % (self.sm.getUsernameColoured(source), a[1]))	
-			else:
-				self.__sendChat_delayed("Usage: -give item")				
+				self.__sendChat_delayed("This command has been disabled because it's quite useless.")			
 				
 		elif a[0] == "-r":
-			if len(a)>1:
-				self.__sendChat_delayed("[RADIO] %s: %s" % (self.sm.getUsernameColoured(source), a[1]))
-			else:
-				self.__sendChat_delayed("Usage: -r important message")
+				self.__sendChat_delayed("This command has been disabled because it's quite useless.")
 		
 		elif a[0] == "-police":
 			if len(a)>1:
@@ -1580,7 +1574,7 @@ class eventHandler:
 		# End roleplay commands
 		
 		elif a[0] == "-help":
-			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -r, -give, -police, -ems, -fire, -rip, -kickme, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
+			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -police, -ems, -fire, -rip, -kickme, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
 			
 		elif a[0] == "-rules":
 			self.__sendChat_delayed("Wrong prefix. Correct form is: !rules")
