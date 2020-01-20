@@ -433,6 +433,9 @@ class IRC_Layer:
 	def sayChat(self, msg, uid):
 		if uid == -1 and msg[0:8] == "SERVER: ":
 				msg = msg[8:] # remove the "SERVER: " from the message
+		# cast to unicode if necessary
+		if type(msg) is str:
+				msg = unicode(msg, "utf-8")
 		self.__privmsg("%s: %s" % (self.__getUsernameColoured(uid), self.__stripRoRColours(msg)), "chat")
 		
 	# [chat] <username>: hi
@@ -865,7 +868,9 @@ class RoR_Connection:
 	def sendChat(self, msg):
 		if not self.socket:
 			return False
-		
+		# cast to unicode if necessary
+		if type(msg) is str:
+			msg = unicode(msg, "utf-8")		
 		self.logger.debug("Sending chat: '%s'", msg)
 		newMsg = msg.encode('utf-8')
 		self.sendMsg(DataPacket(MSG2_UTF_CHAT, self.uid, self.sm.getChatSID(self.uid), len(newMsg), newMsg))
