@@ -1,6 +1,6 @@
 import struct, logging, time
 
-RORNET_VERSION = "RoRnet_2.41"
+RORNET_VERSION = "RoRnet_2.42"
 
 MSG2_HELLO                      = 1025                #!< client sends its version as first message
 # hello responses
