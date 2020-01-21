@@ -478,19 +478,19 @@ class IRC_Layer:
 	def sayStreamReg(self, uid, stream):
 		truckinfo =  getTruckInfo(stream.name);
 		if truckinfo['type'] == "truck":
-			self.sayGame("%s %c14is now driving a %s (%s)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+			self.sayGame("%s %c14is now driving a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
 		elif truckinfo['type'] == "car":
-			self.sayGame("%s %c14is now driving a %s (%s)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+			self.sayGame("%s %c14is now driving a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
 		elif truckinfo['type'] == "airplane":
-			self.sayGame("%s %c14is now flying a %s (%s)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+			self.sayGame("%s %c14is now flying a %s (**%s**)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
 		elif truckinfo['type'] == "boat":
-			self.sayGame("%s %c14is now sailing a %s (%s)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+			self.sayGame("%s %c14is now sailing a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
 		elif truckinfo['type'] == "load":
-			self.sayGame("%s %c14spawned a load: %s (%s)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+			self.sayGame("%s %c14spawned a load: %s (**%s**)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
 		elif truckinfo['type'] == "trailer":
-			self.sayGame("%s %c14is now hauling a %s (%s)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+			self.sayGame("%s %c14is now hauling a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
 		else:
-			self.sayGame("%s %c14is now using a %s (%s)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+			self.sayGame("%s %c14is now using a %s (**%s**)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
 	
 	# [game] <username> is no longer driving <truckname> (streams: <number of streams>/<limit of streams>)
 	def sayStreamUnreg(self, uid, sid):
