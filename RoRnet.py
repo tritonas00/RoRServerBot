@@ -105,10 +105,20 @@ def processCharacterData(data):
 				
 
 def processTruckData(data):
-	s = truckStream_data_t()
+    s = truckStream_data_t()
+    if len(data) == 48:
+        fmt = '=IfffIfffIfff'
+    elif len(data) > 48:
         fmt = '=IfffIfffIfff{0}s'.format(len(data) - 48)
-	s.time, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data = struct.unpack(fmt, data)
-	return s
+    else:
+        raise ValueError("Malformed truck data. The client should sent at least 48 bytes, not %d", len(data))
+
+    unpacked = struct.unpack(fmt, data)
+    if len(data) == 48:
+        s.time, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z = unpacked
+    else:
+        s.time, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data = unpacked
+    return s
 	
 def processRegisterStreamData(data):
 	s = stream_info_t()
