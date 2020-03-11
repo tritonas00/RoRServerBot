@@ -239,7 +239,7 @@ class IRC_client(threading.Thread):
 	
 	def on_welcome(self, c, e):
 		# event handler: welcome
-		print "info: omg, we're welcome"
+		print "info: Connected to IRC"
 		
 		# event handler: endofmotd
 		# Get our operator status if applicable
