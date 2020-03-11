@@ -1579,7 +1579,7 @@ class eventHandler:
 		# End roleplay commands
 		
 		elif a[0] == "-help":
-			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -police, -ems, -fire, -rip, -kickme, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
+			self.__sendChat_delayed("Available commands: -version, -countdown, -countdown2, -brb, -afk, -back, -gtg, -police, -ems, -fire, -rip, -kickme, -getpos, !version, !rules, !motd, !vehiclelimit, !boost, !boost2, !boost3, !boost4")
 			
 		elif a[0] == "-rules":
 			self.__sendChat_delayed("Wrong prefix. Correct form is: !rules")
