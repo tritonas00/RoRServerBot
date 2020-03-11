@@ -382,7 +382,7 @@ class IRC_client(threading.Thread):
 				if len(a)>1:
 					self.main.messageRoRclientByChannel(channel, ("msg", a[1]))
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!rawcmd":
 			# server-admin only
 			# send a chat message on the server
@@ -390,14 +390,14 @@ class IRC_client(threading.Thread):
 				if len(a)>1:
 					self.main.messageRoRclientByChannel(channel, ("cmd", a[1]))
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!msg":
 			# send a chat message on the server
 			if self.users.isServerAdmin(source, channel):
 				if len(a)>1:
 					self.main.messageRoRclientByChannel(channel, ("msg_with_source", a[1], nickname))
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!op":
 			# send a chat message on the server
 			if self.users.isServerAdmin(source, channel):
@@ -413,7 +413,7 @@ class IRC_client(threading.Thread):
 					else:
 						self.notice(nickname, "You are already a channel operator.", "syst")
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!privmsg":
 			# server-admin only
 			# send a private chat message on the RoR server
@@ -435,7 +435,7 @@ class IRC_client(threading.Thread):
 					else:
 						self.msg(channel, "Syntax: !privmsg <uid> <message>", "syst")
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!say":
 			# server-admin only
 			# send a chat message on the server, coming from 'host'
@@ -457,7 +457,7 @@ class IRC_client(threading.Thread):
 					else:
 						self.msg(channel, "Syntax: !say [uid] <message>", "syst")
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 			
 		# elif a[0] == "!disconnect":
 			# self.msg(channel, "Disconnecting on request...", "syst")
@@ -469,7 +469,7 @@ class IRC_client(threading.Thread):
 				self.msg(channel, "Initiating shutdown sequence...", "syst")
 				self.main.messageMain(("IRC", "shut_down"))
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!join":
 			# global-admin only
 			# join a channel on IRC
@@ -477,7 +477,7 @@ class IRC_client(threading.Thread):
 				if len(a)>1:
 					self.server.join(a[1])
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!leave":
 			# global-admin only
 			# leave a channel on IRC
@@ -485,7 +485,7 @@ class IRC_client(threading.Thread):
 				if len(a)>1:
 					self.server.part(a[1])
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!ping":
 			# Easy command to check if the bot is online
 			# (especially useful if you're using a znc)
@@ -511,7 +511,7 @@ class IRC_client(threading.Thread):
 					else:
 						self.msg(channel, "Syntax: !kick <uid> [reason]", "syst")
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 
 		elif a[0] == "!ban":
 			# server-admin only
@@ -534,7 +534,7 @@ class IRC_client(threading.Thread):
 					else:
 						self.msg(channel, "Syntax: !ban <uid> [reason]", "syst")
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 	
 		elif a[0] == "!bans":
 			# server-admin only
@@ -588,27 +588,27 @@ class IRC_client(threading.Thread):
 					else:
 						self.msg(channel, "Syntax: !warn <uid> [reason]", "syst")
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!disconnect":
 			# server-admin only
 			# disconnects from the a RoR server
 			if self.users.isServerAdmin(source, channel):
 				self.main.messageRoRclientByChannel(channel, ("disconnect", "Leaving server..."))
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!connect":
 			# server-admin only
 			# connect to a RoR server
 			if self.users.isServerAdmin(source, channel):
 				self.main.messageMain(("IRC", "connect", channel))
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "!serverlist" or a[0] == "!servlist":
 			# returns a list of RoR servers we're connected to (with ID, name, ip and port) CIFPO_serv | servername | players/maxplayers | online
 			if self.users.isGlobalAdmin(source):
 				self.main.messageMain(("IRC", "serverlist", channel))
 			else:
-				self.notice(nickname, "You have no permission to use this command!", "syst")
+				self.msg(channel, "You have no permission to use this command!", "syst")
 		elif a[0] == "identify":
 			if channel == nickname:
 				if len(a) < 2:
