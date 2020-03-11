@@ -129,8 +129,8 @@ class Config:
 				'log_file': 'configuration.xml',
 				'log_level': logging.INFO,
 				'log_filemode': 'w',
-				'version_str': 'RoR server-services v0.48',
-				'version_num': "0.48",
+				'version_str': 'RoR server-services v2020.03',
+				'version_num': "2020.03",
 				'clientname': 'RoR_bot',
 				
 				'admins': {
@@ -234,6 +234,7 @@ class Config:
 		if not element.find("./IRCclient") is None:
 
 			if not element.find("./IRCclient/skip_irc") is None:
+				print "IRC disabled, skipping connection."
 				global use_irc
 				use_irc = False
 

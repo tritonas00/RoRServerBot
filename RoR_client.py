@@ -1195,6 +1195,7 @@ class Client(threading.Thread):
 			return
 		
 		self.irc.sayInfo("Connected to server '%s'" % serverinfo.servername)
+		print ("Connected to server '%s'" % serverinfo.servername)
 		
 		self.connectTime = time.time()
 		lastFrameTime = time.time()
@@ -1683,7 +1684,7 @@ class eventHandler:
 		
 		elif a[0] == "-fps":
 			self.__sendChat_delayed("current FPS of Services: %d" % self.lastFps)
-		
+            
 		else:
 			pass
 	
