@@ -28,8 +28,8 @@
 <configuration>
 
 	<general>
-		<version>0.48</version>
-		<fullversion>0.4.8.0</fullversion>
+		<version>2020.03</version>
+		<fullversion>2020.03.11</fullversion>
 		<logfile append="yes" level="debug">RoRservices.log</logfile> <!-- that doesn't work -->
 		<admins> <!-- global - root - admins here -->
 			<!-- these admins have access to advanced functionality of the bot itself
@@ -41,6 +41,9 @@
 	</general>
 
 	<IRCclient>
+	<!-- By default, the bot is controlled though an IRC server. 
+	If you wish to only use the in-game features, remove the comment tags from the <skip_irc/> line below.  -->
+	<!--	<skip_irc/> -->
 		<server host="" port="6667" />
 		<user nickname="" realname="RoR server monitor" username="" password="" />
 		<oper username="" password="" />

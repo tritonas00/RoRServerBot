@@ -41,6 +41,8 @@ import IRC_client, RoR_client
 			- disable the -kickme command
 """
 
+use_irc = True
+
 # This program allows you to monitor your servers through IRC.
 # It can connect to 1..1 IRC server and 1..* RoR servers.
 
@@ -230,6 +232,10 @@ class Config:
 
 		# if an element <IRCclient> exists
 		if not element.find("./IRCclient") is None:
+
+			if not element.find("./IRCclient/skip_irc") is None:
+				global use_irc
+				use_irc = False
 
 			# if an element <server> exists in <IRCclient>
 			if not element.find("./IRCclient/server") is None:
@@ -465,29 +471,30 @@ class main:
 		self.main_queue = Queue.Queue()
 		self.queue_IRC_in = Queue.Queue()
 
-		# start IRC bot
-		# IRC_bot = IRC_client.IRC_client(channel, nickname, server, port, realname)
-		self.IRC_bot = IRC_client.IRC_client(self)
-		self.IRC_bot.setName('IRC_thread')
-		self.IRC_bot.start()
+		if use_irc is True:
+			# start IRC bot
+			# IRC_bot = IRC_client.IRC_client(channel, nickname, server, port, realname)
+			self.IRC_bot = IRC_client.IRC_client(self)
+			self.IRC_bot.setName('IRC_thread')
+			self.IRC_bot.start()
 		
-		# We wait until the IRC has successfully connected
-		try:
-			response = self.queue_to_main.get(True, 30)
-			if response[1] == "connect_success":
-				self.logger.info("Successfully connected to IRC. Starting RoR clients.")
-			elif response[1] == "connect_failure":
+			# We wait until the IRC has successfully connected
+			try:
+				response = self.queue_to_main.get(True, 30)
+				if response[1] == "connect_success":
+					self.logger.info("Successfully connected to IRC. Starting RoR clients.")
+				elif response[1] == "connect_failure":
+					self.logger.critical("Couldn't connect to the IRC server.")
+					self.__shutDown()
+					sys.exit(1)
+				else:
+					self.logger.critical("Received an unhandled response from the IRC client, while connecting.")
+					self.__shutDown()
+					sys.exit(1)
+			except Queue.Empty:
 				self.logger.critical("Couldn't connect to the IRC server.")
 				self.__shutDown()
 				sys.exit(1)
-			else:
-				self.logger.critical("Received an unhandled response from the IRC client, while connecting.")
-				self.__shutDown()
-				sys.exit(1)
-		except Queue.Empty:
-			self.logger.critical("Couldn't connect to the IRC server.")
-			self.__shutDown()
-			sys.exit(1)
 			
 		time.sleep(2)
 		
