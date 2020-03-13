@@ -486,14 +486,17 @@ class main:
 					self.logger.info("Successfully connected to IRC. Starting RoR clients.")
 				elif response[1] == "connect_failure":
 					self.logger.critical("Couldn't connect to the IRC server.")
+					print "Couldn't connect to the IRC server. Exiting.."
 					self.__shutDown()
 					sys.exit(1)
 				else:
 					self.logger.critical("Received an unhandled response from the IRC client, while connecting.")
+					print "Received an unhandled response from the IRC client, while connecting. Exiting.."
 					self.__shutDown()
 					sys.exit(1)
 			except Queue.Empty:
 				self.logger.critical("Couldn't connect to the IRC server.")
+				print "Couldn't connect to the IRC server. Exiting.."
 				self.__shutDown()
 				sys.exit(1)
 			
