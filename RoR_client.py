@@ -233,10 +233,10 @@ class streamManager:
 				elif self.D[uid].stream[sid].fileExt == "boat":
 					self.D[uid].stats.distanceSailed += dist
 			else:
-				print "large distance jump detected: %f" % dist
-				print pos
-				print self.D[uid].stream[sid].refpos
-			self.D[uid].stream[sid].refpos = pos
+				#print "large distance jump detected: %f" % dist
+				#print pos
+				#print self.D[uid].stream[sid].refpos
+			     self.D[uid].stream[sid].refpos = pos
 
 	def getPosition(self, uid, sid = -1):
 		if sid == -1:
