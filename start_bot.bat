@@ -1,2 +1,2 @@
-C:/Python27/python27.exe -B services_start.py
+C:\Python27\python.exe -B services_start.py
 pause
