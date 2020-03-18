@@ -24,7 +24,7 @@ If you wish to control the bot via Discord, you can use a [Discord-IRC bridge bo
 # Credits
 
 - Neorej16 and contributors - Original bot code 
-- @tritonas00 and @pmav99 - Most of the fixes and improvements, thank you!
-- @CuriousMike56 (myself) - GitHub repo, documentation, various improvements
+- [tritonas00](https://github.com/tritonas00) and [pmav99](https://github.com/pmav99) - Most of the fixes and improvements, thank you!
+- [CuriousMike56 (myself)](https://github.com/CuriousMike56/) - GitHub repo, documentation, various improvements
 
 
