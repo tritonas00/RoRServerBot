@@ -56,7 +56,7 @@
 	<RoRclients>
 		<RoRclient id="myServer1" enabled="yes">
 			<server host="example.com" port="12000" password="" />
-			<user name="services" token="515cf64ec28c445ca5786ec7122d7154" language="en_US" />
+			<user name="Services" token="515cf64ec28c445ca5786ec7122d7154" language="en_US" />
 			<irc channel="#ror-server" />
 			<admins>
 				<admin username="" password="" />
