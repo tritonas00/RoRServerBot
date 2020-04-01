@@ -1,4 +1,4 @@
-import sys, struct, threading, socket, random, time, string, os, os.path, math, copy, logging, Queue, re, TruckToName, hashlib
+import sys, struct, threading, socket, random, time, string, os, os.path, math, copy, logging, queue, re, TruckToName, hashlib
 import pickle # needed for recording
 from RoRnet import *
 
@@ -547,7 +547,7 @@ class RoR_Connection:
         self.streamID = 10 # streamnumbers under 10 are reserved for other stuff
         self.headersize = struct.calcsize('IIII')
         self.uid = 0
-        self.receivedMessages = Queue.Queue()
+        self.receivedMessages = queue.Queue()
         self.netQuality = 0
         self.connectTime = 0
 
@@ -657,7 +657,7 @@ class RoR_Connection:
         while 1:
             try:
                 self.receivedMessages.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 break
 
         if len(user.language)==0:
@@ -1001,7 +1001,7 @@ class RoR_Connection:
     def receiveMsg(self, timeout=0.5):
         try:
             return self.receivedMessages.get(True, timeout)
-        except Queue.Empty:
+        except queue.Empty:
             return None
 
     def __start_receive_thread(self):
@@ -1147,7 +1147,7 @@ class Client(threading.Thread):
                 while time.time() < timeUntilRetry:
                     try:
                         data = self.main.RoRqueue[self.ID].get(True, timeUntilRetry-time.time()+1)
-                    except Queue.Empty:
+                    except queue.Empty:
                         pass
                     else:
                         if data[0] == "disconnect":
@@ -1347,7 +1347,7 @@ class Client(threading.Thread):
         while not self.main.RoRqueue[self.ID].empty():
             try:
                 data = self.main.RoRqueue[self.ID].get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 break
             else:
                 if data[0] == "disconnect":

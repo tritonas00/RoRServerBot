@@ -2,7 +2,7 @@
 
 #import irclib, threading, sys, logging, Queue, time
 #from irclib import nm_to_n, nm_to_h, nm_to_uh, irc_lower
-import threading, sys, logging, Queue, time
+import threading, sys, logging, queue, time
 import ircclient as irclib
 from ircclient import nm_to_n, nm_to_h, nm_to_uh, irc_lower
 
@@ -147,7 +147,7 @@ class IRC_client(threading.Thread):
                             self.logger.debug("joining "+data[1])
                         elif data[0] == "disconnect":
                             self.disconnect(data[1])
-                    except Queue.Empty:
+                    except queue.Empty:
                         break
                 if not self.server.is_connected():
                     self.logger.critical("Connection to IRC server lost.")

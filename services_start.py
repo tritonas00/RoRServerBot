@@ -1,4 +1,4 @@
-import threading, time, Queue, sys, os, logging, copy
+import threading, time, queue, sys, os, logging, copy
 from xml.etree import ElementTree as ET # used to parse xml, for the config file
 import IRC_client, RoR_client
 
@@ -464,13 +464,13 @@ class main:
         self.logger = logging.getLogger('main')
         self.logger.info('LOG STARTED')
 
-        self.queue_to_main = Queue.Queue()
+        self.queue_to_main = queue.Queue()
         self.RoRclients = {}
         self.RoRqueue = {}
 
         self.settings = Config("configuration.xml")
-        self.main_queue = Queue.Queue()
-        self.queue_IRC_in = Queue.Queue()
+        self.main_queue = queue.Queue()
+        self.queue_IRC_in = queue.Queue()
 
         if use_irc is True:
             # start IRC bot
@@ -494,7 +494,7 @@ class main:
                     print("Received an unhandled response from the IRC client, while connecting. Exiting..")
                     self.__shutDown()
                     sys.exit(1)
-            except Queue.Empty:
+            except queue.Empty:
                 self.logger.critical("Couldn't connect to the IRC server.")
                 print("Couldn't connect to the IRC server. Exiting..")
                 self.__shutDown()
@@ -507,7 +507,7 @@ class main:
         for ID in RoRclients_tmp.keys():
             self.logger.debug("in iteration, ID=%s", ID)
             self.queue_IRC_in.put(("join", self.settings.getSetting('RoRclients', ID, "ircchannel")))
-            self.RoRqueue[ID] = Queue.Queue()
+            self.RoRqueue[ID] = queue.Queue()
             self.RoRclients[ID] = RoR_client.Client(ID, self)
             self.RoRclients[ID].setName('RoR_thread_'+ID)
             self.RoRclients[ID].start()
@@ -517,7 +517,7 @@ class main:
     def messageRoRclient(self, ID, data):
         try:
             self.RoRqueue[ID].put_nowait( data )
-        except Queue.Full:
+        except queue.Full:
             self.logger.warning("queue to RoRclient %s is full. Message dropped.", ID)
             return False
         return True
@@ -533,7 +533,7 @@ class main:
     def messageIRCclient(self, data):
         try:
             self.queue_IRC_in.put_nowait( data )
-        except Queue.Full:
+        except queue.Full:
             self.logger.warning("queue to IRCclient is full. Message dropped.")
             return False
         return True
@@ -541,7 +541,7 @@ class main:
     def messageMain(self, data):
         try:
             self.queue_to_main.put_nowait( data )
-        except Queue.Full:
+        except queue.Full:
             self.logger.warning("queue to main is full. Message dropped.")
             return False
         return True
@@ -603,7 +603,7 @@ class main:
 
                 try:
                     response = self.queue_to_main.get()
-                except Queue.Empty:
+                except queue.Empty:
                     self.logger.error("Main queue timed out.")
                 else:
                     if response[0] == "IRC":
@@ -619,7 +619,7 @@ class main:
                                 if self.settings.getSetting('RoRclients', ID, "ircchannel") == response[2] and not self.RoRclients[ID].is_alive():
                                     self.logger.debug("Starting RoR_client "+ID)
                                     self.queue_IRC_in.put(("join", self.settings.getSetting('RoRclients', ID, "ircchannel")))
-                                    self.RoRqueue[ID] = Queue.Queue()
+                                    self.RoRqueue[ID] = queue.Queue()
                                     self.RoRclients[ID] = RoR_client.Client(ID, self)
                                     self.RoRclients[ID].setName('RoR_thread_'+ID)
                                     self.RoRclients[ID].start()
