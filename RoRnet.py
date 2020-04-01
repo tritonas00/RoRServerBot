@@ -27,7 +27,7 @@ MSG2_UTF_PRIVCHAT               = 1040                #!< private chat line in U
 #Stream functions
 MSG2_STREAM_REGISTER            = 1041                #!< create new stream
 MSG2_STREAM_REGISTER_RESULT     = 1042                #!< result of a stream creation
-MSG2_STREAM_UNREGISTER          = 1043	               #!< remove stream
+MSG2_STREAM_UNREGISTER          = 1043                 #!< remove stream
 MSG2_STREAM_DATA                = 1044                #!< stream data
 MSG2_STREAM_DATA_DISCARDABLE    = 1045                #!< stream data that is allowed to be discarded
 
@@ -76,33 +76,33 @@ NETMASK_PARTICLE    = 8192 #!< custom particles on
 
 # helper function to return the variable name
 def commandName(cmd):
-  vars = globals()
-  for c in vars:
-    if vars[c] == cmd and len(c) > 4 and ( c[0:5] == "MSG2_"):
-	  return c[5:]
+    vars = globals()
+    for c in vars:
+        if vars[c] == cmd and len(c) > 4 and ( c[0:5] == "MSG2_"):
+            return c[5:]
 
 def processCharacterAttachData(data):
-	s = charAttach_data_t()
-	s.command, s.source_id, s.stream_id, s.position = struct.unpack('4i', data)
-	return s
+    s = charAttach_data_t()
+    s.command, s.source_id, s.stream_id, s.position = struct.unpack('4i', data)
+    return s
 
 def processCharacterPosData(data):
-	s = charPos_data_t()
-	unpacked = struct.unpack("i5f10s", data)
-        s.command, s.pos.x, s.pos.y, s.pos.z = unpacked[:4]
-        s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked[1:]
-	s.animationMode = s.animationMode.strip('\0')
-	return s
+    s = charPos_data_t()
+    unpacked = struct.unpack("i5f10s", data)
+    s.command, s.pos.x, s.pos.y, s.pos.z = unpacked[:4]
+    s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked[1:]
+    s.animationMode = s.animationMode.strip('\0')
+    return s
 
 def processCharacterData(data):
-	thecommand = struct.unpack('i', data[0:4])[0]
-	if thecommand == CHARACTER_CMD_POSITION:
-		return processCharacterPosData(data)
-	if thecommand == CHARACTER_CMD_ATTACH:
-		return processCharacterAttachData(data)
-	else:
-		return charPos_data_t()
-				
+    thecommand = struct.unpack('i', data[0:4])[0]
+    if thecommand == CHARACTER_CMD_POSITION:
+        return processCharacterPosData(data)
+    if thecommand == CHARACTER_CMD_ATTACH:
+        return processCharacterAttachData(data)
+    else:
+        return charPos_data_t()
+
 
 def processTruckData(data):
     s = truckStream_data_t()
@@ -119,210 +119,210 @@ def processTruckData(data):
     else:
         s.time, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data = unpacked
     return s
-	
+
 def processRegisterStreamData(data):
-	s = stream_info_t()
-	type = struct.unpack("i", data[:4])[0]
-	if type == TYPE_CHAT or type == TYPE_CHARACTER:
-	        unpacked = struct.unpack("iiii128s128s", data)
-                s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.regdata = unpacked
-	elif type == TYPE_TRUCK:
-		unpacked = struct.unpack("4i128s2i60s60s", data)
-                s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = unpacked
-	s.name = s.name.strip('\0')
-        s.skin = s.skin.strip("\0")
-        s.sectionConfig = s.sectionConfig.strip("\0")
-	return s
-	
+    s = stream_info_t()
+    type = struct.unpack("i", data[:4])[0]
+    if type == TYPE_CHAT or type == TYPE_CHARACTER:
+        unpacked = struct.unpack("iiii128s128s", data)
+        s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.regdata = unpacked
+    elif type == TYPE_TRUCK:
+        unpacked = struct.unpack("4i128s2i60s60s", data)
+        s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = unpacked
+    s.name = s.name.strip('\0')
+    s.skin = s.skin.strip("\0")
+    s.sectionConfig = s.sectionConfig.strip("\0")
+    return s
+
 def processRegisterTruckData(data):
-	s = stream_info_t()
-	s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = struct.unpack('4i128s2i60s60s', data)
-	s.name = s.name.strip('\0')
-	s.skin = s.skin.strip("\0")
-	s.sectionConfig = s.sectionConfig.strip("\0")
-	return s
+    s = stream_info_t()
+    s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = struct.unpack('4i128s2i60s60s', data)
+    s.name = s.name.strip('\0')
+    s.skin = s.skin.strip("\0")
+    s.sectionConfig = s.sectionConfig.strip("\0")
+    return s
 
 def processUserInfo(data):
-	u = user_info_t()
-	u.uniqueID, u.authstatus, u.slotnum, u.colournum, u.username, u.usertoken, u.serverpassword, u.language, u.clientname, u.clientversion, u.clientGUID, u.sessiontype, u.sessionoptions = struct.unpack('Iiii40s40s40s10s10s25s40s10s128s', data)
-	u.username       = u.username.decode('utf-8').strip('\0')
-	u.usertoken      = u.usertoken.strip('\0')
-	u.serverpassword = u.serverpassword.strip('\0')
-	u.language       = u.language.strip('\0')
-	u.clientname     = u.clientname.strip('\0')
-	u.clientversion  = u.clientversion.strip('\0')
-	u.clientGUID     = u.clientGUID.strip('\0')
-	u.sessiontype    = u.sessiontype.strip('\0')
-	u.sessionoptions = u.sessionoptions.strip('\0')
-	return u
-	
+    u = user_info_t()
+    u.uniqueID, u.authstatus, u.slotnum, u.colournum, u.username, u.usertoken, u.serverpassword, u.language, u.clientname, u.clientversion, u.clientGUID, u.sessiontype, u.sessionoptions = struct.unpack('Iiii40s40s40s10s10s25s40s10s128s', data)
+    u.username       = u.username.decode('utf-8').strip('\0')
+    u.usertoken      = u.usertoken.strip('\0')
+    u.serverpassword = u.serverpassword.strip('\0')
+    u.language       = u.language.strip('\0')
+    u.clientname     = u.clientname.strip('\0')
+    u.clientversion  = u.clientversion.strip('\0')
+    u.clientGUID     = u.clientGUID.strip('\0')
+    u.sessiontype    = u.sessiontype.strip('\0')
+    u.sessionoptions = u.sessionoptions.strip('\0')
+    return u
+
 def processServerInfo(data):
-	s = server_info_t()
-	s.protocolversion, s.terrain, s.servername, s.passworded, s.info = struct.unpack('20s128s128s?4096s', data)
-	s.protocolversion = s.protocolversion.strip('\0')
-	s.terrain         = s.terrain.strip('\0')
-	s.servername      = s.servername.strip('\0').replace('%20', ' ')
-	s.info            = s.info.strip('\0')
-	return s
-	
+    s = server_info_t()
+    s.protocolversion, s.terrain, s.servername, s.passworded, s.info = struct.unpack('20s128s128s?4096s', data)
+    s.protocolversion = s.protocolversion.strip('\0')
+    s.terrain         = s.terrain.strip('\0')
+    s.servername      = s.servername.strip('\0').replace('%20', ' ')
+    s.info            = s.info.strip('\0')
+    return s
+
 
 def processNetQuality(data):
-	(quality) = struct.unpack('I', data)
-	return quality
-	
+    (quality) = struct.unpack('I', data)
+    return quality
+
 def rawAuthToString(auth):
-	result = ""
-	if (auth & AUTH_ADMIN)>0:
-		result += 'A'
-	if (auth & AUTH_MOD)>0:
-		result += 'M'
-	if (auth & AUTH_RANKED)>0:
-		result += 'R'
-	if (auth & AUTH_BOT)>0:
-		result += 'B'
-	if (auth & AUTH_BANNED)>0:
-		result += 'X'
-	return result
-	
+    result = ""
+    if (auth & AUTH_ADMIN)>0:
+        result += 'A'
+    if (auth & AUTH_MOD)>0:
+        result += 'M'
+    if (auth & AUTH_RANKED)>0:
+        result += 'R'
+    if (auth & AUTH_BOT)>0:
+        result += 'B'
+    if (auth & AUTH_BANNED)>0:
+        result += 'X'
+    return result
+
 class vector3:
-	def __init__(self, x = 0.0, y = 0.0, z = 0.0):
-		self.x = float(x)
-		self.y = float(y)
-		self.z = float(z)
-	def __repr__(self):
-		return "vector3(%f, %f, %f)" % (self.x, self.y, self.z)
+    def __init__(self, x = 0.0, y = 0.0, z = 0.0):
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
+    def __repr__(self):
+        return "vector3(%f, %f, %f)" % (self.x, self.y, self.z)
 class vector4:
-	def __init__(self, x = 0.0, y = 0.0, z = 0.0, w = 0.0):
-		self.x = float(x)
-		self.y = float(y)
-		self.z = float(z)
-		self.w = float(w)
-	def __repr__(self):
-		return "vector4(%f, %f, %f, %f)" % (self.x, self.y, self.z, self.w)
+    def __init__(self, x = 0.0, y = 0.0, z = 0.0, w = 0.0):
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
+        self.w = float(w)
+    def __repr__(self):
+        return "vector4(%f, %f, %f, %f)" % (self.x, self.y, self.z, self.w)
 
 class user_info_t:
-	def __init__(self):
-		self.uniqueID       = 0
-		self.username       = ""
-		self.usertoken      = ""
-		self.serverpassword = ""
-		self.language       = ""
-		self.clientname     = ""
-		self.clientversion  = ""
-		self.clientGUID     = ""
-		self.sessiontype    = ""
-		self.sessionoptions = ""
-		self.authstatus     = 0
-		self.slotnum        = -1
-		self.colournum      = -1
-	
-	def update(self, u):
-		t = user_info_t()
-		if u.uniqueID != t.uniqueID:
-			self.uniqueID = u.uniqueID
-			
-		if u.username != t.username:
-			self.username = u.username
-			
-		if u.language != t.language:
-			self.language = u.language
-			
-		if u.clientname != t.clientname:
-			self.clientname = u.clientname
-			
-		if u.clientversion != t.clientversion:
-			self.clientversion = u.clientversion
-			
-		if u.sessiontype != t.sessiontype:
-			self.sessiontype = u.sessiontype
-			
-		if u.sessionoptions != t.sessionoptions:
-			self.sessionoptions = u.sessionoptions
-			
-		if u.authstatus != t.authstatus:
-			self.authstatus = u.authstatus
-			
-		if u.slotnum != t.slotnum:
-			self.slotnum = u.slotnum
-			
-		if u.colournum != t.colournum:
-			self.colournum = u.colournum
-		del t
+    def __init__(self):
+        self.uniqueID       = 0
+        self.username       = ""
+        self.usertoken      = ""
+        self.serverpassword = ""
+        self.language       = ""
+        self.clientname     = ""
+        self.clientversion  = ""
+        self.clientGUID     = ""
+        self.sessiontype    = ""
+        self.sessionoptions = ""
+        self.authstatus     = 0
+        self.slotnum        = -1
+        self.colournum      = -1
+
+    def update(self, u):
+        t = user_info_t()
+        if u.uniqueID != t.uniqueID:
+            self.uniqueID = u.uniqueID
+
+        if u.username != t.username:
+            self.username = u.username
+
+        if u.language != t.language:
+            self.language = u.language
+
+        if u.clientname != t.clientname:
+            self.clientname = u.clientname
+
+        if u.clientversion != t.clientversion:
+            self.clientversion = u.clientversion
+
+        if u.sessiontype != t.sessiontype:
+            self.sessiontype = u.sessiontype
+
+        if u.sessionoptions != t.sessionoptions:
+            self.sessionoptions = u.sessionoptions
+
+        if u.authstatus != t.authstatus:
+            self.authstatus = u.authstatus
+
+        if u.slotnum != t.slotnum:
+            self.slotnum = u.slotnum
+
+        if u.colournum != t.colournum:
+            self.colournum = u.colournum
+        del t
 
 class stream_info_t:
-	def __init__(self):
-		self.name = ""
-		self.fileExt = ""
-		self.type = -1
-		self.status = -1
-		self.origin_sourceid = -1
-		self.origin_streamid = -1
-		self.bufferSize = -1
-		self.regdata = ""
-		self.refpos = vector3()
-		self.rot = vector4()
-                self.time = -1
-                self.skin = ""
-                self.sectionConfig = ""
+    def __init__(self):
+        self.name = ""
+        self.fileExt = ""
+        self.type = -1
+        self.status = -1
+        self.origin_sourceid = -1
+        self.origin_streamid = -1
+        self.bufferSize = -1
+        self.regdata = ""
+        self.refpos = vector3()
+        self.rot = vector4()
+        self.time = -1
+        self.skin = ""
+        self.sectionConfig = ""
 
 class truckStream_data_t:
-	def __init__(self):
-		self.time = -1
-		self.engine_speed = 0.0
-		self.engine_force = 0.0
-                self.engine_clutch = 0.0
-                self.engine_gear = 0
-                self.hydrodirstate = 0.0
-                self.brake = 0.0
-                self.wheelspeed = 0.0
-		self.flagmask = 0
-		self.refpos = vector3()
-		self.node_data = ""
+    def __init__(self):
+        self.time = -1
+        self.engine_speed = 0.0
+        self.engine_force = 0.0
+        self.engine_clutch = 0.0
+        self.engine_gear = 0
+        self.hydrodirstate = 0.0
+        self.brake = 0.0
+        self.wheelspeed = 0.0
+        self.flagmask = 0
+        self.refpos = vector3()
+        self.node_data = ""
 
 class charPos_data_t:
-	def __init__(self):
-		self.command       = -1
-		self.pos           = vector3()
-		self.rot           = vector4()
-		self.animationMode = ""
-		self.animationTime = 0.0
+    def __init__(self):
+        self.command       = -1
+        self.pos           = vector3()
+        self.rot           = vector4()
+        self.animationMode = ""
+        self.animationTime = 0.0
 
 class charAttach_data_t:
-	def __init__(self):
-		self.command   = -1
-		self.enabled   = False
-		self.source_id = -1
-		self.stream_id = -1
-		self.position  = -1
+    def __init__(self):
+        self.command   = -1
+        self.enabled   = False
+        self.source_id = -1
+        self.stream_id = -1
+        self.position  = -1
 
 class user_stats_t:
-	def __init__(self):
-		self.onlineSince       = time.time()
-		self.currentStream   = {'uniqueID': -1, 'streamID': -1}
-		self.characterStreamID = -1
-		self.chatStreamID      = -1
-		self.distanceDriven    = 0.0
-		self.distanceSailed    = 0.0
-		self.distanceWalked    = 0.0
-		self.distanceFlown     = 0.0
+    def __init__(self):
+        self.onlineSince       = time.time()
+        self.currentStream   = {'uniqueID': -1, 'streamID': -1}
+        self.characterStreamID = -1
+        self.chatStreamID      = -1
+        self.distanceDriven    = 0.0
+        self.distanceSailed    = 0.0
+        self.distanceWalked    = 0.0
+        self.distanceFlown     = 0.0
 
 class server_info_t:
-	def __init__(self):
-		self.host            = ""
-		self.port            = 12000
-		self.protocolversion = RORNET_VERSION
-		self.terrain         = ""
-		self.servername      = ""
-		self.passworded      = False
-		self.password        = ""
-		self.info            = ""
+    def __init__(self):
+        self.host            = ""
+        self.port            = 12000
+        self.protocolversion = RORNET_VERSION
+        self.terrain         = ""
+        self.servername      = ""
+        self.passworded      = False
+        self.password        = ""
+        self.info            = ""
 
-	def update(self, u):
-		t = server_info_t()
-		if u.terrain != t.terrain:
-			self.terrain = u.terrain
-		if u.servername != t.servername:
-			self.servername = u.servername
-		if u.info != t.info:
-			self.info = u.info
-		del t
+    def update(self, u):
+        t = server_info_t()
+        if u.terrain != t.terrain:
+            self.terrain = u.terrain
+        if u.servername != t.servername:
+            self.servername = u.servername
+        if u.info != t.info:
+            self.info = u.info
+        del t
