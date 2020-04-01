@@ -1654,8 +1654,8 @@ def always_iterable(item):
     ('foo',)
     >>> always_iterable(None)
     (None,)
-    >>> always_iterable(xrange(10))
-    xrange(10)
+    >>> always_iterable(range(10))
+    range(10)
     """
     if isinstance(item, basestring) or not hasattr(item, '__iter__'):
         item = item,
