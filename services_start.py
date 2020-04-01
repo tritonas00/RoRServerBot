@@ -234,7 +234,7 @@ class Config:
         if not element.find("./IRCclient") is None:
 
             if not element.find("./IRCclient/skip_irc") is None:
-                print "IRC disabled, skipping connection."
+                print("IRC disabled, skipping connection.")
                 global use_irc
                 use_irc = False
 
@@ -486,17 +486,17 @@ class main:
                     self.logger.info("Successfully connected to IRC. Starting RoR clients.")
                 elif response[1] == "connect_failure":
                     self.logger.critical("Couldn't connect to the IRC server.")
-                    print "Couldn't connect to the IRC server. Exiting.."
+                    print("Couldn't connect to the IRC server. Exiting..")
                     self.__shutDown()
                     sys.exit(1)
                 else:
                     self.logger.critical("Received an unhandled response from the IRC client, while connecting.")
-                    print "Received an unhandled response from the IRC client, while connecting. Exiting.."
+                    print("Received an unhandled response from the IRC client, while connecting. Exiting..")
                     self.__shutDown()
                     sys.exit(1)
             except Queue.Empty:
                 self.logger.critical("Couldn't connect to the IRC server.")
-                print "Couldn't connect to the IRC server. Exiting.."
+                print("Couldn't connect to the IRC server. Exiting..")
                 self.__shutDown()
                 sys.exit(1)
 
@@ -638,7 +638,7 @@ class main:
                         pass
 
         except(KeyboardInterrupt, SystemExit):
-            print "Terminating on demand..."
+            print("Terminating on demand...")
         self.__shutDown()
         sys.exit(0)
 

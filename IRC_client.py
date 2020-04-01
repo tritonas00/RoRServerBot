@@ -220,13 +220,13 @@ class IRC_client(threading.Thread):
 
     def on_disconnect(self, c, e):
         # event handler: disconnect
-        print "disconnected " + e.arguments() [ 0 ]
+        print("disconnected " + e.arguments() [ 0 ])
         self.users.reset()
 
     def on_kick(self, c, e):
         # event handler: kick
         self.users.adminLogOut(e.source(), e.target())
-        print "kicked " + e.target() + e.source()
+        print("kicked " + e.target() + e.source())
 
     def on_quit(self, c, e):
         # event handler: quit
@@ -239,7 +239,7 @@ class IRC_client(threading.Thread):
 
     def on_welcome(self, c, e):
         # event handler: welcome
-        print "Connected to IRC"
+        print("Connected to IRC")
 
         # event handler: endofmotd
         # Get our operator status if applicable
@@ -274,7 +274,7 @@ class IRC_client(threading.Thread):
     def on_part(self, c, e):
         # event handler: part
         self.users.adminLogOut(e.source(), e.target())
-        print "info: someone left the channel " + e.target()
+        print("info: someone left the channel " + e.target())
 
     def on_privmsg(self, c, e):
         # event handler: privmsg
@@ -298,7 +298,7 @@ class IRC_client(threading.Thread):
 
     def on_invite(self, c, e):
         # event handler: invite
-        print "info: invite: " + e.arguments()[0]
+        print("info: invite: " + e.arguments()[0])
 
     def on_ctcp(self, c, e):
         # event handler: ctcp
@@ -358,7 +358,7 @@ class IRC_client(threading.Thread):
             self.server.notice(target, "%c14[%s]%c %s" % (3, prefix, 15, msg))
 
     def say(self, channel, msg):
-        print "saying " + msg + " in " + channel
+        print("saying " + msg + " in " + channel)
         # self.server.privmsg(channel, msg)
 
     def disconnect(self, msg="Error"):
@@ -644,4 +644,4 @@ class IRC_client(threading.Thread):
             self.main.messageRoRclientByChannel(channel, ("fps", ""))
 
 if __name__ == "__main__":
-    print "Don't start this directly! Start services_start.py"
+    print("Don't start this directly! Start services_start.py")

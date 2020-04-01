@@ -561,7 +561,7 @@ class RoR_Connection:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error, msg:
             sock = None
-            #print("Couldn't create socket.")
+            #print "Couldn't create socket."
             return None
 
         sock.settimeout(2)
@@ -571,7 +571,7 @@ class RoR_Connection:
         except socket.error, msg:
             sock.close()
             sock = None
-            #print("Couldn't connect to server %s:%d" % (host, port))
+            #print "Couldn't connect to server %s:%d" % (host, port)
             return None
 
         if sock is None:
@@ -582,7 +582,7 @@ class RoR_Connection:
         try:
             sock.send(struct.pack('IIII'+str(len(data))+'s', MSG2_HELLO, 5000, 0, len(data), str(data)))
         except Exception, e:
-            #print('sendMsg error: '+str(e))
+            #print 'sendMsg error: '+str(e)
             return None
 
 
@@ -602,7 +602,7 @@ class RoR_Connection:
                     errorCount += 1;
                     if errorCount > 3:
                         # lost connection
-                        #print("Connection error #ERROR_CON005")
+                        #print "Connection error #ERROR_CON005"
                         break
                     continue
                 else:
@@ -610,7 +610,7 @@ class RoR_Connection:
 
             if not data or errorCount > 3:
                 # lost connection
-                #print("Connection error #ERROR_CON008")
+                #print "Connection error #ERROR_CON008"
                 sock.close()
                 sock = None
                 return None
@@ -636,14 +636,14 @@ class RoR_Connection:
                 else:
                     data += tmp
         except socket.error:
-            #print("Connection error #ERROR_CON015")
+            #print "Connection error #ERROR_CON015"
             sock.close()
             sock = None
             return None
 
         if not data or errorCount > 3:
             # lost connection
-            #print("Connection error #ERROR_CON007")
+            #print "Connection error #ERROR_CON007"
             sock.close()
             sock = None
             return None;
@@ -755,7 +755,7 @@ class RoR_Connection:
         s.type = TYPE_CHARACTER
         s.status = 0
         s.regdata = chr(2)
-        print "stream default: %d" % self.registerStream(s)
+        print("stream default: %d" % self.registerStream(s))
 
         # register chat stream
         s = stream_info_t()
@@ -763,7 +763,7 @@ class RoR_Connection:
         s.type = TYPE_CHAT
         s.status = 0
         s.regdata = 0
-        print "stream chat: %d" % self.registerStream(s)
+        print("stream chat: %d" % self.registerStream(s))
 
         # set the time when we connected (needed to send stream data)
         self.connectTime = time.time()
@@ -779,7 +779,7 @@ class RoR_Connection:
         time.sleep(5)
         if not self.socket is None:
             self.__sendUserLeave()
-            print 'closing socket'
+            print('closing socket')
             self.socket.close()
         self.socket = None
 
@@ -923,7 +923,7 @@ class RoR_Connection:
         if not self.socket:
             return False
 
-        print "sending PRIVCHAT message"
+        print("sending PRIVCHAT message")
         data = struct.pack("I8000s", uid, unicode(msg, errors='replace').encode('utf-8'))
         self.sendMsg(DataPacket(MSG2_UTF_PRIVCHAT, self.uid, self.sm.getChatSID(self.uid), len(data), data))
 
@@ -1195,7 +1195,7 @@ class Client(threading.Thread):
             return
 
         self.irc.sayInfo("Connected to server '%s'" % serverinfo.servername)
-        print ("Connected to server '%s'" % serverinfo.servername)
+        print("Connected to server '%s'" % serverinfo.servername)
 
         self.connectTime = time.time()
         lastFrameTime = time.time()
@@ -1374,7 +1374,7 @@ class Client(threading.Thread):
                 elif data[0] == "say":
                     self.server.say(data[1], data[2])
                 elif data[0] == "list_players":
-                    print "playerlist ok"
+                    print("playerlist ok")
                     self.showPlayerList()
                 elif data[0] == "player_info":
                     self.irc.playerInfo(data[1])
@@ -1840,8 +1840,8 @@ class eventHandler:
         if data[0] == "fps":
             self.irc.sayInfo("Current fps: %d" % self.lastFps)
         else:
-            print "UNKNOWN IRC COMMAND"
-            print data
+            print("UNKNOWN IRC COMMAND")
+            print(data)
 
     def on_stream_data(self, source, stream, data):
         self.sr.addToRecording(stream, data)
@@ -2036,4 +2036,4 @@ class streamRecorder:
                         rec['playInfo']['lastPosition'] = 0
 
 if __name__ == '__main__':
-    print "Don't start this directly! Start services_start.py"
+    print("Don't start this directly! Start services_start.py")
