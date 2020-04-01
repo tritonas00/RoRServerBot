@@ -1720,7 +1720,7 @@ class IRCFoldedCase(FoldedCase):
     >>> IRCFoldedCase('[this]') == IRCFoldedCase('{THIS}')
     True
     """
-    translation = string.maketrans(
+    translation = str.maketrans(
             string.ascii_uppercase + r"[]\^",
             string.ascii_lowercase + r"{}|~",
     )
