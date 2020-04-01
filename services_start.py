@@ -225,7 +225,7 @@ class Config:
                         continue
                     else:
                         self.settings['general']['admins'][username]['password'] = tmp
-            if len(self.settings['general']['admins'].keys())==0:
+            if len(list(self.settings['general']['admins'].keys()))==0:
                 self.logger.critical("You should have at least 1 global admin!")
                 sys.exit(1)
 
@@ -504,7 +504,7 @@ class main:
 
         self.logger.debug("IRC_bot started, will now start RoR_client(s)")
         RoRclients_tmp = self.settings.getSetting('RoRclients')
-        for ID in RoRclients_tmp.keys():
+        for ID in list(RoRclients_tmp.keys()):
             self.logger.debug("in iteration, ID=%s", ID)
             self.queue_IRC_in.put(("join", self.settings.getSetting('RoRclients', ID, "ircchannel")))
             self.RoRqueue[ID] = queue.Queue()
@@ -524,7 +524,7 @@ class main:
 
     def messageRoRclientByChannel(self, channel, data):
         self.logger.debug("Inside messageRoRclientByChannel(%s, data)", channel)
-        for ID in self.settings.getSetting('RoRclients').keys():
+        for ID in list(self.settings.getSetting('RoRclients').keys()):
             self.logger.debug("   checking ID %s", ID)
             if self.settings.getSetting('RoRclients', ID, "ircchannel")==channel:
                 self.logger.debug("   Channel ok, adding to queue")
@@ -615,7 +615,7 @@ class main:
                         elif response[1] == "shut_down":
                             break
                         elif response[1] == "connect":
-                            for ID in self.settings.getSetting('RoRclients').keys():
+                            for ID in list(self.settings.getSetting('RoRclients').keys()):
                                 if self.settings.getSetting('RoRclients', ID, "ircchannel") == response[2] and not self.RoRclients[ID].is_alive():
                                     self.logger.debug("Starting RoR_client "+ID)
                                     self.queue_IRC_in.put(("join", self.settings.getSetting('RoRclients', ID, "ircchannel")))
@@ -625,7 +625,7 @@ class main:
                                     self.RoRclients[ID].start()
 
                         elif response[1] == "serverlist":
-                            for ID in self.settings.getSetting('RoRclients').keys():
+                            for ID in list(self.settings.getSetting('RoRclients').keys()):
                                 connected = "Not connected"
                                 if self.RoRclients[ID].is_alive():
                                     connected = "connected"

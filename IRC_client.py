@@ -38,7 +38,7 @@ class IRC_users:
 
     # This returns true if the user has successfully identified as a global admin
     def isGlobalAdmin(self, nickname):
-        if nickname in self.admins['global'].keys():
+        if nickname in list(self.admins['global'].keys()):
             return self.admins['global'][nickname]['identified']
         else:
             return False
@@ -48,7 +48,7 @@ class IRC_users:
         if self.isGlobalAdmin(nickname):
             return True
         else:
-            if channel in self.admins.keys() and nickname in self.admins[channel].keys():
+            if channel in list(self.admins.keys()) and nickname in list(self.admins[channel].keys()):
                 return self.admins[channel][nickname]['identified']
             else:
                 return False
@@ -59,10 +59,10 @@ class IRC_users:
         count = 0
 
         # check serveradmin
-        for RoRclient in self.settings.getSetting('RoRclients').keys():
-            if username in self.settings.getSetting('RoRclients', RoRclient, 'admins').keys() and self.settings.getSetting('RoRclients', RoRclient, 'admins', username, 'password')==password:
+        for RoRclient in list(self.settings.getSetting('RoRclients').keys()):
+            if username in list(self.settings.getSetting('RoRclients', RoRclient, 'admins').keys()) and self.settings.getSetting('RoRclients', RoRclient, 'admins', username, 'password')==password:
                 channel = self.settings.getSetting('RoRclients', RoRclient, 'ircchannel')
-                if not channel in self.admins.keys():
+                if not channel in list(self.admins.keys()):
                     self.admins[channel] = {}
                 self.admins[channel][nickname] = {
                         'identified': True,
@@ -76,7 +76,7 @@ class IRC_users:
             adminType['adminName'] = "server admin on multiple servers."
 
         # check global admin
-        if username in self.settings.getSetting('general', 'admins').keys() and self.settings.getSetting('general', 'admins', username, 'password')==password:
+        if username in list(self.settings.getSetting('general', 'admins').keys()) and self.settings.getSetting('general', 'admins', username, 'password')==password:
             self.admins['global'][nickname] = {
                     'identified': True,
                     'username': username,
@@ -92,13 +92,13 @@ class IRC_users:
     def adminLogOut(self, nickname, channel=None):
         count = 0
         if channel is None:
-            for channel in self.admins.keys():
-                if nickname in self.admins[channel].keys():
+            for channel in list(self.admins.keys()):
+                if nickname in list(self.admins[channel].keys()):
                     self.admins[channel][nickname]['identified'] = False
                     count += 1
         else:
-            if channel in self.admins.keys():
-                if nickname in self.admins[channel].keys():
+            if channel in list(self.admins.keys()):
+                if nickname in list(self.admins[channel].keys()):
                     self.admins[channel][nickname]['identified'] = False
                     count += 1
         return count
@@ -106,8 +106,8 @@ class IRC_users:
 
     def nickChange(self, nickname_old, nickname_new):
         # print "old nick=" + nm_to_n(nickname_old) + " and new nick = " + nickname_new
-        for channel in self.admins.keys():
-            if nickname_old in self.admins[channel].keys():
+        for channel in list(self.admins.keys()):
+            if nickname_old in list(self.admins[channel].keys()):
                 self.admins[channel][nickname_new+'!'+nm_to_uh(nickname_old)] = self.admins[channel][nickname_old]
                 del self.admins[channel][nickname_old]
 
@@ -634,8 +634,8 @@ class IRC_client(threading.Thread):
             if self.users.isGlobalAdmin(source):
                 admins = self.users.getAdmins()
                 self.notice(nickname, "nickname   | username   | channel", "syst")
-                for type in admins.keys():
-                    for nick in admins[type].keys():
+                for type in list(admins.keys()):
+                    for nick in list(admins[type].keys()):
                         if admins[type][nick]['identified']:
                             self.notice(nickname, "%-11s| %-11s| %s" % (nm_to_n(nick), admins[type][nick]['username'], type), "syst")
             else:

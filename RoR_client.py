@@ -371,7 +371,7 @@ class streamManager:
             return user_stats_t()
 
     def getUIDByName(self, name):
-        for p in self.D.itervalues():
+        for p in self.D.values():
             if p.user.username==name:
                 return p.user.uniqueID
         return 0
@@ -381,11 +381,11 @@ class streamManager:
         self.D.clear()
 
     def getOnlineUserIdentifiers(self):
-        return self.D.keys()
+        return list(self.D.keys())
 
     def getStreamIdentifiers(self, uid):
         if uid in self.D:
-            return self.D[uid].stream.keys()
+            return list(self.D[uid].stream.keys())
         else:
             return []
 
