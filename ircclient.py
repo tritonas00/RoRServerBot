@@ -1657,7 +1657,7 @@ def always_iterable(item):
     >>> always_iterable(range(10))
     range(10)
     """
-    if isinstance(item, basestring) or not hasattr(item, '__iter__'):
+    if isinstance(item, str) or not hasattr(item, '__iter__'):
         item = item,
     return item
 
