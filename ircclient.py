@@ -493,7 +493,7 @@ class ServerConnection(Connection):
             self.socket.connect((self.server, self.port))
             if ssl:
                 self.ssl = ssl_mod.wrap_socket(self.socket)
-        except socket.error, x:
+        except socket.error as x:
             self.socket.close()
             self.socket = None
             raise ServerConnectionError("Couldn't connect to socket: %s" % x)
@@ -978,7 +978,7 @@ class DCCConnection(Connection):
         self.passive = 0
         try:
             self.socket.connect((self.peeraddress, self.peerport))
-        except socket.error, x:
+        except socket.error as x:
             raise DCCConnectionError("Couldn't connect to socket: %s" % x)
         self.connected = 1
         if self.irclibobj.fn_to_add_socket:
@@ -1003,7 +1003,7 @@ class DCCConnection(Connection):
             self.socket.bind((socket.gethostbyname(socket.gethostname()), 25565))
             self.localaddress, self.localport = self.socket.getsockname()
             self.socket.listen(10)
-        except socket.error, x:
+        except socket.error as x:
             raise DCCConnectionError("Couldn't bind socket: %s" % x)
         return self
 

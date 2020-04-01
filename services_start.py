@@ -78,7 +78,7 @@ class Config:
         # parse the file
         try:
             tree = ET.parse(xml_file)
-        except Exception, inst:
+        except Exception as inst:
             self.logger.critical("Unexpected error opening %s: %s" % (xml_file, inst))
             sys.exit(1)
 

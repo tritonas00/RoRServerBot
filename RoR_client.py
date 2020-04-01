@@ -559,7 +559,7 @@ class RoR_Connection:
     def knockServer(self, host, port):
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        except socket.error, msg:
+        except socket.error as msg:
             sock = None
             #print "Couldn't create socket."
             return None
@@ -568,7 +568,7 @@ class RoR_Connection:
 
         try:
             sock.connect((u"%s" % host, port))
-        except socket.error, msg:
+        except socket.error as msg:
             sock.close()
             sock = None
             #print "Couldn't connect to server %s:%d" % (host, port)
@@ -581,7 +581,7 @@ class RoR_Connection:
         data = "MasterServer"
         try:
             sock.send(struct.pack('IIII'+str(len(data))+'s', MSG2_HELLO, 5000, 0, len(data), str(data)))
-        except Exception, e:
+        except Exception as e:
             #print 'sendMsg error: '+str(e)
             return None
 
@@ -675,14 +675,14 @@ class RoR_Connection:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        except socket.error, msg:
+        except socket.error as msg:
             self.socket = None
             self.logger.error("Couldn't create socket.")
             return False
 
         try:
             self.socket.connect((u"%s" % self.serverinfo.host, self.serverinfo.port))
-        except socket.error, msg:
+        except socket.error as msg:
             self.socket.close()
             self.socket = None
             self.logger.error("Couldn't connect to server %s:%d", self.serverinfo.host, self.serverinfo.port)
@@ -972,7 +972,7 @@ class RoR_Connection:
                 return
 
             self.socket.send(data)
-        except Exception, e:
+        except Exception as e:
             self.logger.exception('sendMsg error: '+str(e))
             self.runCondition = 0
             # import traceback
