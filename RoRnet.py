@@ -159,10 +159,10 @@ def processUserInfo(data):
 def processServerInfo(data):
     s = server_info_t()
     s.protocolversion, s.terrain, s.servername, s.passworded, s.info = struct.unpack('20s128s128s?4096s', data)
-    s.protocolversion = s.protocolversion.strip('\0')
-    s.terrain         = s.terrain.strip('\0')
-    s.servername      = s.servername.strip('\0').replace('%20', ' ')
-    s.info            = s.info.strip('\0')
+    s.protocolversion = s.protocolversion.strip(b'\0')
+    s.terrain         = s.terrain.strip(b'\0')
+    s.servername      = s.servername.strip(b'\0').replace(b'%20', b' ')
+    s.info            = s.info.strip(b'\0')
     return s
 
 

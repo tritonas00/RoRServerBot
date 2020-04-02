@@ -2,6 +2,21 @@ import sys, struct, threading, socket, random, time, string, os, os.path, math, 
 import pickle # needed for recording
 from RoRnet import *
 
+def b(s, encoding="utf-8"):
+    """ Convert `s` to bytes. """
+    if isinstance(s, bytes):
+        return s
+    else:
+        return s.encode(encoding=encoding)
+
+def s(b, encoding="utf-8"):
+    """ Convert `b` to str. """
+    if isinstance(b, str):
+        return b
+    else:
+        return b.decode(encoding=encoding)
+
+
 COLOUR_BLACK    = "#000000"
 COLOUR_GREY     = "#999999"
 COLOUR_RED      = "#FF0000"
@@ -793,15 +808,15 @@ class RoR_Connection:
                 int(user.authstatus),
                 int(user.slotnum),
                 int(user.colournum),
-                user.username,
-                string.upper(hashlib.sha1(user.usertoken).hexdigest()),
-                string.upper(hashlib.sha1(user.serverpassword).hexdigest()),
-                str(user.language),
-                str(user.clientname),
-                str(user.clientversion),
-                str(user.clientGUID),
-                str(user.sessiontype),
-                str(user.sessionoptions)
+                b(user.username),
+                b(hashlib.sha1(b(user.usertoken)).hexdigest().upper()),
+                b(hashlib.sha1(b(user.serverpassword)).hexdigest().upper()),
+                b(user.language),
+                b(user.clientname),
+                b(user.clientversion),
+                b(user.clientGUID),
+                b(user.sessiontype),
+                b(user.sessionoptions)
         )
         self.sendMsg(DataPacket(MSG2_USER_INFO, 0, 0, len(data), data))
 
@@ -988,7 +1003,7 @@ class RoR_Connection:
             # just header
             data = struct.pack('IIII', packet.command, packet.source, packet.streamid, packet.size)
         else:
-            data = struct.pack('IIII'+str(packet.size)+'s', packet.command, packet.source, packet.streamid, packet.size, str(packet.data))
+            data = struct.pack('IIII'+str(packet.size)+'s', packet.command, packet.source, packet.streamid, packet.size, b(packet.data))
         return data
 
     def sendMsg(self, packet):
@@ -1017,8 +1032,8 @@ class RoR_Connection:
 
         while self.runCondition:
             # get the header
-            data = ""
-            tmp = ""
+            data = b""
+            tmp = b""
             errorCount = 0
             try:
                 while len(data)<self.headersize and self.runCondition:
@@ -1049,8 +1064,8 @@ class RoR_Connection:
                 if(source & 0x80000000):
                     source = -0x100000000 + source
 
-                data = ""
-                tmp = ""
+                data = b""
+                tmp = b""
                 while len(data)<size and self.runCondition:
                     try:
                         tmp = self.socket.recv(size-len(data))
