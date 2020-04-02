@@ -679,7 +679,9 @@ class RoR_Connection:
             self.socket = None
             self.logger.error("Couldn't create socket.")
             return False
+        self.logger.info("Created socket...")
 
+        self.logger.debug("Trying to connect to server %s:%d", self.serverinfo.host, self.serverinfo.port)
         try:
             self.socket.connect((u"%s" % self.serverinfo.host, self.serverinfo.port))
         except socket.error as msg:
@@ -687,6 +689,7 @@ class RoR_Connection:
             self.socket = None
             self.logger.error("Couldn't connect to server %s:%d", self.serverinfo.host, self.serverinfo.port)
             return False
+        self.logger.info("Connected to server %s:%d", self.serverinfo.host, self.serverinfo.port)
 
         receiveThread = threading.Thread(target=self.__start_receive_thread)
         receiveThread.setDaemon(True)
