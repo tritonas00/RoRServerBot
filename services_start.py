@@ -2,6 +2,13 @@ import threading, time, queue, sys, os, logging, copy
 from xml.etree import ElementTree as ET # used to parse xml, for the config file
 import IRC_client, RoR_client
 
+import logging
+logging.basicConfig(
+    level=10,
+    style="{",
+    format="{levelname:8s}; {threadName:21s}; {asctime:s}; {name:<15s} {lineno:4d}; {message:s}"
+)
+
 """
         TODO:
                 - IRC:
@@ -41,7 +48,7 @@ import IRC_client, RoR_client
                         - disable the -kickme command
 """
 
-use_irc = True
+use_irc = False
 
 # This program allows you to monitor your servers through IRC.
 # It can connect to 1..1 IRC server and 1..* RoR servers.
