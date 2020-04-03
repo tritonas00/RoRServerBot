@@ -69,7 +69,7 @@ def getTruckName(filename):
     return re.sub(r'''([a-z0-9]*\-)?((.*)UID\-)?(.*)\.(truck|car|load|airplane|boat|trailer|train|fixed)''', r'''\4''', filename.lower())
 
 def getTruckType(filename):
-    return filename.split('.').pop().lower()
+    return filename.split(b'.').pop().lower()
 
 def getTruckInfo(filename):
     return {
@@ -449,8 +449,8 @@ class IRC_Layer:
         if uid == -1 and msg[0:8] == "SERVER: ":
             msg = msg[8:] # remove the "SERVER: " from the message
         # cast to unicode if necessary
-        if type(msg) is str:
-            msg = unicode(msg, "utf-8")
+        # if type(msg) is str:
+            # msg = unicode(msg, "utf-8")
         self.__privmsg("%s: %s" % (self.__getUsernameColoured(uid), self.__stripRoRColours(msg)), "chat")
 
     # [chat] <username>: hi
@@ -769,7 +769,7 @@ class RoR_Connection:
 
         # register character stream
         s = stream_info_t()
-        s.name = "default"
+        s.name = b"default"
         s.type = TYPE_CHARACTER
         s.status = 0
         s.regdata = chr(2)
@@ -777,7 +777,7 @@ class RoR_Connection:
 
         # register chat stream
         s = stream_info_t()
-        s.name = "chat"
+        s.name = b"chat"
         s.type = TYPE_CHAT
         s.status = 0
         s.regdata = 0
@@ -838,7 +838,7 @@ class RoR_Connection:
         if s.type==TYPE_TRUCK:
             data = struct.pack('4i128s2i60s60s', s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig)
         else:
-            data = struct.pack('iiii128s128s', s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, str(s.regdata))
+            data = struct.pack('iiii128s128s', s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, b(str(s.regdata)))
         self.sendMsg(DataPacket(MSG2_STREAM_REGISTER, s.origin_sourceid, s.origin_streamid, len(data), data))
         self.sm.addStream(s)
         self.streamID += 1
@@ -856,14 +856,14 @@ class RoR_Connection:
     # post: A positive/negative reply has been sent back
     def replyToStreamRegister(self, data, status):
         # TODO: Is this correct, according to the RoRnet_2.3 specifications?
-        data_out = struct.pack('iiii128s128s', data.type, status, data.origin_sourceid, data.origin_streamid, data.name, data.regdata)
+        data_out = struct.pack('iiii128s128s', data.type, status, data.origin_sourceid, data.origin_streamid, data.name, b(data.regdata))
         self.sendMsg(DataPacket(MSG2_STREAM_REGISTER_RESULT, self.uid, data.origin_streamid, len(data_out), data_out))
 
     #  pre: A character stream has been registered
     # post: The data is sent
     def streamCharacter(self, pos, rot, animMode, animTime):
         # pack: command, posx, posy, posz, rotx, roty, rotz, rotw, animationMode[255], animationTime
-        data = struct.pack('i7f255sf', CHARACTER_CMD_POSITION, pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w, animMode, animTime)
+        data = struct.pack('i7f255sf', CHARACTER_CMD_POSITION, pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w, b(animMode), animTime)
         self.sendMsg(DataPacket(MSG2_STREAM_DATA, self.uid, self.sm.getCharSID(self.uid), len(data), data))
 
     #  pre: A truck stream has been registered
@@ -887,8 +887,8 @@ class RoR_Connection:
         if not self.socket:
             return False
         # cast to unicode if necessary
-        if type(msg) is str:
-            msg = unicode(msg, "utf-8")
+        # if type(msg) is str:
+            # msg = unicode(msg, "utf-8")
         self.logger.debug("Sending chat: '%s'", msg)
         newMsg = msg.encode('utf-8')
         self.sendMsg(DataPacket(MSG2_UTF_CHAT, self.uid, self.sm.getChatSID(self.uid), len(newMsg), newMsg))
@@ -1282,7 +1282,7 @@ class Client(threading.Thread):
         elif packet.command == MSG2_UTF_CHAT:
             if packet.source > 100000:
                 packet.source = -1
-            str_tmp = str(packet.data).decode('utf-8').strip('\0')
+            str_tmp = b(packet.data).decode('utf-8').strip('\0')
 
             self.logger.debug("CHAT| " + str_tmp)
 

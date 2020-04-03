@@ -91,7 +91,7 @@ def processCharacterPosData(data):
     unpacked = struct.unpack("i5f10s", data)
     s.command, s.pos.x, s.pos.y, s.pos.z = unpacked[:4]
     s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked[1:]
-    s.animationMode = s.animationMode.strip('\0')
+    s.animationMode = s.animationMode.strip(b'\0')
     return s
 
 def processCharacterData(data):
@@ -129,9 +129,9 @@ def processRegisterStreamData(data):
     elif type == TYPE_TRUCK:
         unpacked = struct.unpack("4i128s2i60s60s", data)
         s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = unpacked
-    s.name = s.name.strip('\0')
-    s.skin = s.skin.strip("\0")
-    s.sectionConfig = s.sectionConfig.strip("\0")
+        s.name = s.name.strip(b'\0')
+        s.skin = s.skin.strip(b"\0")
+        s.sectionConfig = s.sectionConfig.strip(b"\0")
     return s
 
 def processRegisterTruckData(data):
@@ -146,14 +146,14 @@ def processUserInfo(data):
     u = user_info_t()
     u.uniqueID, u.authstatus, u.slotnum, u.colournum, u.username, u.usertoken, u.serverpassword, u.language, u.clientname, u.clientversion, u.clientGUID, u.sessiontype, u.sessionoptions = struct.unpack('Iiii40s40s40s10s10s25s40s10s128s', data)
     u.username       = u.username.decode('utf-8').strip('\0')
-    u.usertoken      = u.usertoken.strip('\0')
-    u.serverpassword = u.serverpassword.strip('\0')
-    u.language       = u.language.strip('\0')
-    u.clientname     = u.clientname.strip('\0')
-    u.clientversion  = u.clientversion.strip('\0')
-    u.clientGUID     = u.clientGUID.strip('\0')
-    u.sessiontype    = u.sessiontype.strip('\0')
-    u.sessionoptions = u.sessionoptions.strip('\0')
+    u.usertoken      = u.usertoken.strip(b'\0')
+    u.serverpassword = u.serverpassword.strip(b'\0')
+    u.language       = u.language.strip(b'\0')
+    u.clientname     = u.clientname.strip(b'\0')
+    u.clientversion  = u.clientversion.strip(b'\0')
+    u.clientGUID     = u.clientGUID.strip(b'\0')
+    u.sessiontype    = u.sessiontype.strip(b'\0')
+    u.sessionoptions = u.sessionoptions.strip(b'\0')
     return u
 
 def processServerInfo(data):
@@ -251,19 +251,19 @@ class user_info_t:
 
 class stream_info_t:
     def __init__(self):
-        self.name = ""
-        self.fileExt = ""
+        self.name = b""
+        self.fileExt = b""
         self.type = -1
         self.status = -1
         self.origin_sourceid = -1
         self.origin_streamid = -1
         self.bufferSize = -1
-        self.regdata = ""
+        self.regdata = b""
         self.refpos = vector3()
         self.rot = vector4()
         self.time = -1
-        self.skin = ""
-        self.sectionConfig = ""
+        self.skin = b""
+        self.sectionConfig = b""
 
 class truckStream_data_t:
     def __init__(self):
