@@ -66,7 +66,7 @@ playerColours = [
 def getTruckName(filename):
     if filename in TruckToName.list:
         return TruckToName.list[filename]
-    return re.sub(r'''([a-z0-9]*\-)?((.*)UID\-)?(.*)\.(truck|car|load|airplane|boat|trailer|train|fixed)''', r'''\4''', filename.lower())
+    return re.sub(rb'''([a-z0-9]*\-)?((.*)UID\-)?(.*)\.(truck|car|load|airplane|boat|trailer|train|fixed)''', rb'''\4''', filename.lower())
 
 def getTruckType(filename):
     return filename.split(b'.').pop().lower()
@@ -1965,7 +1965,7 @@ class streamRecorder:
             return "ERROR_NO-DATA-RECORDED"
         if recording['filename'] == '[default]':
             recording['filename'] = "%d-%04d-%02d" % (time.time(), recording['user'].uniqueID, recording['stream'].origin_streamid)
-        file = open("recordings/%s.rec" % recording['filename'], "w")
+        file = open("recordings/%s.rec" % recording['filename'], 'wb')
         pickle.dump(recording, file)
         file.close()
         del file
@@ -1973,7 +1973,7 @@ class streamRecorder:
 
     def loadRecording(self, filename):
         try:
-            file = open("recordings/%s.rec" % filename, "r")
+            file = open("recordings/%s.rec" % filename, 'rb')
             if file:
                 recording = pickle.load(file)
                 file.close()
