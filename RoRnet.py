@@ -129,9 +129,9 @@ def processRegisterStreamData(data):
     elif type == TYPE_TRUCK:
         unpacked = struct.unpack("4i128s2i60s60s", data)
         s.type, s.status, s.origin_sourceid, s.origin_streamid, s.name, s.bufferSize, s.time, s.skin, s.sectionConfig = unpacked
-        s.name = s.name.strip(b'\0')
-        s.skin = s.skin.strip(b"\0")
-        s.sectionConfig = s.sectionConfig.strip(b"\0")
+    s.name = s.name.strip(b'\0')
+    s.skin = s.skin.strip(b"\0")
+    s.sectionConfig = s.sectionConfig.strip(b"\0")
     return s
 
 def processRegisterTruckData(data):
