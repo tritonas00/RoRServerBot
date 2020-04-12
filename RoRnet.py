@@ -116,7 +116,7 @@ def processTruckData(data):
     unpacked = struct.unpack(fmt, data)
     if len(data) == 48:
         s.time, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z = unpacked
-    else:
+    elif len(data) > 48:
         s.time, s.engine_speed, s.engine_force, s.engine_clutch, s.engine_gear, s.hydrodirstate, s.brake, s.wheelspeed, s.flagmask, s.refpos.x, s.refpos.y, s.refpos.z, s.node_data = unpacked
     return s
 
