@@ -322,7 +322,7 @@ class streamManager:
         try:
             return "%s%s%s" % (playerColours[self.D[uid].user.colournum], self.D[uid].user.username, COLOUR_WHITE)
         except:
-            return "%s%s" % (self.D[uid].user.username, COLOUR_WHITE);
+            return "%s%s" % (self.D[uid].user.username, COLOUR_WHITE)
 
     def getUsername(self, uid):
         if uid in self.D:
@@ -404,149 +404,77 @@ class streamManager:
         else:
             return []
 
-#####################
-#   IRC FUNCTIONS   #
-#####################
-# This formats everything and sends it to IRC
-class IRC_Layer:
+class Discord_Layer:
 
     def __init__(self, streamManager, main, ID):
+        # Few things were inherited from the old IRC layer
         self.sm = streamManager
         self.main = main
         self.ID = ID
-        self.ircchannel = self.main.settings.getSetting('RoRclients', self.ID, 'ircchannel')
-        self._stripRoRColoursReg =  re.compile( '(#[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F])')
-
-
-    # internal!
-    # Get the colour of a username
-    def __getUsernameColoured(self, uid):
-        if self.sm.getAuth(uid) & AUTH_RANKED:
-            # green
-            return "%c03%s%c" % (3, self.sm.getUsername(uid), 15)
-        elif self.sm.getAuth(uid) & AUTH_BOT:
-            # blue
-            return "%c12%s%c" % (3, self.sm.getUsername(uid), 15)
-        elif self.sm.getAuth(uid) & ( AUTH_ADMIN | AUTH_MOD ):
-            # red
-            return "%c04%s%c" % (3, self.sm.getUsername(uid), 15)
-        else:
-            # purple
-            return "%c06%s%c" % (3, self.sm.getUsername(uid), 15)
-
-    # internal!
-    # Strips RoR colour codes out of a message
-    def __stripRoRColours(self, str):
-        return self._stripRoRColoursReg.sub('', str)
-
-    # internal!
-    # send a PRIVMSG message (~say something in a channel or as query to a user)
-    def __privmsg(self, msg, prefix):
-        self.main.messageIRCclient(("privmsg", self.ircchannel, msg, prefix))
+        self.channelID = self.main.settings.getSetting('RoRclients', self.ID, 'discordchannel')
+        self._stripRoRColorsReg =  re.compile( '(#[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F])')
+    
+    # Strip RoR color codes
+    def __stripRoRColors(self, str):
+        return self._stripRoRColorsReg.sub('', str)
+    
+    # queue to Discord client
+    def __send(self, msg):
+        pass
 
     # [chat] <username>: hi
     def sayChat(self, msg, uid):
-        if uid == -1 and msg[0:8] == "SERVER: ":
-            msg = msg[8:] # remove the "SERVER: " from the message
-        # cast to unicode if necessary
-        # if type(msg) is str:
-            # msg = unicode(msg, "utf-8")
-        self.__privmsg("%s: %s" % (self.__getUsernameColoured(uid), self.__stripRoRColours(msg)), "chat")
+        pass
 
     # [chat] <username>: hi
     def sayLikeChat(self, msg, username):
-        self.__privmsg("%c06%s%c: %s" % (3, self.__stripRoRColours(username), 15, self.__stripRoRColours(msg)), "chat")
+        pass
 
     # [chat] <username>: hi
     def sayPrivChat(self, msg, uid):
-        self.__privmsg("%s (whispering): %s" % (self.__getUsernameColoured(uid), self.__stripRoRColours(msg)), "priv")
+        pass
 
     # [game] <username> (<language>) joined the server, using <version>
     def sayJoin(self, uid):
-        self.__privmsg("%s %c14(%s) joined the server, using %s %s." % (self.__getUsernameColoured(uid), 3, self.sm.getLanguage(uid), self.sm.getClientName(uid), self.sm.getClientVersion(uid)), "game")
+        pass
 
     # [game] <username> left the server
     def sayLeave(self, uid):
-        self.__privmsg("%s %c14left the server." % (self.__getUsernameColoured(uid), 3), "game")
+        pass
 
     # [error] <msg>
     def sayError(self, msg):
-        self.__privmsg(msg, "errr")
+        pass
 
     # [warn] <msg>
     def sayWarning(self, msg):
-        self.__privmsg(msg, "warn")
+        pass
 
     # [info] <msg>
     def sayInfo(self, msg):
-        self.__privmsg(msg, "info")
+        pass
 
     # [game] <msg>
     def sayGame(self, msg):
-        self.__privmsg(msg, "game")
+        pass
 
     # [dbug] <msg>
     def sayDebug(self, msg):
-        self.__privmsg(msg, "dbug")
+        pass
 
     # [game] <username> is now driving a <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamReg(self, uid, stream):
-        truckinfo =  getTruckInfo(stream.name);
-        if truckinfo['type'] == "truck":
-            self.sayGame("%s %c14is now driving a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
-        elif truckinfo['type'] == "car":
-            self.sayGame("%s %c14is now driving a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
-        elif truckinfo['type'] == "airplane":
-            self.sayGame("%s %c14is now flying a %s (**%s**)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
-        elif truckinfo['type'] == "boat":
-            self.sayGame("%s %c14is now sailing a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
-        elif truckinfo['type'] == "load":
-            self.sayGame("%s %c14spawned a load: %s (**%s**)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
-        elif truckinfo['type'] == "trailer":
-            self.sayGame("%s %c14is now hauling a %s (**%s**)" % (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
-        else:
-            self.sayGame("%s %c14is now using a %s (**%s**)" %  (self.__getUsernameColoured(stream.origin_sourceid), 3, truckinfo['name'], truckinfo['file']))
+        pass
 
     # [game] <username> is no longer driving <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamUnreg(self, uid, sid):
         pass
 
     def playerInfo(self, uid):
-        if not self.sm.userExists(uid):
-            self.sayError("User not found")
-        else:
-            stats = self.sm.getStats(uid)
-            self.__privmsg("%s (%s): using %s %s in a %s session since %s." % (self.__getUsernameColoured(uid), self.sm.getLanguage(uid), self.sm.getClientName(uid), self.sm.getClientVersion(uid), self.sm.getSessionType(uid), time.ctime(self.sm.getOnlineSince(uid))), "info")
-            self.__privmsg("%s has %d vehicles and has driven %.2f meters, has flown %.2f meters, has sailed %.2f meters and has walked %.2f (%.2f) meters." % (self.__getUsernameColoured(uid), self.sm.countStreams(uid)-2, stats.distanceDriven, stats.distanceFlown, stats.distanceSailed, stats.distanceWalked, stats.distanceWalked), "info")
-
-            msg = "Streams: "
-            for sid in self.sm.getStreamIdentifiers(uid):
-                msg += self.sm.getStreamData(uid, sid).name + ", "
-            self.__privmsg(msg[:-2], "info")
+        pass
 
     def globalStats(self):
-        def s60(x, y):
-            if y<60:
-                return x+1
-            else:
-                return x
-
-        s = self.sm.getStats()
-
-        # the average time that a player stays
-        averageTime = (sum(s['connectTimes'])/s['userCount'])/60
-
-        # Amount of players that left within 1 minutes after joining
-        playerPeek = 0
-        for connectTime in s['connectTimes']:
-            if connectTime < 60:
-                playerPeek += 1
-
-        self.__privmsg("Since %s, we've seen %d players with %d unique usernames." % (time.ctime(s['connectTime']), s['userCount'], len(s['usernames'])), "info")
-        self.__privmsg("A player stays on average %.2f minutes, but %d players (%.2f%%) left in less than one minute." % (averageTime, playerPeek, (float(playerPeek)/float(s['userCount']))*100), "info")
-        self.__privmsg("In total, our players drove %.2f meters, flown %.2f meters, sailed %.2f meters and walked %.2f meters." % (float(s['distanceDriven']), float(s['distanceFlown']), float(s['distanceSailed']), float(s['distanceWalked'])), "info")
-        self.__privmsg("On average, per player: %.2f driven, %.2f flown, %.2f sailed and %.2f walked." % (float(s['distanceDriven'])/float(s['userCount']), float(s['distanceFlown'])/float(s['userCount']), float(s['distanceSailed'])/float(s['userCount']), float(s['distanceWalked'])/float(s['userCount'])), "info")
-
+        pass
 
 #####################
 #  SOCKET FUNCTIONS #
@@ -614,7 +542,7 @@ class RoR_Connection:
 
                 # unfortunately, we have to do some stupid stuff here, to avoid infinite loops...
                 if not tmp:
-                    errorCount += 1;
+                    errorCount += 1
                     if errorCount > 3:
                         # lost connection
                         #print "Connection error #ERROR_CON005"
@@ -642,7 +570,7 @@ class RoR_Connection:
 
                 # unfortunately, we have to do some stupid stuff here, to avoid infinite loops...
                 if not tmp:
-                    errorCount += 1;
+                    errorCount += 1
                     if errorCount > 3:
                         # lost connection
                         self.logger.error("Connection error #ERROR_CON006")
@@ -661,7 +589,7 @@ class RoR_Connection:
             #print "Connection error #ERROR_CON007"
             sock.close()
             sock = None
-            return None;
+            return None
 
         content = struct.unpack(str(size) + 's', data)[0]
 
@@ -863,7 +791,7 @@ class RoR_Connection:
     # post: The data is sent
     def streamCharacter(self, pos, rot, animMode, animTime):
         # pack: command, posx, posy, posz, rotx, roty, rotz, rotw, animationMode[255], animationTime
-        data = struct.pack('i5f10s', CHARACTER_CMD_POSITION, rot.x, rot.y, rot.z, rot.w, animTime, b(animMode))
+        data = struct.pack('i7f255sf', CHARACTER_CMD_POSITION, pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w, b(animMode), animTime)
         self.sendMsg(DataPacket(MSG2_STREAM_DATA, self.uid, self.sm.getCharSID(self.uid), len(data), data))
 
     #  pre: A truck stream has been registered
@@ -1131,8 +1059,8 @@ class Client(threading.Thread):
         self.main = main
         self.sm = streamManager()
         self.server = RoR_Connection(self.logger, self.sm)
-        self.irc = IRC_Layer(self.sm, main, ID)
-        self.eh = eventHandler(self.sm, self.logger, self.irc, self.server, self.main.settings, self.ID)
+        self.discord = Discord_Layer(self.sm, main, ID)
+        self.eh = eventHandler(self.sm, self.logger, self.discord, self.server, self.main.settings, self.ID)
         self.fullShutdown = 0
 
         self.intsize = struct.calcsize('i')
@@ -1169,18 +1097,18 @@ class Client(threading.Thread):
                         pass
                     else:
                         if data[0] == "disconnect":
-                            self.irc.sayInfo("Disconnecting on demand.")
+                            self.discord.sayInfo("Disconnecting on demand.")
                             self.fullShutdown = 1
                             break
             else:
                 break
 
         if reconnectionTriesLeft == 0:
-            self.irc.sayError("Unable to reconnect. Exiting RoRclient %s ..." % self.ID)
+            self.discord.sayError("Unable to reconnect. Exiting RoRclient %s ..." % self.ID)
         elif self.fullShutdown:
-            self.irc.sayInfo("RoRclient %s exiting on demand..." % self.ID)
+            self.discord.sayInfo("RoRclient %s exiting on demand..." % self.ID)
         else:
-            self.irc.sayError("RoRclient %s exiting after an unknown error occurred..." % self.ID)
+            self.discord.sayError("RoRclient %s exiting after an unknown error occurred..." % self.ID)
 
 
     def bigLoop(self):
@@ -1202,17 +1130,17 @@ class Client(threading.Thread):
         # try to connect to the server
         self.logger.debug("Connecting to server")
         if not self.server.connect(user, serverinfo):
-            self.irc.sayError("Couldn't connect to server (#ERROR_CON001)")
+            self.discord.sayError("Couldn't connect to server (#ERROR_CON001)")
             self.logger.error("Couldn't connect to server (#ERROR_CON001)")
             return
 
         # double check that we're connected
         if not self.server.isConnected():
-            self.irc.sayError("Couldn't connect to server (#ERROR_CON002)")
+            self.discord.sayError("Couldn't connect to server (#ERROR_CON002)")
             self.logger.error("Couldn't connect to server (#ERROR_CON002)")
             return
 
-        self.irc.sayInfo("Connected to server '%s'" % serverinfo.servername)
+        self.discord.sayInfo("Connected to server '%s'" % serverinfo.servername)
         print("Connected to server '%s'" % serverinfo.servername)
 
         self.connectTime = time.time()
@@ -1224,7 +1152,7 @@ class Client(threading.Thread):
         while self.server.runCondition:
             if not self.server.isConnected():
                 self.logger.error("Connection to server lost")
-                self.irc.sayError("Lost connection to server (#ERROR_CON003)")
+                self.discord.sayError("Lost connection to server (#ERROR_CON003)")
                 break
 
             packet = self.server.receiveMsg(0.03)
@@ -1259,7 +1187,7 @@ class Client(threading.Thread):
             if(stream.type == TYPE_CHARACTER):
                 streamData = processCharacterData(packet.data)
                 if streamData.command == CHARACTER_CMD_POSITION:
-                    self.sm.setPosition(packet.source, packet.streamid, streamData.rot)
+                    self.sm.setPosition(packet.source, packet.streamid, streamData.pos)
                     self.sm.setCurrentStream(packet.source, packet.source, packet.streamid)
                 elif streamData.command == CHARACTER_CMD_ATTACH:
                     self.sm.setCurrentStream(packet.source, streamData.source_id, streamData.stream_id)
@@ -1277,7 +1205,7 @@ class Client(threading.Thread):
             quality = processNetQuality(packet.data)
             if self.server.setNetQuality(quality):
                 self.eh.on_net_quality_change(packet.source, quality)
-            #self.irc.sayDebug("quality: %d" % quality)
+            #self.discord.sayDebug("quality: %d" % quality)
 
         elif packet.command == MSG2_UTF_CHAT:
             if packet.source > 100000:
@@ -1286,7 +1214,7 @@ class Client(threading.Thread):
 
             self.logger.debug("CHAT| " + str_tmp)
 
-            self.irc.sayChat(str_tmp, packet.source)
+            self.discord.sayChat(str_tmp, packet.source)
 
             # ignore chat from ourself
             if (len(str_tmp) > 0) and (packet.source != self.server.uid):
@@ -1307,7 +1235,7 @@ class Client(threading.Thread):
             # self.interpretUserInfo(packet)
             data = processUserInfo(packet.data)
             self.sm.addClient(data)
-            self.irc.sayJoin(packet.source)
+            self.discord.sayJoin(packet.source)
             if packet.source!=self.server.uid:
                 self.eh.on_join(packet.source, data)
 
@@ -1323,7 +1251,7 @@ class Client(threading.Thread):
             self.eh.on_stream_register_result(packet.source, processRegisterStreamData(packet.data))
 
         elif packet.command == MSG2_USER_LEAVE:
-            self.irc.sayLeave(packet.source)
+            self.discord.sayLeave(packet.source)
             self.eh.on_leave(packet.source)
             if packet.source == self.server.uid:
                 # it is us that left...
@@ -1336,7 +1264,7 @@ class Client(threading.Thread):
             str_tmp = str(packet.data).strip('\0')
             #self.logger.debug("GAME_CMD| " + str_tmp)
 
-            #self.irc.sayInfo('(game_cmd) '+str_tmp)
+            #self.discord.sayInfo('(game_cmd) '+str_tmp)
 
             # ignore chat from ourself
             if (len(str_tmp) > 0) and (packet.source != self.server.uid):
@@ -1346,7 +1274,7 @@ class Client(threading.Thread):
             str_tmp = str(packet.data).decode('utf-8').strip('\0')
             self.logger.debug("CHAT| (private) " + str_tmp)
 
-            self.irc.sayPrivChat(str_tmp, packet.source)
+            self.discord.sayPrivChat(str_tmp, packet.source)
 
             # ignore chat from ourself
             if (len(str_tmp) > 0) and (packet.source != self.server.uid):
@@ -1359,7 +1287,7 @@ class Client(threading.Thread):
 
         else:
             str_tmp = str(packet.data).strip('\0')
-            self.irc.sayError('Unhandled message (type: %d, from: %d): %s' % (packet.command, packet.source, str_tmp))
+            self.discord.sayError('Unhandled message (type: %d, from: %d): %s' % (packet.command, packet.source, str_tmp))
 
     def checkQueue(self):
         while not self.main.RoRqueue[self.ID].empty():
@@ -1371,8 +1299,8 @@ class Client(threading.Thread):
                 if data[0] == "disconnect":
                     self.server.sendChat("%sServices is shutting down/restarting... Be nice while I'm gone! :)" % (COLOUR_CYAN))
                     time.sleep(0.5)
-                    self.irc.sayInfo("Disconnecting on demand.")
-                    self.irc.sayLeave(self.server.uid)
+                    self.discord.sayInfo("Disconnecting on demand.")
+                    self.discord.sayLeave(self.server.uid)
                     self.server.disconnect()
                     self.fullShutdown = 1
                     return
@@ -1381,8 +1309,7 @@ class Client(threading.Thread):
                 elif data[0] == "cmd":
                     self.server.sendGameCmd(data[1])
                 elif data[0] == "msg_with_source":
-                    self.server.sendChat("%s[%s%s%s@IRC%s]: %s" % (COLOUR_WHITE, COLOUR_GREEN, data[2], COLOUR_RED, COLOUR_WHITE, data[1]))
-                    #self.server.sendUserChat("%s%s%s@IRC%s" % (COLOUR_WHISPER, data[2], COLOUR_RED, COLOUR_WHITE), data[1])
+                    self.server.sendChat("%s[%s%s%s@Discord%s]: %s" % (COLOUR_WHITE, COLOUR_GREEN, data[2], COLOUR_RED, COLOUR_WHITE, data[1]))
                 elif data[0] == "privmsg":
                     self.server.privChat(data[1], data[2])
                 elif data[0] == "kick":
@@ -1395,22 +1322,22 @@ class Client(threading.Thread):
                     print("playerlist ok")
                     self.showPlayerList()
                 elif data[0] == "player_info":
-                    self.irc.playerInfo(data[1])
+                    self.discord.playerInfo(data[1])
                 elif data[0] == "global_stats":
-                    self.irc.globalStats()
+                    self.discord.globalStats()
                 elif data[0] == "info":
                     if data[1] == "full":
                         if self.server.serverinfo.passworded:
                             str_tmp = "Private"
                         else:
                             str_tmp = "Public"
-                        self.irc.sayInfo("%s server '%s':" % (str_tmp, self.server.serverinfo.servername))
-                        self.irc.sayInfo("running on %s:%d, using %s" % (self.server.serverinfo.host, self.server.serverinfo.port, self.server.serverinfo.protocolversion))
-                        self.irc.sayInfo("terrain: %s     Players: %d" % (self.server.serverinfo.terrain, self.sm.countClients()))
+                        self.discord.sayInfo("%s server '%s':" % (str_tmp, self.server.serverinfo.servername))
+                        self.discord.sayInfo("running on %s:%d, using %s" % (self.server.serverinfo.host, self.server.serverinfo.port, self.server.serverinfo.protocolversion))
+                        self.discord.sayInfo("terrain: %s     Players: %d" % (self.server.serverinfo.terrain, self.sm.countClients()))
                     elif data[1] == "short":
-                        self.irc.sayInfo("name: '%s' - terrain: '%s' - players: %d" % (self.server.serverinfo.servername, self.server.serverinfo.terrain, self.sm.countClients()))
+                        self.discord.sayInfo("name: '%s' - terrain: '%s' - players: %d" % (self.server.serverinfo.servername, self.server.serverinfo.terrain, self.sm.countClients()))
                     elif data[1] == "ip":
-                        self.irc.sayInfo("name: '%s' - host: %s:%d" % (self.server.serverinfo.servername, self.server.serverinfo.host, self.server.serverinfo.port))
+                        self.discord.sayInfo("name: '%s' - host: %s:%d" % (self.server.serverinfo.servername, self.server.serverinfo.host, self.server.serverinfo.port))
                 elif data[0] == "stats":
                     pass
                 else:
@@ -1437,7 +1364,7 @@ class Client(threading.Thread):
                 uidfieldlen = len(str(uid))
 
         # print header
-        self.irc.sayInfo("%c%s | %3s | %5s | %s%c" % (0x001F, "Username".rjust(usernamefieldlen+authfieldlen+4), "UID".rjust(uidfieldlen), "Lang", "Current vehicle", 0x000F))
+        self.discord.sayInfo("%c%s | %3s | %5s | %s%c" % (0x001F, "Username".rjust(usernamefieldlen+authfieldlen+4), "UID".rjust(uidfieldlen), "Lang", "Current vehicle", 0x000F))
 
         # Print the actual list
         noPlayers = True
@@ -1456,13 +1383,13 @@ class Client(threading.Thread):
                     info = getTruckInfo(currentVehicle)
                     currentVehicle = "%s (%s)" % (info['name'], info['type'])
 
-                self.irc.sayInfo("%2d %s %s | %s | %5s | %s" % (slotnum, rawAuthToString(self.sm.getAuth(uid)).rjust(authfieldlen), self.sm.getUsername(uid).rjust(usernamefieldlen), str(uid).rjust(uidfieldlen), self.sm.getLanguage(uid).replace('_', ' '), currentVehicle))
+                self.discord.sayInfo("%2d %s %s | %s | %5s | %s" % (slotnum, rawAuthToString(self.sm.getAuth(uid)).rjust(authfieldlen), self.sm.getUsername(uid).rjust(usernamefieldlen), str(uid).rjust(uidfieldlen), self.sm.getLanguage(uid).replace('_', ' '), currentVehicle))
                 noPlayers = False
 
                 slotnum += 1
 
         if noPlayers:
-            self.irc.sayInfo("There are no players online :(.")
+            self.discord.sayInfo("There are no players online.")
 
 
 #####################
@@ -1476,10 +1403,10 @@ class Client(threading.Thread):
 class eventHandler:
     time_ms, time_sec, fps, lastFps, countDown = (0.0, 0, 0, 0, -1)
 
-    def __init__(self, streamManager, logger, irc, server, settings, ID):
+    def __init__(self, streamManager, logger, discord, server, settings, ID):
         self.sm       = streamManager
         self.logger   = logger
-        self.irc      = irc
+        self.discord  = discord
         self.server   = server
         self.settings = settings
         self.serverID = ID
@@ -1726,7 +1653,7 @@ class eventHandler:
     def on_stream_register(self, source, stream):
         if(stream.type==TYPE_TRUCK):
             if time.time()-self.connectTime > 60: # wait 60 seconds, as we don't want to spam the chat on join
-                self.irc.sayStreamReg(source,stream);
+                self.discord.sayStreamReg(source,stream)
         return -1
 
     def on_stream_register_result(self, source, stream):
@@ -1744,15 +1671,15 @@ class eventHandler:
                 prog2 = re.compile(r'#[0-9A-Fa-f]{6}([^#]+)#[0-9A-Fa-f]{6}: (.+)')
                 res2 = prog2.match(result[i][0])
                 if res2 is None:
-                    self.irc.sayChat(result[i][0], source)
+                    self.discord.sayChat(result[i][0], source)
                 else:
                     uid = self.sm.getUIDByName(res2.group(1))
-                    self.irc.sayChat(res2.group(2), uid)
+                    self.discord.sayChat(res2.group(2), uid)
             else:
-                self.irc.sayChat(result[i][0], source)
+                self.discord.sayChat(result[i][0], source)
         if len(result)==0 and 'game.message' in cmd:
-            self.irc.sayDebug(cmd.replace('\n', 'EOL'))
-        #game.message("#FFCC00Anonymous#000000: Im coming", "user_comment.png", 30000.0f, true);
+            self.discord.sayDebug(cmd.replace('\n', 'EOL'))
+        #game.message("#FFCC00Anonymous#000000: Im coming", "user_comment.png", 30000.0f, true)
 
         self.logger.debug(cmd)
 
@@ -1853,29 +1780,21 @@ class eventHandler:
                 # )
 
 
-
-    def on_irc(self, data):
-        if data[0] == "fps":
-            self.irc.sayInfo("Current fps: %d" % self.lastFps)
-        else:
-            print("UNKNOWN IRC COMMAND")
-            print(data)
-
     def on_stream_data(self, source, stream, data):
         self.sr.addToRecording(stream, data)
 
     def on_net_quality_change(self, source, quality):
         if quality==1:
-            self.irc.sayWarning("Connection problem detected.")
+            self.discord.sayWarning("Connection problem detected.")
         elif quality==0:
-            self.irc.sayWarning("Connection problem resolved.")
+            self.discord.sayWarning("Connection problem resolved.")
 
 
 class races:
-    def __init__(self, streamManager, logger, irc, server, settings, ID):
+    def __init__(self, streamManager, logger, discord, server, settings, ID):
         self.sm       = streamManager
         self.logger   = logger
-        self.irc      = irc
+        self.discord  = discord
         self.server   = server
         self.settings = settings
         self.serverID = ID
