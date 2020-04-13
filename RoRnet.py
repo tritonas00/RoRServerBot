@@ -89,8 +89,7 @@ def processCharacterAttachData(data):
 def processCharacterPosData(data):
     s = charPos_data_t()
     unpacked = struct.unpack("i5f10s", data)
-    s.command, s.pos.x, s.pos.y, s.pos.z = unpacked[:4]
-    s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked[1:]
+    s.command, s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked
     s.animationMode = s.animationMode.strip(b'\0')
     return s
 
@@ -282,7 +281,6 @@ class truckStream_data_t:
 class charPos_data_t:
     def __init__(self):
         self.command       = -1
-        self.pos           = vector3()
         self.rot           = vector4()
         self.animationMode = ""
         self.animationTime = 0.0

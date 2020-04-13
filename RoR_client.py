@@ -863,7 +863,7 @@ class RoR_Connection:
     # post: The data is sent
     def streamCharacter(self, pos, rot, animMode, animTime):
         # pack: command, posx, posy, posz, rotx, roty, rotz, rotw, animationMode[255], animationTime
-        data = struct.pack('i7f255sf', CHARACTER_CMD_POSITION, pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w, b(animMode), animTime)
+        data = struct.pack('i5f10s', CHARACTER_CMD_POSITION, rot.x, rot.y, rot.z, rot.w, animTime, b(animMode))
         self.sendMsg(DataPacket(MSG2_STREAM_DATA, self.uid, self.sm.getCharSID(self.uid), len(data), data))
 
     #  pre: A truck stream has been registered
@@ -1259,7 +1259,7 @@ class Client(threading.Thread):
             if(stream.type == TYPE_CHARACTER):
                 streamData = processCharacterData(packet.data)
                 if streamData.command == CHARACTER_CMD_POSITION:
-                    self.sm.setPosition(packet.source, packet.streamid, streamData.pos)
+                    self.sm.setPosition(packet.source, packet.streamid, streamData.rot)
                     self.sm.setCurrentStream(packet.source, packet.source, packet.streamid)
                 elif streamData.command == CHARACTER_CMD_ATTACH:
                     self.sm.setCurrentStream(packet.source, streamData.source_id, streamData.stream_id)
@@ -1771,10 +1771,10 @@ class eventHandler:
 
         if self.fps%3==0:
             self.server.streamCharacter(
-                    vector3(2432.702, 507.300, 1713.555),      # (posx, posy, posz)
-                    vector4(0, 149.5, 0, 0), # (rotx, roty, rotz, rotw)
-                    CHAR_TURN,                               # animationMode[255]
-                    self.time_ms                                   # animationTime
+                    vector3(0, 0, 0),      # (posx, posy, posz)
+                    vector4(2432.702, 507.300, 1713.555, 0), # (rotx, roty, rotz, rotw)
+                    CHAR_IDLE_SWAY,                               # animationMode[255]
+                    0.3                                   # animationTime
             )
 
         if self.time_ms > 1.0:
