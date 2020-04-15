@@ -31,36 +31,24 @@
 		<version>2020.03</version>
 		<fullversion>2020.03</fullversion>
 		<logfile append="yes" level="debug">RoRservices.log</logfile> <!-- that doesn't work -->
-		<admins> <!-- global - root - admins here -->
-			<!-- these admins have access to advanced functionality of the bot itself
-			e.g.: restart/shutdown/add a server/...
-			login via IRC using the identify command:
-			/msg myRoRbot identify uUsername aPassword-->
-			<admin username="aUsername" password="aPassword" />
-		</admins>
 	</general>
 
-	<IRCclient>
-	<!-- By default, the bot is controlled though an IRC server. 
-	If you wish to only use the in-game features, remove the comment tags from the <skip_irc/> line below.  -->
-	<!--	<skip_irc/> -->
-		<server host="example.com" port="6667" />
-		<user nickname="RoR_Services" realname="RoR server monitor" username="RoR_Services" password="" />
-		<oper username="" password="" />
-		<nickserv servicename="" username="" password="" />
-		<local address="" port="0" />
-		<ssl>no</ssl>
-		<ipv6>no</ipv6>
-	</IRCclient>
+	<Discordclient>
+	<!-- By default, the bot is controlled through a Discord server. 
+	If you wish to only use the in-game features, remove the comment tags from the <skip_discord/> line below. -->
+		<!-- <skip_discord /> -->
+	<!-- -->
+		<bot token="" />
+	</Discordclient>
 	
 	<RoRclients>
 		<RoRclient id="myServer1" enabled="yes">
 			<server host="example.com" port="12000" password="" />
 			<user name="Services" token="515cf64ec28c445ca5786ec7122d7154" language="en_US" />
-			<irc channel="#ror-server" />
-			<admins>
-				<admin username="" password="" />
-			</admins>
+			<!-- Copy and paste the channel ID here. To get the channel ID you must first enter 
+			Developer Mode from User Settings -> Appearance -> Advanced -> and toggle on/off
+			for Developer Mode -->
+			<discord channel="" />
 			<announcements delay="600" enabled="yes"> <!-- delay in seconds -->
 				<announcement>Hi, I'm an announcement</announcement>
 				<announcement>And I'm the second announcement.</announcement>
