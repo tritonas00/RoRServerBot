@@ -303,10 +303,30 @@ class Config:
                 self.logger.error("getSetting called without any arguments!")
             return None
 
+import asyncio
+
+def asyncinit(cls):
+    __new__ = cls.__new__
+
+    async def init(obj, *arg, **kwarg):
+        await obj.__init__(*arg, **kwarg)
+        return obj
+
+    def new(cls, *arg, **kwarg):
+        obj = __new__(cls, *arg, **kwarg)
+        coro = init(obj, *arg, **kwarg)
+        #coro.__init__ = lambda *_1, **_2: None
+        return coro
+
+    cls.__new__ = new
+    return cls
+
+@asyncinit
 class main:
 
-    def __init__(self):
+    async def __init__(self):
 
+        self.initialized = True
         self.runCondition = True
         self.restarting   = False
 
@@ -327,9 +347,8 @@ class main:
         # repo available at https://github.com/Rapptz/discord.py
         self.Discord_bot = commands.Bot(command_prefix='!')
         self.Discord_bot.add_cog(Discord_client.Cg_Cmd(self.Discord_bot))
-        #self.Discord_bot.start(self.settings.getSetting('Discordclient', 'token'))
-        self.Discord_client = Discord_client.Discord_client(self, self.Discord_bot)
-        self.Discord_client.start()
+        await self.Discord_bot.start(self.settings.getSetting('Discordclient', 'token'))
+
 
         #time.sleep(2)
 
@@ -343,6 +362,7 @@ class main:
             self.RoRclients[ID].start()
 
         self.stayAlive()
+
 
     def messageRoRclient(self, ID, data):
         try:
@@ -446,5 +466,8 @@ class main:
         self.__shutDown()
         sys.exit(0)
 
-if __name__ == "__main__":
-    main = main()
+async def f():
+    print((await main()).initialized)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(f())
