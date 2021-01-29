@@ -1,6 +1,7 @@
 import sys, struct, threading, socket, random, time, string, os, os.path, math, copy, logging, queue, re, TruckToName, hashlib
 import pickle # needed for recording
 from RoRnet import *
+from idna.core import unicode
 
 def b(s, encoding="utf-8"):
     """ Convert `s` to bytes. """
@@ -412,19 +413,36 @@ class Discord_Layer:
         self.main = main
         self.ID = ID
         self.channelID = self.main.settings.getSetting('RoRclients', self.ID, 'discordchannel')
-        self._stripRoRColorsReg =  re.compile( '(#[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F])')
-    
-    # Strip RoR color codes
-    def __stripRoRColors(self, str):
-        return self._stripRoRColorsReg.sub('', str)
-    
+        self._stripRoRColoursReg =  re.compile( '(#[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F])')
+
+    # internal!
+    # Get the colour of a username
+    def __getUsernameColoured(self, uid):
+        if self.sm.getAuth(uid) & AUTH_RANKED:
+            # green
+            return "%c03%s%c" % (3, self.sm.getUsername(uid), 15)
+        elif self.sm.getAuth(uid) & AUTH_BOT:
+            # blue
+            return "%c12%s%c" % (3, self.sm.getUsername(uid), 15)
+        elif self.sm.getAuth(uid) & ( AUTH_ADMIN | AUTH_MOD ):
+            # red
+            return "%c04%s%c" % (3, self.sm.getUsername(uid), 15)
+        else:
+            # purple
+            return "%c06%s%c" % (3, self.sm.getUsername(uid), 15)
+
+    # internal!
+    # Strips RoR colour codes out of a message
+    def __stripRoRColours(self, str):
+        return self._stripRoRColoursReg.sub('', str)
+
     # queue to Discord client
-    def __send(self, msg):
-        pass
+    def __send(self, msg, prefix):
+        self.main.messageDiscordclient(("privmsg", self.channelID, msg, prefix))
 
     # [chat] <username>: hi
     def sayChat(self, msg, uid):
-        pass
+        self.__send("%s: %s" % (self.__getUsernameColoured(uid), self.__stripRoRColours(msg)), "chat")
 
     # [chat] <username>: hi
     def sayLikeChat(self, msg, username):
@@ -436,31 +454,31 @@ class Discord_Layer:
 
     # [game] <username> (<language>) joined the server, using <version>
     def sayJoin(self, uid):
-        pass
+        self.__send("%s %c14(%s) joined the server, using %s %s." % (self.__getUsernameColoured(uid), 3, self.sm.getLanguage(uid), self.sm.getClientName(uid), self.sm.getClientVersion(uid)), "game")
 
     # [game] <username> left the server
     def sayLeave(self, uid):
-        pass
+        self.__send("%s %c14left the server." % (self.__getUsernameColoured(uid), 3), "game")
 
     # [error] <msg>
     def sayError(self, msg):
-        pass
+        self.__send(msg, "errr")
 
     # [warn] <msg>
     def sayWarning(self, msg):
-        pass
+        self.__send(msg, "warn")
 
     # [info] <msg>
     def sayInfo(self, msg):
-        pass
+        self.__send(msg, "info")
 
     # [game] <msg>
     def sayGame(self, msg):
-        pass
+        self.__send(msg, "game")
 
     # [dbug] <msg>
     def sayDebug(self, msg):
-        pass
+        self.__send(msg, "dbug")
 
     # [game] <username> is now driving a <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamReg(self, uid, stream):
@@ -1342,7 +1360,7 @@ class Client(threading.Thread):
                     pass
                 else:
                     # Unknown command... maybe some user edit?
-                    self.eh.on_irc(data)
+                    self.eh.on_discord(data)
 
     def showPlayerList(self):
         # get list of online UIDs
@@ -1779,6 +1797,12 @@ class eventHandler:
                     # random.random()                                   # animationTime
                 # )
 
+    def on_discord(self, data):
+        if data[0] == "fps":
+            self.discord.sayInfo("Current fps: %d" % self.lastFps)
+        else:
+            print("UNKONWN DISCORD COMMAND")
+            print(data)
 
     def on_stream_data(self, source, stream, data):
         self.sr.addToRecording(stream, data)

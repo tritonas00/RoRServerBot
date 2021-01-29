@@ -1,8 +1,9 @@
 import threading, time, queue, sys, os, logging, copy
 from xml.etree import ElementTree as ET # used to parse xml, for the config file
-import RoR_client, Discord_client
+import RoR_client
 import discord
-from discord.ext import commands
+from discord.ext.tasks import loop
+import asyncio
 
 import logging
 logging.basicConfig(
@@ -11,15 +12,39 @@ logging.basicConfig(
     format="{levelname:8s}; {threadName:21s}; {asctime:s}; {name:<15s} {lineno:4d}; {message:s}"
 )
 
-# This program allows you to monitor your servers through IRC.
-# It can connect to 1..1 IRC server and 1..* RoR servers.
+"""
+        TODO:
+                - general:
+                        x admins per server
+                        x global admins
+                        - worden admins correct uitgelogt?
+                        ! fork into background + handle sigterm
+                        - start/stop servers (the daemon) on demand
+                        - Add an API to the rorserver (on private message to server with source = bot, then check for commands)
+                - RoRclient:
+                        x volledig idee veranderen: rorlib handelt alles af, en roept functions als on_chat op (on_chat, on_netQualityChange, on_disconnect, on_connect, on_playerJoin, on_playerLeave, on_streamRegister, frameStep)
+                        x add announcement stuff
+                        x add countdown command
+                        - Add an AI car (optional)
+                        - try to reconnect when connection is lost (alle settings opnieuw uit settings variabele halen + queue legen!)
+                        x Move tracker to seperate class ("streammanager"). This streammanager should also be able to do something like sm.getChatStreamNum() --> returns our char stream number
+                        - statistics
+                        - add reconnection stuff to configuration file
+                - config:
+                        x add enabled for RoRclient elements
+                        x RoRclient_defaults section in general, with defaults
+                        x change global idea yet again: first fill full settings variable with default values, then start overwriting from the configuration.
+                        x read admins from general, and RoRclient
+                        - add GUI for config (javascript or python? and if python: graphical or text based --> configure)
+
+                - todo before release:
+                        - Remove announcements in config
+                        - disable the -kickme command
+"""
 
 # Main idea of how this works:
 # It reads the configuration.xml
-# It connects to the IRC server.
 # Then it starts the RoR clients, which connect to the RoR servers, specified in the configuration
-# It reports what happens in the RoR server to the IRC server, and vice versa
-# It exits on request of a global admin on IRC or if it loses connection to IRC
 # It will not exit if it loses connection to a (or even all) RoR servers!
 # You can restart crashed/stopped RoR clients via the !connect command
 
@@ -72,6 +97,13 @@ class Config:
 
                 'discordchannel': None,
 
+                'admins': {
+                        # 'username': {
+                                # 'username': '',
+                                # password: '',
+                        # },
+                },
+
                 'announcementsEnabled': False,
                 'announcementsDelay': 300,
                 'announcementList': {
@@ -93,9 +125,13 @@ class Config:
                         'version_str': 'RoR server-services v2020.03',
                         'version_num': "2020.03",
                         'clientname': 'RoR_bot',
-                },
-                'Discordclient': {
-                    'token': ''
+
+                        'admins': {
+                                # 'username': {
+                                        # 'username': '',
+                                        # password: '',
+                                # },
+                        },
                 },
                 'RoRclients': {
 
@@ -145,22 +181,27 @@ class Config:
                 if len(element.find("./general/logfile").text.strip()) > 0:
                     self.settings['general']['log_file'] = element.find("./general/logfile").text.strip()
 
+            # if an element <admins> exists in <general>
+            if not element.find("./general/admins") is None:
+                admins = element.find("./general/admins")
+                for admin in admins:
+                    username = admin.get("username", default="")
+                    if len(username.strip())==0:
+                        self.logger.error("Every admin element should have a username attribute!")
+                        continue
+                    else:
+                        self.settings['general']['admins'][username] = { 'username': username }
 
-        # if an element <IRCclient> exists
-        if not element.find("./Discordclient") is None:
-
-            if not element.find("./Discordclient/skip_discord") is None:
-                print("Discord disabled, skipping connection.")
-
-            # if an element <bot> exists in <Discordclient>
-            if not element.find("./Discordclient/bot") is None:
-                self.settings['Discordclient']['token'] = element.find("Discordclient/bot").get("token")
-            else:
-                self.logger.critical("In configuration.xml: Discordclient/bot needs to be set!")
-                sys.exit(1)
-        else:
-            self.logger.critical("No Discordclient section found!")
-            sys.exit(1)
+                    tmp = admin.get("password", default="")
+                    if len(tmp.strip())==0:
+                        self.logger.error("Admin '%s' should have a password!", username)
+                        del self.settings['general']['admins'][username]
+                        continue
+                    else:
+                        self.settings['general']['admins'][username]['password'] = tmp
+            if len(list(self.settings['general']['admins'].keys()))==0:
+                self.logger.critical("You should have at least 1 global admin!")
+                #sys.exit(1)
 
         # if an element <RoRclients> exists
         if not element.find("./RoRclients") is None:
@@ -215,7 +256,7 @@ class Config:
         # log some things
         self.logger.info("Successfully parsed the following servers:")
         for RoRclient in self.settings['RoRclients']:
-            self.logger.info("   - %s:%d - user: %s - channel %s", self.settings['RoRclients'][RoRclient]['host'], self.settings['RoRclients'][RoRclient]['port'], self.settings['RoRclients'][RoRclient]['username'], self.settings['RoRclients'][RoRclient]['discordchannel'])
+            self.logger.info("   - %s:%d - user: %s - channel %s ", self.settings['RoRclients'][RoRclient]['host'], self.settings['RoRclients'][RoRclient]['port'], self.settings['RoRclients'][RoRclient]['username'], self.settings['RoRclients'][RoRclient]['discordchannel'])
 
     def parseRoRclient(self, ID, RoRclient, s):
 
@@ -229,8 +270,10 @@ class Config:
             self.logger.error("Ignoring RoRclient(%s)", ID)
             return False
 
+
+        # if an element <discord> exists
         if not RoRclient.find("./discord") is None:
-            s['discordchannel'] = RoRclient.find("./discord").get("channel", default=s['discordchannel'])
+            s['discordchannel'] = RoRclient.find("./discord").get("channel", default=s['discordchannel']).lower()
         if ( RoRclient.find("./discord") is None or s['discordchannel'] is None ) and ID != "default/template":
             self.logger.error("configuration/RoRclients/RoRclient(%s)/discord[@channel] needs to be set!", ID)
             self.logger.error("Ignoring RoRclient(%s)", ID)
@@ -241,6 +284,25 @@ class Config:
             s['username']     = RoRclient.find("./user").get("name", default=s['username'])
             s['usertoken']    = RoRclient.find("./user").get("token", default=s['usertoken'])
             s['userlanguage'] = RoRclient.find("./user").get("language", default=s['userlanguage'])
+
+        # if an element <admins> exists
+        if not RoRclient.find("./admins") is None:
+            admins = RoRclient.find("./admins")
+            for admin in admins:
+                username = admin.get("username", default="")
+                if len(username.strip())==0:
+                    self.logger.error("Every admin element should have a username attribute!")
+                    continue
+                else:
+                    s['admins'][username] = { 'username': username }
+
+                tmp = admin.get("password", default="")
+                if len(tmp.strip())==0:
+                    self.logger.error("Admin '%s' should have a password!", username)
+                    del s['admins'][username]
+                    continue
+                else:
+                    s['admins'][username]['password'] = tmp
 
         # if an element <announcements> exists
         if not RoRclient.find("./announcements") is None:
@@ -303,30 +365,11 @@ class Config:
                 self.logger.error("getSetting called without any arguments!")
             return None
 
-import asyncio
+class RoRBot(discord.Client):
 
-def asyncinit(cls):
-    __new__ = cls.__new__
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    async def init(obj, *arg, **kwarg):
-        await obj.__init__(*arg, **kwarg)
-        return obj
-
-    def new(cls, *arg, **kwarg):
-        obj = __new__(cls, *arg, **kwarg)
-        coro = init(obj, *arg, **kwarg)
-        #coro.__init__ = lambda *_1, **_2: None
-        return coro
-
-    cls.__new__ = new
-    return cls
-
-@asyncinit
-class main:
-
-    async def __init__(self):
-
-        self.initialized = True
         self.runCondition = True
         self.restarting   = False
 
@@ -338,31 +381,8 @@ class main:
         self.RoRclients = {}
         self.RoRqueue = {}
 
-        self.settings = Config("configuration.xml")
         self.main_queue = queue.Queue()
-        self.queue_Discord_in = queue.Queue()
-
-        # start the Discord bot
-        # see https://discordpy.readthedocs.io/en/latest/index.html
-        # repo available at https://github.com/Rapptz/discord.py
-        self.Discord_bot = commands.Bot(command_prefix='!')
-        self.Discord_bot.add_cog(Discord_client.Cg_Cmd(self.Discord_bot))
-        await self.Discord_bot.start(self.settings.getSetting('Discordclient', 'token'))
-
-
-        #time.sleep(2)
-
-        RoRclients_tmp = self.settings.getSetting('RoRclients')
-        for ID in list(RoRclients_tmp.keys()):
-            self.logger.debug("in iteration, ID=%s", ID)
-            self.queue_Discord_in.put(("join", self.settings.getSetting('RoRclients', ID, "discordchannel")))
-            self.RoRqueue[ID] = queue.Queue()
-            self.RoRclients[ID] = RoR_client.Client(ID, self)
-            self.RoRclients[ID].setName('RoR_thread_'+ID)
-            self.RoRclients[ID].start()
-
-        self.stayAlive()
-
+        self.settings = Config("configuration.xml")
 
     def messageRoRclient(self, ID, data):
         try:
@@ -374,19 +394,11 @@ class main:
 
     def messageRoRclientByChannel(self, channel, data):
         self.logger.debug("Inside messageRoRclientByChannel(%s, data)", channel)
-        for ID in list(self.settings.getSetting('RoRclients').keys()):
+        for ID in self.settings.getSetting('RoRclients').keys():
             self.logger.debug("   checking ID %s", ID)
             if self.settings.getSetting('RoRclients', ID, "discordchannel")==channel:
                 self.logger.debug("   Channel ok, adding to queue")
                 self.messageRoRclient(ID, data)
-
-    def messageDiscordclient(self, data):
-        try:
-            self.queue_Discord_in.put_nowait( data )
-        except queue.Full:
-            self.logger.warning("queue to Discordclient is full. Message dropped.")
-            return False
-        return True
 
     def messageMain(self, data):
         try:
@@ -396,7 +408,25 @@ class main:
             return False
         return True
 
-    def __shutDown(self):
+    def messageDiscordclient(self, data):
+        try:
+            channel = client.get_channel("CHANNEL ID")
+            client.loop.create_task(channel.send(data[2]))
+        except queue.Full:
+            self.logger.warning("Message dropped.")
+            return False
+        return True
+
+    async def on_ready(self):
+        RoRclients_tmp = self.settings.getSetting('RoRclients')
+        for ID in list(RoRclients_tmp.keys()):
+            self.logger.debug("in iteration, ID=%s", ID)
+            self.RoRqueue[ID] = queue.Queue()
+            self.RoRclients[ID] = RoR_client.Client(ID, self)
+            self.RoRclients[ID].setName('RoR_thread_'+ID)
+            self.RoRclients[ID].start()
+
+    async def close(self):
         self.logger.info("Starting global shutdown sequence")
         killCounter = 0
         for ID in self.RoRclients:
@@ -410,8 +440,6 @@ class main:
         else:
             self.logger.error("   x Found no RoRclients running...")
 
-        #TODO: cleanly disconnect from Discord
-
         for ID in self.RoRclients:
             if self.RoRclients[ID].is_alive():
                 self.logger.error("   x Failed to terminate RoRclient %s" % ID)
@@ -419,55 +447,17 @@ class main:
 
         # close loggers:
         logging.shutdown()
+        await super().close()
+        
+client = RoRBot()
 
-        sys.exit(0)
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
 
-    def stayAlive(self):
-        try:
-            while self.runCondition:
-                try:
-                    response = self.queue_to_main.get()
-                except queue.Empty:
-                    self.logger.error("Main queue timed out.")
-                else:
-                    if response[0] == "Discord":
-                        if response[1] == "connect_success":
-                            pass
-                        elif response[1] == "connect_failure":
-                            self.logger.critical("Couldn't connect to the Discord server.")
-                            break
-                        elif response[1] == "shut_down":
-                            break
-                        elif response[1] == "connect":
-                            for ID in list(self.settings.getSetting('RoRclients').keys()):
-                                if self.settings.getSetting('RoRclients', ID, "discordchannel") == response[2] and not self.RoRclients[ID].is_alive():
-                                    self.logger.debug("Starting RoR_client "+ID)
-                                    self.queue_Discord_in.put(("join", self.settings.getSetting('RoRclients', ID, "discordchannel")))
-                                    self.RoRqueue[ID] = queue.Queue()
-                                    self.RoRclients[ID] = RoR_client.Client(ID, self)
-                                    self.RoRclients[ID].setName('RoR_thread_'+ID)
-                                    self.RoRclients[ID].start()
-
-                        elif response[1] == "serverlist":
-                            for ID in list(self.settings.getSetting('RoRclients').keys()):
-                                connected = "Not connected"
-                                if self.RoRclients[ID].is_alive():
-                                    connected = "connected"
-                                self.messageIRCclient(("privmsg", response[2], "%-12s | %-21s | %s" % (ID, "%s:%d" % (self.settings.getSetting('RoRclients', ID, 'host'), self.settings.getSetting('RoRclients', ID, 'port')), connected), "syst"))
-                        else:
-                            self.logger.error("Received an unhandled message from the IRC client.")
+    if message.content.startswith('!test'):
+        await message.channel.send('yo!')
 
 
-                    else:
-                        pass
-
-        except(KeyboardInterrupt, SystemExit):
-            print("Terminating on demand...")
-        self.__shutDown()
-        sys.exit(0)
-
-async def f():
-    print((await main()).initialized)
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(f())
+client.run('TOKEN')
