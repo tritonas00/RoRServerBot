@@ -409,7 +409,7 @@ class Main(discord.Client):
         for ID in self.RoRclients:
             if self.RoRclients[ID].is_alive():
                 self.logger.info("   - terminating RoRclient %s" % ID)
-                self.messageRoRclient(ID, ("disconnect", self.restarting))
+                self.messageRoRclient(ID, ("disconnect", False))
                 killCounter += 1
         if killCounter > 0:
             self.logger.info("   - Waiting for RoRclients to disconnect...")
