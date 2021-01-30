@@ -438,7 +438,7 @@ class Discord_Layer:
 
     # [game] <username> (<language>) joined the server, using <version>
     def sayJoin(self, uid):
-        self.__send("%s (%s) joined the server, using %s %s." % (self.sm.getUsername(uid),  self.sm.getLanguage(uid), self.sm.getClientName(uid), self.sm.getClientVersion(uid)), "game")
+        self.__send("%s (%s) joined the server, using %s %s." % (self.sm.getUsername(uid),  s(self.sm.getLanguage(uid)), s(self.sm.getClientName(uid)), s(self.sm.getClientVersion(uid))), "game")
 
     # [game] <username> left the server
     def sayLeave(self, uid):
