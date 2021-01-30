@@ -1,29 +1,27 @@
 <?xml version="1.0"?>
 <!--
 	This is XML, if you don't know XML, look it up.
-	It's really easy, if you can host a RoR-server, host an IRC-server,
-	host this bot, then I assume that you can read/write XML as well.
+	It's really easy, if you can host a RoR-server, host this bot,
+	then I assume that you can read/write XML as well.
 	
 	There're 3 sections in this file:
 	  - The general configuration with some general stuff in it
-	  - The IRC configuration
+	  - The Discord configuration
 	  - The RoR-server(s) configuration
 	Quite self-explanatory.
 	
 	Minimal configuration:
 		<configuration>
-			<IRCclient>
-				<server host="yourHost" />
-			</IRCclient>
+			<Discordclient>
+				<bot token="" />
+			</Discordclient>
 			<RoRclients>
 				<RoRclient>
 					<server host="yourHost" port=somePort />
-					<irc channel="#someChannel" />
+					<discord channel="" />
 				</RoRclient>
 			</RoRclients>
 		</configuration>
-	
-	note: IRCclient has 3 capitals and RoRclient(s) has 2 capitals. All the rest has no capitals
  -->
 <configuration>
 
@@ -34,10 +32,6 @@
 	</general>
 
 	<Discordclient>
-	<!-- By default, the bot is controlled through a Discord server. 
-	If you wish to only use the in-game features, remove the comment tags from the <skip_discord/> line below. -->
-		<!-- <skip_discord /> -->
-	<!-- -->
 		<bot token="" />
 	</Discordclient>
 	
