@@ -428,7 +428,7 @@ class Main(discord.Client):
         
 bot = Main()
 
-@client.event
+@bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
