@@ -1142,7 +1142,7 @@ class Client(threading.Thread):
             self.logger.error("Couldn't connect to server (#ERROR_CON002)")
             return
 
-        self.discord.sayInfo("Connected to server %s" % serverinfo.servername)
+        self.discord.sayInfo("Connected to server %s" % s(serverinfo.servername))
         print("Connected to server '%s'" % serverinfo.servername)
 
         self.connectTime = time.time()
