@@ -416,33 +416,17 @@ class Discord_Layer:
         self._stripRoRColoursReg =  re.compile( '(#[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F])')
 
     # internal!
-    # Get the colour of a username
-    def __getUsernameColoured(self, uid):
-        if self.sm.getAuth(uid) & AUTH_RANKED:
-            # green
-            return "%c03%s%c" % (3, self.sm.getUsername(uid), 15)
-        elif self.sm.getAuth(uid) & AUTH_BOT:
-            # blue
-            return "%c12%s%c" % (3, self.sm.getUsername(uid), 15)
-        elif self.sm.getAuth(uid) & ( AUTH_ADMIN | AUTH_MOD ):
-            # red
-            return "%c04%s%c" % (3, self.sm.getUsername(uid), 15)
-        else:
-            # purple
-            return "%c06%s%c" % (3, self.sm.getUsername(uid), 15)
-
-    # internal!
     # Strips RoR colour codes out of a message
     def __stripRoRColours(self, str):
         return self._stripRoRColoursReg.sub('', str)
 
     # queue to Discord client
     def __send(self, msg, prefix):
-        self.main.messageDiscordclient(("privmsg", self.channelID, msg, prefix))
+        self.main.messageDiscordclient(self.channelID, "[%s] %s" % (prefix, msg))
 
     # [chat] <username>: hi
     def sayChat(self, msg, uid):
-        self.__send("%s: %s" % (self.__getUsernameColoured(uid), self.__stripRoRColours(msg)), "chat")
+        self.__send("%s: %s" % (self.sm.getUsername(uid), self.__stripRoRColours(msg)), "chat")
 
     # [chat] <username>: hi
     def sayLikeChat(self, msg, username):
@@ -454,11 +438,11 @@ class Discord_Layer:
 
     # [game] <username> (<language>) joined the server, using <version>
     def sayJoin(self, uid):
-        self.__send("%s %c14(%s) joined the server, using %s %s." % (self.__getUsernameColoured(uid), 3, self.sm.getLanguage(uid), self.sm.getClientName(uid), self.sm.getClientVersion(uid)), "game")
+        self.__send("%s (%s) joined the server, using %s %s." % (self.sm.getUsername(uid),  self.sm.getLanguage(uid), self.sm.getClientName(uid), self.sm.getClientVersion(uid)), "game")
 
     # [game] <username> left the server
     def sayLeave(self, uid):
-        self.__send("%s %c14left the server." % (self.__getUsernameColoured(uid), 3), "game")
+        self.__send("%s left the server." % (self.sm.getUsername(uid)), "game")
 
     # [error] <msg>
     def sayError(self, msg):
@@ -1158,7 +1142,7 @@ class Client(threading.Thread):
             self.logger.error("Couldn't connect to server (#ERROR_CON002)")
             return
 
-        self.discord.sayInfo("Connected to server '%s'" % serverinfo.servername)
+        self.discord.sayInfo("Connected to server %s" % serverinfo.servername)
         print("Connected to server '%s'" % serverinfo.servername)
 
         self.connectTime = time.time()
@@ -1382,7 +1366,7 @@ class Client(threading.Thread):
                 uidfieldlen = len(str(uid))
 
         # print header
-        self.discord.sayInfo("%c%s | %3s | %5s | %s%c" % (0x001F, "Username".rjust(usernamefieldlen+authfieldlen+4), "UID".rjust(uidfieldlen), "Lang", "Current vehicle", 0x000F))
+        self.discord.sayInfo("%s | %3s | %5s | %s" % ("Username".rjust(usernamefieldlen+authfieldlen+4), "UID".rjust(uidfieldlen), "Lang", "Current vehicle"))
 
         # Print the actual list
         noPlayers = True

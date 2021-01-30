@@ -7,40 +7,10 @@ import asyncio
 
 import logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     style="{",
     format="{levelname:8s}; {threadName:21s}; {asctime:s}; {name:<15s} {lineno:4d}; {message:s}"
 )
-
-"""
-        TODO:
-                - general:
-                        x admins per server
-                        x global admins
-                        - worden admins correct uitgelogt?
-                        ! fork into background + handle sigterm
-                        - start/stop servers (the daemon) on demand
-                        - Add an API to the rorserver (on private message to server with source = bot, then check for commands)
-                - RoRclient:
-                        x volledig idee veranderen: rorlib handelt alles af, en roept functions als on_chat op (on_chat, on_netQualityChange, on_disconnect, on_connect, on_playerJoin, on_playerLeave, on_streamRegister, frameStep)
-                        x add announcement stuff
-                        x add countdown command
-                        - Add an AI car (optional)
-                        - try to reconnect when connection is lost (alle settings opnieuw uit settings variabele halen + queue legen!)
-                        x Move tracker to seperate class ("streammanager"). This streammanager should also be able to do something like sm.getChatStreamNum() --> returns our char stream number
-                        - statistics
-                        - add reconnection stuff to configuration file
-                - config:
-                        x add enabled for RoRclient elements
-                        x RoRclient_defaults section in general, with defaults
-                        x change global idea yet again: first fill full settings variable with default values, then start overwriting from the configuration.
-                        x read admins from general, and RoRclient
-                        - add GUI for config (javascript or python? and if python: graphical or text based --> configure)
-
-                - todo before release:
-                        - Remove announcements in config
-                        - disable the -kickme command
-"""
 
 # Main idea of how this works:
 # It reads the configuration.xml
@@ -133,6 +103,9 @@ class Config:
                                 # },
                         },
                 },
+                'Discordclient': {
+                    'token': '',
+                },
                 'RoRclients': {
 
                 },
@@ -202,6 +175,19 @@ class Config:
             if len(list(self.settings['general']['admins'].keys()))==0:
                 self.logger.critical("You should have at least 1 global admin!")
                 #sys.exit(1)
+
+        # if an element <Discordclient> exists
+        if not element.find("./Discordclient") is None:
+
+            # if an element <bot> exists in <Discordclient>
+            if not element.find("./Discordclient/bot") is None:
+                self.settings['Discordclient']['token'] = element.find("Discordclient/bot").get("token")
+            else:
+                self.logger.critical("In configuration.xml: Discordclient/bot needs to be set!")
+                sys.exit(1)
+        else:
+            self.logger.critical("No Discordclient section found!")
+            sys.exit(1)
 
         # if an element <RoRclients> exists
         if not element.find("./RoRclients") is None:
@@ -365,15 +351,11 @@ class Config:
                 self.logger.error("getSetting called without any arguments!")
             return None
 
-class RoRBot(discord.Client):
+class Main(discord.Client):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.runCondition = True
-        self.restarting   = False
-
-        logging.basicConfig(filename='RoRservices.log',level=logging.DEBUG,format="%(asctime)s|%(name)-12s|%(levelname)-8s| %(message)s",filemode="w")
         self.logger = logging.getLogger('main')
         self.logger.info('LOG STARTED')
 
@@ -393,10 +375,10 @@ class RoRBot(discord.Client):
         return True
 
     def messageRoRclientByChannel(self, channel, data):
-        self.logger.debug("Inside messageRoRclientByChannel(%s, data)", channel)
+        self.logger.debug("Inside messageRoRclientByChannel(%s, data)", str(channel))
         for ID in self.settings.getSetting('RoRclients').keys():
             self.logger.debug("   checking ID %s", ID)
-            if self.settings.getSetting('RoRclients', ID, "discordchannel")==channel:
+            if self.settings.getSetting('RoRclients', ID, "discordchannel")==str(channel):
                 self.logger.debug("   Channel ok, adding to queue")
                 self.messageRoRclient(ID, data)
 
@@ -408,14 +390,9 @@ class RoRBot(discord.Client):
             return False
         return True
 
-    def messageDiscordclient(self, data):
-        try:
-            channel = client.get_channel("CHANNEL ID")
-            client.loop.create_task(channel.send(data[2]))
-        except queue.Full:
-            self.logger.warning("Message dropped.")
-            return False
-        return True
+    def messageDiscordclient(self, cid, message):
+        channel = bot.get_channel(int(cid))
+        bot.loop.create_task(channel.send(message))
 
     async def on_ready(self):
         RoRclients_tmp = self.settings.getSetting('RoRclients')
@@ -449,15 +426,24 @@ class RoRBot(discord.Client):
         logging.shutdown()
         await super().close()
         
-client = RoRBot()
+bot = Main()
 
 @client.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return
 
-    if message.content.startswith('!test'):
-        await message.channel.send('yo!')
+    if message.content.startswith('!list'):
+        bot.messageRoRclientByChannel(message.channel.id, ("msg", "!list"))
+
+    if message.content.startswith('!bans'):
+        bot.messageRoRclientByChannel(message.channel.id, ("msg", "!bans"))
+
+    if message.content.startswith('!playerlist'):
+        bot.messageRoRclientByChannel(message.channel.id, ("list_players",))
+
+    if message.content.startswith('!info'):
+        bot.messageRoRclientByChannel(message.channel.id, ("info", "full"))
 
 
-client.run('TOKEN')
+bot.run(bot.settings.getSetting("Discordclient", "token"))
