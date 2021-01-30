@@ -11,7 +11,7 @@ This is a bot for Rigs of Rods multiplayer servers running RoRNet 2.42 (RoR vers
 - Vehicle recording and playback (Video demo: https://streamable.com/lecig)
 - Extra commands 
 
-# Installation
+# Installation (Outdated)
 
 An in-depth installation guide can be found on the [Wiki](https://github.com/CuriousMike56/RoRServerBot/wiki), along with a [configuration guide](https://github.com/CuriousMike56/RoRServerBot/wiki/Configuration) and a [commands list](https://github.com/CuriousMike56/RoRServerBot/wiki/Commands).
 
