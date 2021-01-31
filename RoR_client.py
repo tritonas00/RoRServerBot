@@ -1,7 +1,6 @@
 import sys, struct, threading, socket, random, time, string, os, os.path, math, copy, logging, queue, re, TruckToName, hashlib
 import pickle # needed for recording
 from RoRnet import *
-from idna.core import unicode
 
 def b(s, encoding="utf-8"):
     """ Convert `s` to bytes. """
