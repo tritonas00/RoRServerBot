@@ -1385,7 +1385,7 @@ class Client(threading.Thread):
                     info = getTruckInfo(currentVehicle)
                     currentVehicle = "%s (%s)" % (s(info['name']), s(info['type']))
 
-                self.discord.sayInfo("%2d %s %s | %s | %5s | %s" % (slotnum, rawAuthToString(self.sm.getAuth(uid)), self.sm.getUsername(uid), str(uid).rjust(uidfieldlen), s(self.sm.getLanguage(uid).replace(b'_', b' ')), currentVehicle))
+                self.discord.sayInfo("%2d %s %s | %s | %5s | %s" % (slotnum, rawAuthToString(self.sm.getAuth(uid)), self.sm.getUsername(uid), str(uid), s(self.sm.getLanguage(uid).replace(b'_', b' ')), currentVehicle))
                 noPlayers = False
 
                 slotnum += 1
