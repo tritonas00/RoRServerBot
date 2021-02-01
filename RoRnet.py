@@ -88,9 +88,10 @@ def processCharacterAttachData(data):
 
 def processCharacterPosData(data):
     s = charPos_data_t()
-    unpacked = struct.unpack("i5f10s", data)
-    s.command, s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked
-    s.animationMode = s.animationMode.strip(b'\0')
+    if len(data) == 34:
+        unpacked = struct.unpack("i5f10s", data)
+        s.command, s.rot.x, s.rot.y, s.rot.z, s.rot.w, s.animationTime, s.animationMode = unpacked
+        s.animationMode = s.animationMode.strip(b'\0')
     return s
 
 def processCharacterData(data):
