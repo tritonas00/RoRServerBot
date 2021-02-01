@@ -449,5 +449,8 @@ async def on_message(message):
     if message.content.startswith('!info'):
         bot.messageRoRclientByChannel(message.channel.id, ("info", "full"))
 
+    if message.content.startswith('!msg'):
+        bot.messageRoRclientByChannel(message.channel.id, ("msg_with_source", message.content.replace('!msg' , ''), message.author))
+
 
 bot.run(bot.settings.getSetting("Discordclient", "token"))
