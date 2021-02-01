@@ -1366,7 +1366,7 @@ class Client(threading.Thread):
                 uidfieldlen = len(str(uid))
 
         # print header
-        self.discord.sayInfo("%s | %3s | %5s | %s" % ("Username".rjust(usernamefieldlen+authfieldlen+4), "UID".rjust(uidfieldlen), "Lang", "Current vehicle"))
+        self.discord.sayInfo("%s | %3s | %5s | %s" % ("Username", "UID", "Lang", "Current vehicle"))
 
         # Print the actual list
         noPlayers = True
@@ -1383,9 +1383,9 @@ class Client(threading.Thread):
                     currentVehicle = "unknown"
                 else:
                     info = getTruckInfo(currentVehicle)
-                    currentVehicle = "%s (%s)" % (info['name'], info['type'])
+                    currentVehicle = "%s (%s)" % (s(info['name']), s(info['type']))
 
-                self.discord.sayInfo("%2d %s %s | %s | %5s | %s" % (slotnum, rawAuthToString(self.sm.getAuth(uid)).rjust(authfieldlen), self.sm.getUsername(uid).rjust(usernamefieldlen), str(uid).rjust(uidfieldlen), self.sm.getLanguage(uid).replace('_', ' '), currentVehicle))
+                self.discord.sayInfo("%2d %s %s | %s | %5s | %s" % (slotnum, rawAuthToString(self.sm.getAuth(uid)), self.sm.getUsername(uid), str(uid).rjust(uidfieldlen), s(self.sm.getLanguage(uid).replace(b'_', b' ')), currentVehicle))
                 noPlayers = False
 
                 slotnum += 1
