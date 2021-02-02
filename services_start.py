@@ -394,14 +394,17 @@ class Main(discord.Client):
         channel = bot.get_channel(int(cid))
         bot.loop.create_task(channel.send(message))
 
-    def checkRoRclientStatus(self):
-        for ID in self.RoRclients:
-            if self.RoRclients[ID].is_alive():
-                return True
-            else:
-                return False
+    def startRoRclientOnDemand(self, channel):
+        RoRclients_tmp = self.settings.getSetting('RoRclients')
+        for ID in list(RoRclients_tmp.keys()):
+            if self.settings.getSetting('RoRclients', ID, "discordchannel") == str(channel) and not self.RoRclients[ID].is_alive():
+                self.logger.debug("in iteration, ID=%s", ID)
+                self.RoRqueue[ID] = queue.Queue()
+                self.RoRclients[ID] = RoR_client.Client(ID, self)
+                self.RoRclients[ID].setName('RoR_thread_'+ID)
+                self.RoRclients[ID].start()
 
-    def startRoRclient(self):
+    async def on_ready(self):
         RoRclients_tmp = self.settings.getSetting('RoRclients')
         for ID in list(RoRclients_tmp.keys()):
             self.logger.debug("in iteration, ID=%s", ID)
@@ -409,9 +412,6 @@ class Main(discord.Client):
             self.RoRclients[ID] = RoR_client.Client(ID, self)
             self.RoRclients[ID].setName('RoR_thread_'+ID)
             self.RoRclients[ID].start()
-
-    async def on_ready(self):
-        self.startRoRclient()
 
     async def close(self):
         self.logger.info("Starting global shutdown sequence")
@@ -463,16 +463,10 @@ async def on_message(message):
         bot.messageRoRclientByChannel(message.channel.id, ("msg_with_source", message.content.replace('!msg' , ''), message.author))
 
     if message.content.startswith('!disconnect'):
-        if bot.checkRoRclientStatus():
-            bot.messageRoRclientByChannel(message.channel.id, ("disconnect", "Leaving server..."))
-        else:
-            await message.channel.send("Already disconnected!")
+        bot.messageRoRclientByChannel(message.channel.id, ("disconnect", "Leaving server..."))
 
     if message.content.startswith('!connect'):
-        if bot.checkRoRclientStatus():
-            await message.channel.send("Already connected!")
-        else:
-            bot.startRoRclient()
+        bot.startRoRclientOnDemand(message.channel.id)
 
 
 bot.run(bot.settings.getSetting("Discordclient", "token"))
