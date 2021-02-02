@@ -468,5 +468,25 @@ async def on_message(message):
     if message.content.startswith('!connect'):
         bot.startRoRclientOnDemand(message.channel.id)
 
+    if message.content.startswith('!kick'):
+        args = message.content.split(" ", 2)
+
+        if len(args) == 3:
+            bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), args[2]))
+        elif len(args) == 2:
+            bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), "an unspecified reason"))
+        else:
+            await message.channel.send('Syntax: !kick <uid> [reason]')
+
+    if message.content.startswith('!ban'):
+        args = message.content.split(" ", 2)
+
+        if len(args) == 3:
+            bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), args[2]))
+        elif len(args) == 2:
+            bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
+        else:
+            await message.channel.send('Syntax: !ban <uid> [reason]')
+
 
 bot.run(bot.settings.getSetting("Discordclient", "token"))
