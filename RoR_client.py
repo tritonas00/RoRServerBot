@@ -1143,7 +1143,7 @@ class Client(threading.Thread):
             return
 
         self.discord.sayInfo("Connected to server %s" % s(serverinfo.servername))
-        print("Connected to server '%s'" % serverinfo.servername)
+        print("Connected to server '%s'" % s(serverinfo.servername))
 
         self.connectTime = time.time()
         lastFrameTime = time.time()
