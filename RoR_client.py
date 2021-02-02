@@ -1321,7 +1321,6 @@ class Client(threading.Thread):
                 elif data[0] == "say":
                     self.server.say(data[1], data[2])
                 elif data[0] == "list_players":
-                    print("playerlist ok")
                     self.showPlayerList()
                 elif data[0] == "player_info":
                     self.discord.playerInfo(data[1])
