@@ -92,8 +92,8 @@ class Config:
                         'log_file': 'configuration.xml',
                         'log_level': logging.INFO,
                         'log_filemode': 'w',
-                        'version_str': 'RoR server-services v2020.03',
-                        'version_num': "2020.03",
+                        'version_str': 'RoR server-services v2021.02',
+                        'version_num': "2021.02",
                         'clientname': 'RoR_bot',
 
                         'admins': {
