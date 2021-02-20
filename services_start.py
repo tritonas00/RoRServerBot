@@ -366,6 +366,8 @@ class Main(discord.Client):
         self.main_queue = queue.Queue()
         self.settings = Config("configuration.xml")
 
+        self.initialised = False
+
     def messageRoRclient(self, ID, data):
         try:
             self.RoRqueue[ID].put_nowait( data )
@@ -405,13 +407,15 @@ class Main(discord.Client):
                 self.RoRclients[ID].start()
 
     async def on_ready(self):
-        RoRclients_tmp = self.settings.getSetting('RoRclients')
-        for ID in list(RoRclients_tmp.keys()):
-            self.logger.debug("in iteration, ID=%s", ID)
-            self.RoRqueue[ID] = queue.Queue()
-            self.RoRclients[ID] = RoR_client.Client(ID, self)
-            self.RoRclients[ID].setName('RoR_thread_'+ID)
-            self.RoRclients[ID].start()
+        if not self.initialised:
+            RoRclients_tmp = self.settings.getSetting('RoRclients')
+            for ID in list(RoRclients_tmp.keys()):
+                self.logger.debug("in iteration, ID=%s", ID)
+                self.RoRqueue[ID] = queue.Queue()
+                self.RoRclients[ID] = RoR_client.Client(ID, self)
+                self.RoRclients[ID].setName('RoR_thread_'+ID)
+                self.RoRclients[ID].start()
+            self.initialised = True
 
     async def close(self):
         self.logger.info("Starting global shutdown sequence")
