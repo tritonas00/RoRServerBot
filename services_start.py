@@ -404,7 +404,16 @@ class Main(discord.Client):
                 self.RoRclients[ID].setName('RoR_thread_'+ID)
                 self.RoRclients[ID].start()
 
-    def stopRoRclient(self):
+    async def on_ready(self):
+        RoRclients_tmp = self.settings.getSetting('RoRclients')
+        for ID in list(RoRclients_tmp.keys()):
+            self.logger.debug("in iteration, ID=%s", ID)
+            self.RoRqueue[ID] = queue.Queue()
+            self.RoRclients[ID] = RoR_client.Client(ID, self)
+            self.RoRclients[ID].setName('RoR_thread_'+ID)
+            self.RoRclients[ID].start()
+
+    async def close(self):
         self.logger.info("Starting global shutdown sequence")
         killCounter = 0
         for ID in self.RoRclients:
@@ -423,19 +432,6 @@ class Main(discord.Client):
                 self.logger.error("   x Failed to terminate RoRclient %s" % ID)
         self.logger.info("Global shutdown sequence successfully finished.")
 
-    async def on_ready(self):
-        RoRclients_tmp = self.settings.getSetting('RoRclients')
-        for ID in list(RoRclients_tmp.keys()):
-            self.logger.debug("in iteration, ID=%s", ID)
-            self.RoRqueue[ID] = queue.Queue()
-            self.RoRclients[ID] = RoR_client.Client(ID, self)
-            self.RoRclients[ID].setName('RoR_thread_'+ID)
-            self.RoRclients[ID].start()
-
-    async def close(self):
-        # stop RoRclients:
-        self.stopRoRclient()
-
         # cancel tasks:
         for task in asyncio.all_tasks():
             task.cancel()
@@ -443,10 +439,6 @@ class Main(discord.Client):
         # close loggers:
         logging.shutdown()
         await super().close()
-
-    async def on_disconnect(self):
-        # stop RoRclients:
-        self.stopRoRclient()
         
 bot = Main()
 
