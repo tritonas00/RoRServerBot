@@ -1,6 +1,6 @@
 import struct, logging, time
 
-RORNET_VERSION = "RoRnet_2.42"
+RORNET_VERSION = "RoRnet_2.43"
 
 MSG2_HELLO                      = 1025                #!< client sends its version as first message
 # hello responses
@@ -71,8 +71,14 @@ NETMASK_CLIGHT1     = 256  #!< custom light 1 on
 NETMASK_CLIGHT2     = 512  #!< custom light 2 on
 NETMASK_CLIGHT3     = 1024 #!< custom light 3 on
 NETMASK_CLIGHT4     = 2048 #!< custom light 4 on
-NETMASK_POLICEAUDIO = 4096 #!< police siren on
-NETMASK_PARTICLE    = 8192 #!< custom particles on
+NETMASK_CLIGHT5     = 4096 #!< custom light 5 on
+NETMASK_CLIGHT6     = 8192 #!< custom light 6 on
+NETMASK_CLIGHT7     = 16384 #!< custom light 7 on
+NETMASK_CLIGHT8     = 32768 #!< custom light 8 on
+NETMASK_CLIGHT9     = 65536 #!< custom light 9 on
+NETMASK_CLIGHT10     = 131072 #!< custom light 10 on
+NETMASK_POLICEAUDIO = 262144 #!< police siren on
+NETMASK_PARTICLE    = 524288 #!< custom particles on
 
 # helper function to return the variable name
 def commandName(cmd):
