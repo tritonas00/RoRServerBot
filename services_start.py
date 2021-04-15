@@ -495,5 +495,8 @@ async def on_message(message):
         else:
             await message.channel.send('Syntax: !ban <uid> [reason]')
 
+    if message.content.startswith('!unban'):
+        bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
+
 
 bot.run(bot.settings.getSetting("Discordclient", "token"))
