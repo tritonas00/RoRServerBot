@@ -466,6 +466,9 @@ async def on_message(message):
     if message.content.startswith('!msg'):
         bot.messageRoRclientByChannel(message.channel.id, ("msg_with_source", message.content.replace('!msg' , ''), message.author))
 
+    if message.content.startswith('!rawmsg'):
+        bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content.replace('!rawmsg ' , '')))
+
     if message.content.startswith('!disconnect'):
         bot.messageRoRclientByChannel(message.channel.id, ("disconnect", "Leaving server..."))
 
