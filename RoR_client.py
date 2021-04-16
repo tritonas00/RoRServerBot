@@ -1706,18 +1706,18 @@ class eventHandler:
                         0.3                                   # animationTime
                 )
 
-            elif self.serverID == "neoq":
-                self.server.streamCharacter(
-                        vector3(0, 0, 0),      # (posx, posy, posz)
-                        vector4(2432.702, 507.300, 1713.555, 0), # (rotx, roty, rotz, rotw)
-                        CHAR_IDLE_SWAY,                               # animationMode[255]
-                        0.3                                   # animationTime
-                )
-
             elif self.serverID == "wildwest":
                 self.server.streamCharacter(
                         vector3(0, 0, 0),      # (posx, posy, posz)
                         vector4(1877.213, 114.170, 2180.039, 0), # (rotx, roty, rotz, rotw)
+                        CHAR_IDLE_SWAY,                               # animationMode[255]
+                        0.3                                   # animationTime
+                )
+
+            else: # neo
+                self.server.streamCharacter(
+                        vector3(0, 0, 0),      # (posx, posy, posz)
+                        vector4(2432.702, 507.300, 1713.555, 0), # (rotx, roty, rotz, rotw)
                         CHAR_IDLE_SWAY,                               # animationMode[255]
                         0.3                                   # animationTime
                 )
