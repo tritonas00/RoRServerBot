@@ -2,7 +2,7 @@
 
 ![RoRBot](https://i.imgur.com/wUJdzYp.png)
 
-This is a bot for Rigs of Rods multiplayer servers running RoRNet 2.42 (RoR version 2020.01+)
+This is a bot for Rigs of Rods multiplayer servers running RoRNet 2.43 (RoR version 2021.04+)
 
 # Features
 
