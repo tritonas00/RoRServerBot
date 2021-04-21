@@ -7,7 +7,6 @@ This is a bot for Rigs of Rods multiplayer servers running RoRNet 2.43 (RoR vers
 # Features
 
 - Monitor and control RoR servers outside of RoR via Discord
-- Global and per-server bot admins 
 - Vehicle recording and playback (Video demo: https://streamable.com/lecig)
 - Extra commands 
 
