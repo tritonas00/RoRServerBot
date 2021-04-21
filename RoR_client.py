@@ -1332,13 +1332,13 @@ class Client(threading.Thread):
                             str_tmp = "Private"
                         else:
                             str_tmp = "Public"
-                        self.discord.sayInfo("%s server '%s':" % (str_tmp, self.server.serverinfo.servername))
+                        self.discord.sayInfo("%s server '%s':" % (str_tmp, s(self.server.serverinfo.servername)))
                         self.discord.sayInfo("running on %s:%d, using %s" % (self.server.serverinfo.host, self.server.serverinfo.port, self.server.serverinfo.protocolversion))
-                        self.discord.sayInfo("terrain: %s     Players: %d" % (self.server.serverinfo.terrain, self.sm.countClients()))
+                        self.discord.sayInfo("terrain: %s     Players: %d" % (s(self.server.serverinfo.terrain), self.sm.countClients()))
                     elif data[1] == "short":
-                        self.discord.sayInfo("name: '%s' - terrain: '%s' - players: %d" % (self.server.serverinfo.servername, self.server.serverinfo.terrain, self.sm.countClients()))
+                        self.discord.sayInfo("name: '%s' - terrain: '%s' - players: %d" % (s(self.server.serverinfo.servername), s(self.server.serverinfo.terrain), self.sm.countClients()))
                     elif data[1] == "ip":
-                        self.discord.sayInfo("name: '%s' - host: %s:%d" % (self.server.serverinfo.servername, self.server.serverinfo.host, self.server.serverinfo.port))
+                        self.discord.sayInfo("name: '%s' - host: %s:%d" % (s(self.server.serverinfo.servername), self.server.serverinfo.host, self.server.serverinfo.port))
                 elif data[0] == "stats":
                     pass
                 else:
