@@ -475,6 +475,10 @@ async def on_message(message):
     if message.content.startswith('!connect'):
         bot.startRoRclientOnDemand(message.channel.id)
 
+    if message.content.startswith('!shutdown'):
+        await message.channel.send('Shutting down...')
+        await bot.close()
+
     if message.content.startswith('!kick'):
         args = message.content.split(" ", 2)
 
