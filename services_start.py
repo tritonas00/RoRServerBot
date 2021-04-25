@@ -502,5 +502,8 @@ async def on_message(message):
     if message.content.startswith('!unban'):
         bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
 
+    if message.content.startswith('!stats'):
+        bot.messageRoRclientByChannel(message.channel.id, ("global_stats",))
+
 
 bot.run(bot.settings.getSetting("Discordclient", "token"))

@@ -241,11 +241,11 @@ class streamManager:
             if dist<10.0:
                 if self.D[uid].stream[sid].type == TYPE_CHARACTER:
                     self.D[uid].stats.distanceWalked += dist
-                elif self.D[uid].stream[sid].fileExt == "truck":
+                elif self.D[uid].stream[sid].fileExt == b'truck':
                     self.D[uid].stats.distanceDriven += dist
-                elif self.D[uid].stream[sid].fileExt == "airplane":
+                elif self.D[uid].stream[sid].fileExt == b'airplane':
                     self.D[uid].stats.distanceFlown += dist
-                elif self.D[uid].stream[sid].fileExt == "boat":
+                elif self.D[uid].stream[sid].fileExt == b'boat':
                     self.D[uid].stats.distanceSailed += dist
             else:
                 #print "large distance jump detected: %f" % dist
@@ -476,7 +476,27 @@ class Discord_Layer:
         pass
 
     def globalStats(self):
-        pass
+        def s60(x, y):
+            if y<60:
+                return x+1
+            else:
+                return x
+
+        s = self.sm.getStats()
+
+        # the average time that a player stays
+        averageTime = (sum(s['connectTimes'])/s['userCount'])/60
+
+        # Amount of players that left within 1 minutes after joining
+        playerPeek = 0
+        for connectTime in s['connectTimes']:
+            if connectTime < 60:
+                playerPeek += 1
+
+        self.__send("Since %s, we've seen %d players with %d unique usernames." % (time.ctime(s['connectTime']), s['userCount'], len(s['usernames'])), "info")
+        self.__send("A player stays on average %.2f minutes, but %d players (%.2f%%) left in less than one minute." % (averageTime, playerPeek, (float(playerPeek)/float(s['userCount']))*100), "info")
+        self.__send("In total, our players drove %.2f meters, flown %.2f meters, sailed %.2f meters and walked %.2f meters." % (float(s['distanceDriven']), float(s['distanceFlown']), float(s['distanceSailed']), float(s['distanceWalked'])), "info")
+        self.__send("On average, per player: %.2f driven, %.2f flown, %.2f sailed and %.2f walked." % (float(s['distanceDriven'])/float(s['userCount']), float(s['distanceFlown'])/float(s['userCount']), float(s['distanceSailed'])/float(s['userCount']), float(s['distanceWalked'])/float(s['userCount'])), "info")
 
 #####################
 #  SOCKET FUNCTIONS #
