@@ -487,8 +487,11 @@ async def on_message(message):
         bot.startRoRclientOnDemand(message.channel.id)
 
     if message.content.startswith('!shutdown'):
-        await message.channel.send('Shutting down...')
-        await bot.close()
+        RoRclients_tmp = bot.settings.getSetting('RoRclients')
+        for RID in list(RoRclients_tmp.keys()):
+            if bot.settings.getSetting('RoRclients', RID, "discordchannel") == str(message.channel.id):
+                await message.channel.send('Shutting down...')
+                await bot.close()
 
     if message.content.startswith('!kick'):
         args = message.content.split(" ", 2)
@@ -498,7 +501,10 @@ async def on_message(message):
         elif len(args) == 2:
             bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), "an unspecified reason"))
         else:
-            await message.channel.send('Syntax: !kick <uid> [reason]')
+            RoRclients_tmp = bot.settings.getSetting('RoRclients')
+            for RID in list(RoRclients_tmp.keys()):
+                if bot.settings.getSetting('RoRclients', RID, "discordchannel") == str(message.channel.id):
+                    await message.channel.send('Syntax: !kick <uid> [reason]')
 
     if message.content.startswith('!ban'):
         args = message.content.split(" ", 2)
@@ -508,7 +514,10 @@ async def on_message(message):
         elif len(args) == 2:
             bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
         else:
-            await message.channel.send('Syntax: !ban <uid> [reason]')
+            RoRclients_tmp = bot.settings.getSetting('RoRclients')
+            for RID in list(RoRclients_tmp.keys()):
+                if bot.settings.getSetting('RoRclients', RID, "discordchannel") == str(message.channel.id):
+                    await message.channel.send('Syntax: !ban <uid> [reason]')
 
     if message.content.startswith('!unban'):
         bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
