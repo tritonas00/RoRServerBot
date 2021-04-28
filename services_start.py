@@ -406,6 +406,15 @@ class Main(discord.Client):
                 self.RoRclients[ID].setName('RoR_thread_'+ID)
                 self.RoRclients[ID].start()
 
+    def serverlist(self, cid):
+        channel = bot.get_channel(int(cid))
+        RoRclients_tmp = self.settings.getSetting('RoRclients')
+        for ID in list(RoRclients_tmp.keys()):
+            if self.RoRclients[ID].is_alive():
+                bot.loop.create_task(channel.send("Connected to %s" % ID))
+            else:
+                bot.loop.create_task(channel.send("Disconnected from %s" % ID))
+
     async def on_ready(self):
         if not self.initialised:
             RoRclients_tmp = self.settings.getSetting('RoRclients')
@@ -504,6 +513,12 @@ async def on_message(message):
 
     if message.content.startswith('!stats'):
         bot.messageRoRclientByChannel(message.channel.id, ("global_stats",))
+
+    if message.content.startswith('!fps'):
+        bot.messageRoRclientByChannel(message.channel.id, ("fps",))
+
+    if message.content.startswith('!serverlist'):
+        await bot.serverlist(message.channel.id)
 
 
 bot.run(bot.settings.getSetting("Discordclient", "token"))

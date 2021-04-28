@@ -1819,7 +1819,7 @@ class eventHandler:
 
     def on_discord(self, data):
         if data[0] == "fps":
-            self.discord.sayInfo("Current fps: %d" % self.lastFps)
+            self.discord.sayInfo("Current bot fps: %d" % self.lastFps)
         else:
             print("UNKONWN DISCORD COMMAND")
             print(data)
