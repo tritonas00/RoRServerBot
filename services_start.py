@@ -417,9 +417,9 @@ class Main(discord.Client):
         RoRclients_tmp = self.settings.getSetting('RoRclients')
         for ID in list(RoRclients_tmp.keys()):
             if self.RoRclients[ID].is_alive():
-                bot.loop.create_task(channel.send("Connected to %s" % ID))
+                bot.loop.create_task(channel.send("[info] Connected to %s" % ID))
             else:
-                bot.loop.create_task(channel.send("Disconnected from %s" % ID))
+                bot.loop.create_task(channel.send("[info] Disconnected from %s" % ID))
 
     async def on_ready(self):
         if not self.initialised:
@@ -491,7 +491,7 @@ async def on_message(message):
         bot.startRoRclientOnDemand(message.channel.id)
 
     if message.content.startswith('!shutdown') and bot.checkDiscordChannel(message.channel.id):
-        await message.channel.send('Shutting down...')
+        await message.channel.send('[info] Shutting down...')
         await bot.close()
 
     if message.content.startswith('!kick'):
@@ -502,7 +502,7 @@ async def on_message(message):
         elif len(args) == 2:
             bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), "an unspecified reason"))
         elif bot.checkDiscordChannel(message.channel.id):
-            await message.channel.send('Syntax: !kick <uid> [reason]')
+            await message.channel.send('[info] Syntax: !kick <uid> [reason]')
 
     if message.content.startswith('!ban'):
         args = message.content.split(" ", 2)
@@ -512,7 +512,7 @@ async def on_message(message):
         elif len(args) == 2:
             bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
         elif bot.checkDiscordChannel(message.channel.id):
-            await message.channel.send('Syntax: !ban <uid> [reason]')
+            await message.channel.send('[info] Syntax: !ban <uid> [reason]')
 
     if message.content.startswith('!unban'):
         bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
@@ -525,6 +525,27 @@ async def on_message(message):
 
     if message.content.startswith('!serverlist') and bot.checkDiscordChannel(message.channel.id):
         bot.serverlist(message.channel.id)
+
+    if message.content.startswith('!help') and bot.checkDiscordChannel(message.channel.id):
+        str = """
+**!connect** Connects to a RoR server. Useful in the event of a server crash
+**!disconnect** Disconnects from a RoR server
+**!shutdown** Disconnects from all servers and closes the bot
+**!msg** Sends a message to the server. Includes your Discord username
+**!rawmsg** Sends a message to the server as the bot. Can also be used for some in-game commands
+**!playerlist** Displays player list with current vehicles
+**!list** Displays a simplified player list (useful if you just need the UID)
+**!kick** Kicks a user
+**!ban** Bans a user
+**!bans** Displays current banned users
+**!unban** Unbans a user
+**!rawmsg !unban** Unbans a user
+**!info** Returns server info
+**!stats** Returns various server stats. May not be accurate
+**!serverlist** Returns a list of servers the bot is connected to
+**!fps** Returns current bot FPS"""
+
+        await message.channel.send(str)
 
 
 bot.run(bot.settings.getSetting("Discordclient", "token"))
