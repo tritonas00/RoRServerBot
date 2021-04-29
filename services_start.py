@@ -380,7 +380,7 @@ class Main(discord.Client):
         self.logger.debug("Inside messageRoRclientByChannel(%s, data)", str(channel))
         for ID in self.settings.getSetting('RoRclients').keys():
             self.logger.debug("   checking ID %s", ID)
-            if self.settings.getSetting('RoRclients', ID, "discordchannel")==str(channel):
+            if self.settings.getSetting('RoRclients', ID, "discordchannel") == str(channel):
                 self.logger.debug("   Channel ok, adding to queue")
                 self.messageRoRclient(ID, data)
 
@@ -396,6 +396,12 @@ class Main(discord.Client):
         channel = bot.get_channel(int(cid))
         bot.loop.create_task(channel.send(message))
 
+    def checkDiscordChannel(self, cid):
+        for RID in list(self.settings.getSetting('RoRclients').keys()):
+            if self.settings.getSetting('RoRclients', RID, "discordchannel") == str(cid):
+                return True
+        return False
+
     def startRoRclientOnDemand(self, channel):
         RoRclients_tmp = self.settings.getSetting('RoRclients')
         for ID in list(RoRclients_tmp.keys()):
@@ -409,13 +415,11 @@ class Main(discord.Client):
     def serverlist(self, cid):
         channel = bot.get_channel(int(cid))
         RoRclients_tmp = self.settings.getSetting('RoRclients')
-        for RID in list(RoRclients_tmp.keys()):
-            if self.settings.getSetting('RoRclients', RID, "discordchannel") == str(cid):
-                for ID in list(RoRclients_tmp.keys()):
-                    if self.RoRclients[ID].is_alive():
-                        bot.loop.create_task(channel.send("Connected to %s" % ID))
-                    else:
-                        bot.loop.create_task(channel.send("Disconnected from %s" % ID))
+        for ID in list(RoRclients_tmp.keys()):
+            if self.RoRclients[ID].is_alive():
+                bot.loop.create_task(channel.send("Connected to %s" % ID))
+            else:
+                bot.loop.create_task(channel.send("Disconnected from %s" % ID))
 
     async def on_ready(self):
         if not self.initialised:
@@ -486,12 +490,9 @@ async def on_message(message):
     if message.content.startswith('!connect'):
         bot.startRoRclientOnDemand(message.channel.id)
 
-    if message.content.startswith('!shutdown'):
-        RoRclients_tmp = bot.settings.getSetting('RoRclients')
-        for RID in list(RoRclients_tmp.keys()):
-            if bot.settings.getSetting('RoRclients', RID, "discordchannel") == str(message.channel.id):
-                await message.channel.send('Shutting down...')
-                await bot.close()
+    if message.content.startswith('!shutdown') and bot.checkDiscordChannel(message.channel.id):
+        await message.channel.send('Shutting down...')
+        await bot.close()
 
     if message.content.startswith('!kick'):
         args = message.content.split(" ", 2)
@@ -500,11 +501,8 @@ async def on_message(message):
             bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), args[2]))
         elif len(args) == 2:
             bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), "an unspecified reason"))
-        else:
-            RoRclients_tmp = bot.settings.getSetting('RoRclients')
-            for RID in list(RoRclients_tmp.keys()):
-                if bot.settings.getSetting('RoRclients', RID, "discordchannel") == str(message.channel.id):
-                    await message.channel.send('Syntax: !kick <uid> [reason]')
+        elif bot.checkDiscordChannel(message.channel.id):
+            await message.channel.send('Syntax: !kick <uid> [reason]')
 
     if message.content.startswith('!ban'):
         args = message.content.split(" ", 2)
@@ -513,11 +511,8 @@ async def on_message(message):
             bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), args[2]))
         elif len(args) == 2:
             bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
-        else:
-            RoRclients_tmp = bot.settings.getSetting('RoRclients')
-            for RID in list(RoRclients_tmp.keys()):
-                if bot.settings.getSetting('RoRclients', RID, "discordchannel") == str(message.channel.id):
-                    await message.channel.send('Syntax: !ban <uid> [reason]')
+        elif bot.checkDiscordChannel(message.channel.id):
+            await message.channel.send('Syntax: !ban <uid> [reason]')
 
     if message.content.startswith('!unban'):
         bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
@@ -528,7 +523,7 @@ async def on_message(message):
     if message.content.startswith('!fps'):
         bot.messageRoRclientByChannel(message.channel.id, ("fps",))
 
-    if message.content.startswith('!serverlist'):
+    if message.content.startswith('!serverlist') and bot.checkDiscordChannel(message.channel.id):
         bot.serverlist(message.channel.id)
 
 
