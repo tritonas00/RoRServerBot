@@ -514,6 +514,26 @@ async def on_message(message):
         elif bot.checkDiscordChannel(message.channel.id):
             await message.channel.send('[info] Syntax: !ban <uid> [reason]')
 
+    if message.content.startswith('!warn'):
+        args = message.content.split(" ", 2)
+
+        if len(args) == 3:
+            bot.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), args[2]))
+        elif len(args) == 2:
+            bot.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), "This is an official warning. Please read our rules using the !rules command."))
+        elif bot.checkDiscordChannel(message.channel.id):
+            await message.channel.send('[info] Syntax: !warn <uid> [reason]')
+
+    if message.content.startswith('!say'):
+        args = message.content.split(" ", 2)
+
+        if len(args) == 3:
+            bot.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), args[2]))
+        elif len(args) == 2:
+            bot.messageRoRclientByChannel(message.channel.id, ("say", int(-1), args[1]))
+        elif bot.checkDiscordChannel(message.channel.id):
+            await message.channel.send('[info] Syntax: !say [message] or !say <uid> [message]')
+
     if message.content.startswith('!unban'):
         bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
 
@@ -533,8 +553,10 @@ async def on_message(message):
 **!shutdown** Disconnects from all servers and closes the bot
 **!msg** Sends a message to the server. Includes your Discord username
 **!rawmsg** Sends a message to the server as the bot. Can also be used for some in-game commands
+**!say** Sends a message as the host. Can be used to privately message players
 **!playerlist** Displays player list with current vehicles
 **!list** Displays a simplified player list (useful if you just need the UID)
+**!warn** Sends a private warning message to a player. If no message is specified, (This is an official warning. Please read our rules using the !rules command.) will be sent instead
 **!kick** Kicks a user
 **!ban** Bans a user
 **!bans** Displays current banned users
