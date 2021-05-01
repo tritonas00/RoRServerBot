@@ -58,21 +58,13 @@ class Config:
 
                 'host': None,
                 'port': 0,
+                'password': '',
 
                 'username': 'services',
                 'usertoken': '',
                 'userlanguage': 'en_UK',
 
-                'password': '',
-
                 'discordchannel': None,
-
-                'admins': {
-                        # 'username': {
-                                # 'username': '',
-                                # password: '',
-                        # },
-                },
 
                 'announcementsEnabled': False,
                 'announcementsDelay': 300,
@@ -95,13 +87,6 @@ class Config:
                         'version_str': 'RoR server-services v2021.04',
                         'version_num': "2021.04",
                         'clientname': 'RoR_bot',
-
-                        'admins': {
-                                # 'username': {
-                                        # 'username': '',
-                                        # password: '',
-                                # },
-                        },
                 },
                 'Discordclient': {
                     'token': '',
@@ -153,28 +138,6 @@ class Config:
                 # read the text between the <logfile> tags
                 if len(element.find("./general/logfile").text.strip()) > 0:
                     self.settings['general']['log_file'] = element.find("./general/logfile").text.strip()
-
-            # if an element <admins> exists in <general>
-            if not element.find("./general/admins") is None:
-                admins = element.find("./general/admins")
-                for admin in admins:
-                    username = admin.get("username", default="")
-                    if len(username.strip())==0:
-                        self.logger.error("Every admin element should have a username attribute!")
-                        continue
-                    else:
-                        self.settings['general']['admins'][username] = { 'username': username }
-
-                    tmp = admin.get("password", default="")
-                    if len(tmp.strip())==0:
-                        self.logger.error("Admin '%s' should have a password!", username)
-                        del self.settings['general']['admins'][username]
-                        continue
-                    else:
-                        self.settings['general']['admins'][username]['password'] = tmp
-            if len(list(self.settings['general']['admins'].keys()))==0:
-                self.logger.critical("You should have at least 1 global admin!")
-                #sys.exit(1)
 
         # if an element <Discordclient> exists
         if not element.find("./Discordclient") is None:
@@ -270,25 +233,6 @@ class Config:
             s['username']     = RoRclient.find("./user").get("name", default=s['username'])
             s['usertoken']    = RoRclient.find("./user").get("token", default=s['usertoken'])
             s['userlanguage'] = RoRclient.find("./user").get("language", default=s['userlanguage'])
-
-        # if an element <admins> exists
-        if not RoRclient.find("./admins") is None:
-            admins = RoRclient.find("./admins")
-            for admin in admins:
-                username = admin.get("username", default="")
-                if len(username.strip())==0:
-                    self.logger.error("Every admin element should have a username attribute!")
-                    continue
-                else:
-                    s['admins'][username] = { 'username': username }
-
-                tmp = admin.get("password", default="")
-                if len(tmp.strip())==0:
-                    self.logger.error("Admin '%s' should have a password!", username)
-                    del s['admins'][username]
-                    continue
-                else:
-                    s['admins'][username]['password'] = tmp
 
         # if an element <announcements> exists
         if not RoRclient.find("./announcements") is None:
