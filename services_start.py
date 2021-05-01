@@ -81,9 +81,6 @@ class Config:
         # Fill the whole settings dictionary with default values
         self.settings = {
                 'general': {
-                        'log_file': 'configuration.xml',
-                        'log_level': logging.INFO,
-                        'log_filemode': 'w',
                         'version_str': 'RoR server-services v2021.04',
                         'version_num': "2021.04",
                         'clientname': 'RoR_bot',
@@ -98,46 +95,6 @@ class Config:
 
 
         # start processing the configuration.
-        # Note: this code is a mess
-
-        # if an element <general> exists
-        if not element.find("./general") is None:
-
-            # if an element <remove_this> exists in <general>, then the user didn't read the configuration
-            # So we exit without doing anything
-            if not element.find("./general/remove_this") is None:
-                self.logger.critical("Please fill out the configuration.xml file first!")
-                sys.exit(1)
-
-            # if an element <logfile> exists in <general>
-            if not element.find("./general/logfile") is None:
-                # if an attribute level exists
-                tmp = element.find("./general/logfile").get("level", default="")
-                if tmp == "debug":
-                    self.settings['general']['log_level'] = logging.DEBUG
-                elif tmp == "info":
-                    self.settings['general']['log_level'] = logging.INFO
-                elif tmp == "warning":
-                    self.settings['general']['log_level'] = logging.WARNING
-                elif tmp == "error":
-                    self.settings['general']['log_level'] = logging.ERROR
-                elif tmp == "critical":
-                    self.settings['general']['log_level'] = logging.CRITICAL
-                else:
-                    self.logger.warning("Unknown loglevel '%s' in configuration.xml: general/logfile[@level]", tmp)
-
-                # if an attribute append exists
-                tmp = element.find("./general/logfile").get("append", default="")
-                if tmp == "yes" or tmp == "true" or tmp == "1":
-                    self.settings['general']['log_filemode'] = "a"
-                elif tmp == "no" or tmp == "false" or tmp == "0":
-                    self.settings['general']['log_filemode'] = "w"
-                else:
-                    self.logger.warning("In configuration.xml: general/logfile[@append] should be yes or no")
-
-                # read the text between the <logfile> tags
-                if len(element.find("./general/logfile").text.strip()) > 0:
-                    self.settings['general']['log_file'] = element.find("./general/logfile").text.strip()
 
         # if an element <Discordclient> exists
         if not element.find("./Discordclient") is None:

@@ -4,8 +4,7 @@
 	It's really easy, if you can host a RoR-server, host this bot,
 	then I assume that you can read/write XML as well.
 	
-	There're 3 sections in this file:
-	  - The general configuration with some general stuff in it
+	There're 2 sections in this file:
 	  - The Discord configuration
 	  - The RoR-server(s) configuration
 	Quite self-explanatory.
@@ -24,10 +23,6 @@
 		</configuration>
  -->
 <configuration>
-
-	<general>
-		<logfile append="yes" level="debug">RoRservices.log</logfile> <!-- that doesn't work -->
-	</general>
 
 	<Discordclient>
 		<bot token="" />
