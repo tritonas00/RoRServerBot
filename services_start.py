@@ -7,7 +7,7 @@ import asyncio
 
 import logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     style="{",
     format="{levelname:8s}; {threadName:21s}; {asctime:s}; {name:<15s} {lineno:4d}; {message:s}"
 )
@@ -27,8 +27,6 @@ class Config:
         self.settings = {}
 
         self.readConfig(configfile)
-
-        # print self.settings
 
         self.logger.debug("Configuration read.")
 
@@ -323,6 +321,8 @@ class Main(discord.Client):
                 bot.loop.create_task(channel.send("[info] Disconnected from %s" % ID))
 
     async def on_ready(self):
+        print ("Connected to Discord")
+
         if not self.initialised:
             RoRclients_tmp = self.settings.getSetting('RoRclients')
             for ID in list(RoRclients_tmp.keys()):
