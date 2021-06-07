@@ -966,7 +966,7 @@ class RoR_Connection:
 
         return True
 
-    def receiveMsg(self, timeout=0.5):
+    def receiveMsg(self, timeout=2.5):
         try:
             return self.receivedMessages.get(True, timeout)
         except queue.Empty:
