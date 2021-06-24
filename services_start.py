@@ -316,9 +316,9 @@ class Main(discord.Client):
         RoRclients_tmp = self.settings.getSetting('RoRclients')
         for ID in list(RoRclients_tmp.keys()):
             if self.RoRclients[ID].is_alive():
-                bot.loop.create_task(channel.send("[info] Connected to %s" % ID))
+                asyncio.run_coroutine_threadsafe(channel.send("[info] Connected to %s" % ID), bot.loop)
             else:
-                bot.loop.create_task(channel.send("[info] Disconnected from %s" % ID))
+                asyncio.run_coroutine_threadsafe(channel.send("[info] Disconnected from %s" % ID), bot.loop)
 
     async def on_ready(self):
         print ("Connected to Discord")
