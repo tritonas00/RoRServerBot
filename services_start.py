@@ -293,7 +293,7 @@ class Main(discord.Client):
 
     def messageDiscordclient(self, cid, message):
         channel = bot.get_channel(int(cid))
-        bot.loop.create_task(channel.send(message))
+        asyncio.run_coroutine_threadsafe(channel.send(message), bot.loop)
 
     def checkDiscordChannel(self, cid):
         for RID in list(self.settings.getSetting('RoRclients').keys()):
