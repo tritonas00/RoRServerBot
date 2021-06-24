@@ -352,10 +352,6 @@ class Main(discord.Client):
                 self.logger.error("   x Failed to terminate RoRclient %s" % ID)
         self.logger.info("Global shutdown sequence successfully finished.")
 
-        # cancel tasks:
-        for task in asyncio.all_tasks():
-            task.cancel()
-
         # close loggers:
         logging.shutdown()
         await super().close()
