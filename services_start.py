@@ -79,8 +79,8 @@ class Config:
         # Fill the whole settings dictionary with default values
         self.settings = {
                 'general': {
-                        'version_str': 'RoR server-services v2021.04',
-                        'version_num': "2021.04",
+                        'version_str': 'RoR server-services v2021.10',
+                        'version_num': "2021.10",
                         'clientname': 'RoR_bot',
                 },
                 'Discordclient': {
