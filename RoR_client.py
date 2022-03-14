@@ -798,8 +798,7 @@ class RoR_Connection:
     # post: The stream is no longer registered
     def unregisterStream(self, streamID):
         data = struct.pack('i', streamID)
-        # MSG2_STREAM_UNREGISTER is not supported by the current RoRnet protocol
-        # self.sendMsg(DataPacket(MSG2_STREAM_UNREGISTER, self.uid, self.streamID, len(data), data))
+        self.sendMsg(DataPacket(MSG2_STREAM_UNREGISTER, self.uid, streamID, len(data), data))
         self.sm.delStream(self.uid, streamID)
 
     #  pre: A stream has been received
@@ -1038,7 +1037,7 @@ class RoR_Connection:
                 self.runCondition = 0
                 break
 
-            if command != MSG2_STREAM_UNREGISTER: # Prevents bot to leave/rejoin on actor removal. Temporary patch until MSG2_STREAM_UNREGISTER handling is properly implemented
+            if command != MSG2_STREAM_UNREGISTER: # No data
                 if not data or errorCount > 3:
                     # lost connection
                     self.logger.error("Connection error #ERROR_CON007")
@@ -1303,7 +1302,6 @@ class Client(threading.Thread):
                 self.eh.on_private_chat(packet.source, str_tmp)
                 # self.processCommand(str_tmp, packet)
 
-        # not implemented yet
         elif packet.command == MSG2_STREAM_UNREGISTER:
             str_tmp = str(packet.data).strip('\0')
 
@@ -1606,7 +1604,7 @@ class eventHandler:
             if not self.sm.getAuth(source) & ( AUTH_ADMIN | AUTH_MOD ):
                 self.__sendChat_delayed("You don't have permission to use this command!")
             else:
-                if len(args)<=1:
+                if len(args)<1:
                     self.__sendChat_delayed("Usage: -playback <start|stop|pause|continue>")
                     pass
                 elif args[0] == "start":
@@ -1981,11 +1979,11 @@ class streamRecorder:
 
     def stopPlayback(self, streamID = -1):
         self.pausePlayback(streamID)
-        # for rec in self.playList:
-            # if rec['playInfo']['streamID'] == streamID or streamID == -1:
-                # self.server.unregisterStream(streamID)
-                # rec['playInfo']['playing'] = 0
-                # del rec
+        for rec in self.playList:
+            if rec['playInfo']['streamID'] == streamID or streamID == -1:
+                self.server.unregisterStream(rec['playInfo']['streamID'])
+                rec['playInfo']['playing'] = 0
+                del rec
 
     def updateStream(self, stream):
         if self.isInRecording(stream.origin_sourceid, stream.origin_streamid):
