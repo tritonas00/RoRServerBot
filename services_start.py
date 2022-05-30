@@ -449,7 +449,7 @@ async def on_message(message):
 **!disconnect** Disconnects from a RoR server
 **!shutdown** Disconnects from all servers and closes the bot
 **!msg** Sends a message to the server. Includes your Discord username
-**!rawmsg** Sends a message to the server as the bot. Can also be used for some in-game commands
+**!rawmsg** Sends a message to the server as the bot. Can also be used for some in-game commands (e.g. !rawmsg !unban UID)
 **!say** Sends a message as the host. Can be used to privately message players
 **!playerlist** Displays player list with current vehicles
 **!list** Displays a simplified player list (useful if you just need the UID)
@@ -458,7 +458,6 @@ async def on_message(message):
 **!ban** Bans a user
 **!bans** Displays current banned users
 **!unban** Unbans a user
-**!rawmsg !unban** Unbans a user
 **!info** Returns server info
 **!stats** Returns various server stats. May not be accurate
 **!serverlist** Returns a list of servers the bot is connected to
