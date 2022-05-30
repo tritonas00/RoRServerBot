@@ -116,8 +116,6 @@ def processTruckData(data):
         fmt = '=IfffIfffIfff'
     elif len(data) > 48:
         fmt = '=IfffIfffIfff{0}s'.format(len(data) - 48)
-    else:
-        raise ValueError("Malformed truck data. The client should sent at least 48 bytes, not %d", len(data))
 
     unpacked = struct.unpack(fmt, data)
     if len(data) == 48:

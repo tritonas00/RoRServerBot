@@ -1215,9 +1215,10 @@ class Client(threading.Thread):
                 self.eh.on_stream_data(packet.source, stream, streamData)
 
             elif(stream.type==TYPE_TRUCK):
-                streamData = processTruckData(packet.data)
-                self.sm.setPosition(packet.source, packet.streamid, streamData.refpos)
-                self.eh.on_stream_data(packet.source, stream, streamData)
+                if len(packet.data) >= 48:
+                    streamData = processTruckData(packet.data)
+                    self.sm.setPosition(packet.source, packet.streamid, streamData.refpos)
+                    self.eh.on_stream_data(packet.source, stream, streamData)
 
             elif stream == None:
                 self.logger.warning("EEE stream %-4s:%-2s not found!" % (packet.source, packet.streamid))
