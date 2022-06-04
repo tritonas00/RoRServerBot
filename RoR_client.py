@@ -1283,7 +1283,7 @@ class Client(threading.Thread):
             self.sm.delClient(packet.source)
 
         elif packet.command == MSG2_GAME_CMD:
-            str_tmp = str(packet.data).strip('\0')
+            str_tmp = b(packet.data).decode('utf-8').strip('\0')
             #self.logger.debug("GAME_CMD| " + str_tmp)
 
             #self.discord.sayInfo('(game_cmd) '+str_tmp)
