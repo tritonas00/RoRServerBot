@@ -338,7 +338,7 @@ class Main(discord.Client):
             for player in request.json()[x]['json-userlist']:
                 players += player['username'] + ', '
 
-            embed.add_field(name="%s (%s/%s)" % (name, users, max_users), value="%s\n%s\n%s:%s\n%s" % (version, terrain, ip, port, players[:-2]), inline=True)
+            embed.add_field(name="%s (%s/%s)" % (name, users, max_users), value="%s\n%s\n%s:%s\n%s" % (version, terrain, ip, port, players[:-2]), inline=False)
 
         await channel.send(embed=embed)
 
