@@ -311,16 +311,16 @@ class Main(discord.Client):
                 self.RoRclients[ID].setName('RoR_thread_'+ID)
                 self.RoRclients[ID].start()
 
-    def serverlist(self, cid):
+    async def serverlist(self, cid):
         channel = bot.get_channel(int(cid))
         RoRclients_tmp = self.settings.getSetting('RoRclients')
         for ID in list(RoRclients_tmp.keys()):
             if self.RoRclients[ID].is_alive():
-                asyncio.run_coroutine_threadsafe(channel.send("[info] Connected to %s" % ID), bot.loop)
+                await channel.send("[info] Connected to %s" % ID)
             else:
-                asyncio.run_coroutine_threadsafe(channel.send("[info] Disconnected from %s" % ID), bot.loop)
+                await channel.send("[info] Disconnected from %s" % ID)
 
-    def api(self, cid):
+    async def api(self, cid):
         channel = bot.get_channel(int(cid))
         request = requests.get('https://api.rigsofrods.org/server-list?json', timeout=2)
         embed = discord.Embed(title="Servers", url="https://forum.rigsofrods.org/multiplayer/")
@@ -335,12 +335,12 @@ class Main(discord.Client):
             version = item['version']
 
             players = ""
-            for i, player in enumerate(request.json()[x]['json-userlist'], start=0):
+            for player in request.json()[x]['json-userlist']:
                 players += player['username'] + ', '
 
             embed.add_field(name="%s (%s/%s)" % (name, users, max_users), value="%s\n%s\n%s:%s\n%s" % (version, terrain, ip, port, players[:-2]), inline=True)
 
-        asyncio.run_coroutine_threadsafe(channel.send(embed=embed), bot.loop)
+        await channel.send(embed=embed)
 
     async def on_ready(self):
         print ("Connected to Discord")
@@ -463,10 +463,10 @@ async def on_message(message):
         bot.messageRoRclientByChannel(message.channel.id, ("fps",))
 
     if message.content.startswith('!serverlist') and bot.checkDiscordChannel(message.channel.id):
-        bot.serverlist(message.channel.id)
+        await bot.serverlist(message.channel.id)
 
     if message.content.startswith('!api') and bot.checkDiscordChannel(message.channel.id):
-        bot.api(message.channel.id)
+        await bot.api(message.channel.id)
 
     if message.content.startswith('!help') and bot.checkDiscordChannel(message.channel.id):
         str = """
