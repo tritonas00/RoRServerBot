@@ -1,4 +1,4 @@
-import threading, time, queue, sys, os, logging, copy
+import threading, time, queue, sys, os, logging, copy, requests
 from xml.etree import ElementTree as ET # used to parse xml, for the config file
 import RoR_client
 import discord
@@ -320,6 +320,28 @@ class Main(discord.Client):
             else:
                 asyncio.run_coroutine_threadsafe(channel.send("[info] Disconnected from %s" % ID), bot.loop)
 
+    def api(self, cid):
+        channel = bot.get_channel(int(cid))
+        request = requests.get('https://api.rigsofrods.org/server-list?json', timeout=2)
+        embed = discord.Embed(title="Servers", url="https://forum.rigsofrods.org/multiplayer/")
+
+        for x, item in enumerate(request.json(), start=0):
+            name = item['name']
+            users = item['current-users']
+            max_users = item['max-clients']
+            terrain = item['terrain-name']
+            ip = item['ip']
+            port = item['port']
+            version = item['version']
+
+            players = ""
+            for i, player in enumerate(request.json()[x]['json-userlist'], start=0):
+                players += player['username'] + ', '
+
+            embed.add_field(name="%s (%s/%s)" % (name, users, max_users), value="%s\n%s\n%s:%s\n%s" % (version, terrain, ip, port, players[:-2]), inline=True)
+
+        asyncio.run_coroutine_threadsafe(channel.send(embed=embed), bot.loop)
+
     async def on_ready(self):
         print ("Connected to Discord")
 
@@ -443,6 +465,9 @@ async def on_message(message):
     if message.content.startswith('!serverlist') and bot.checkDiscordChannel(message.channel.id):
         bot.serverlist(message.channel.id)
 
+    if message.content.startswith('!api') and bot.checkDiscordChannel(message.channel.id):
+        bot.api(message.channel.id)
+
     if message.content.startswith('!help') and bot.checkDiscordChannel(message.channel.id):
         str = """
 **!connect** Connects to a RoR server. Useful in the event of a server crash
@@ -461,7 +486,8 @@ async def on_message(message):
 **!info** Returns server info
 **!stats** Returns various server stats. May not be accurate
 **!serverlist** Returns a list of servers the bot is connected to
-**!fps** Returns current bot FPS"""
+**!fps** Returns current bot FPS
+**!api** Query the multiplayer API"""
 
         await message.channel.send(str)
 
