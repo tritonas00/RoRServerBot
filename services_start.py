@@ -334,11 +334,22 @@ class Main(discord.Client):
             port = item['port']
             version = item['version']
 
+            official = ""
+            if item['is-official'] == 1:
+                official = ':white_check_mark: '
+
+            password = ""
+            if item['has-password'] == True:
+                password = ' :lock:'
+
             players = ""
             for player in request.json()[x]['json-userlist']:
-                players += player['username'] + ', '
+                if player['is_admin'] == 1 or player['is_mod'] == 4:
+                    players += '***' + player['username'] + '***' + ', '
+                else:
+                    players += '*' + player['username'] + '*' + ', '
 
-            embed.add_field(name="%s (%s/%s)" % (name, users, max_users), value="%s | %s\n%s:%s\n*%s*" % (version, terrain, ip, port, players[:-2]), inline=False)
+            embed.add_field(name="%s%s (%s/%s)%s" % (official, name, users, max_users, password), value="%s | %s\n%s:%s\n%s" % (version, terrain, ip, port, players[:-2]), inline=False)
 
         await channel.send(embed=embed)
 
