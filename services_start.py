@@ -323,7 +323,7 @@ class Main(discord.Client):
     async def api(self, cid):
         channel = bot.get_channel(int(cid))
         request = requests.get('https://api.rigsofrods.org/server-list?json', timeout=2)
-        embed = discord.Embed(title="Servers", url="https://forum.rigsofrods.org/multiplayer/")
+        embed = discord.Embed(title="Servers", url="https://forum.rigsofrods.org/multiplayer/", colour=0x3498DB)
 
         for x, item in enumerate(request.json(), start=0):
             name = item['name']
@@ -338,7 +338,7 @@ class Main(discord.Client):
             for player in request.json()[x]['json-userlist']:
                 players += player['username'] + ', '
 
-            embed.add_field(name="%s (%s/%s)" % (name, users, max_users), value="%s\n%s\n%s:%s\n%s" % (version, terrain, ip, port, players[:-2]), inline=False)
+            embed.add_field(name="%s (%s/%s)" % (name, users, max_users), value="%s | %s\n%s:%s\n*%s*" % (version, terrain, ip, port, players[:-2]), inline=False)
 
         await channel.send(embed=embed)
 
