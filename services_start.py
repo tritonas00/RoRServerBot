@@ -1,4 +1,4 @@
-import threading, time, queue, sys, os, logging, copy, requests
+import threading, time, queue, sys, os, logging, copy, requests, json
 from xml.etree import ElementTree as ET # used to parse xml, for the config file
 import RoR_client
 import discord
@@ -265,6 +265,11 @@ class Main(discord.Client):
         self.main_queue = queue.Queue()
         self.settings = Config("configuration.xml")
 
+        if os.path.isfile('truck.blacklist') == True:
+            f = open('truck.blacklist')
+            self.vehiclebans = json.load(f)
+            f.close()
+
         self.initialised = False
 
     def messageRoRclient(self, ID, data):
@@ -310,6 +315,48 @@ class Main(discord.Client):
                 self.RoRclients[ID] = RoR_client.Client(ID, self)
                 self.RoRclients[ID].setName('RoR_thread_'+ID)
                 self.RoRclients[ID].start()
+
+    def validate(self, cid, user, uid, truck):
+        for item in self.vehiclebans['bans']:
+            if truck == (item['filename']):
+                self.messageRoRclientByChannel(cid, ("msg", "User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (user, uid, truck)))
+                self.messageRoRclientByChannel(cid, ("kick", int(uid), "spawning a banned vehicle"))
+                self.messageRoRclientByChannel(cid, ("msg", "User %s kicked." % user))
+
+    async def addvehicleban(self, cid, truck):
+        channel = bot.get_channel(int(cid))
+
+        if os.path.isfile('truck.blacklist') == False:
+            await channel.send("[info] truck.blacklist not found.")
+            return
+
+        for item in self.vehiclebans['bans']:
+            if truck == (item['filename']):
+                await channel.send("[info] %s already banned." % truck)
+                return
+
+        entry = {'filename': truck}
+        self.vehiclebans['bans'].append(entry)
+
+        with open('truck.blacklist', 'w') as f:
+            json.dump(self.vehiclebans, f)
+            await channel.send("[info] %s banned." % truck)
+
+    async def removevehicleban(self, cid, truck):
+        channel = bot.get_channel(int(cid))
+
+        if os.path.isfile('truck.blacklist') == False:
+            await channel.send("[info] truck.blacklist not found.")
+            return
+
+        for x, item in enumerate(self.vehiclebans['bans']):
+            if truck == (item['filename']):
+                self.vehiclebans['bans'].pop(x)
+
+                with open('truck.blacklist', 'w') as f:
+                    json.dump(self.vehiclebans, f)
+                    await channel.send("[info] %s ban removed." % truck)
+                    break
 
     async def serverlist(self, cid):
         channel = bot.get_channel(int(cid))
@@ -435,14 +482,17 @@ async def on_message(message):
             await message.channel.send('[info] Syntax: !kick <uid> [reason]')
 
     if message.content.startswith('!ban'):
-        args = message.content.split(" ", 2)
+        if "!banvehicle" in message.content:
+            await bot.addvehicleban(message.channel.id, message.content.replace('!banvehicle ' , ''))
+        else:
+            args = message.content.split(" ", 2)
 
-        if len(args) == 3:
-            bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), args[2]))
-        elif len(args) == 2:
-            bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
-        elif bot.checkDiscordChannel(message.channel.id):
-            await message.channel.send('[info] Syntax: !ban <uid> [reason]')
+            if len(args) == 3:
+                bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), args[2]))
+            elif len(args) == 2:
+                bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
+            elif bot.checkDiscordChannel(message.channel.id):
+                await message.channel.send('[info] Syntax: !ban <uid> [reason]')
 
     if message.content.startswith('!warn'):
         args = message.content.split(" ", 2)
@@ -465,7 +515,10 @@ async def on_message(message):
             await message.channel.send('[info] Syntax: !say [message] or !say <uid> [message]')
 
     if message.content.startswith('!unban'):
-        bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
+        if "!unbanvehicle" in message.content:
+            await bot.removevehicleban(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
+        else:
+            bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
 
     if message.content.startswith('!stats'):
         bot.messageRoRclientByChannel(message.channel.id, ("global_stats",))
@@ -494,6 +547,8 @@ async def on_message(message):
 **!ban** Bans a user
 **!bans** Displays current banned users
 **!unban** Unbans a user
+**!banvehicle** Bans a vehicle
+**!unbanvehicle** Unbans a vehicle
 **!info** Returns server info
 **!stats** Returns various server stats. May not be accurate
 **!serverlist** Returns a list of servers the bot is connected to

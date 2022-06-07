@@ -467,6 +467,7 @@ class Discord_Layer:
     def sayStreamReg(self, uid, stream):
         truckinfo =  getTruckInfo(stream.name);
         self.__send("%s is now driving a %s  (**%s**)." % (self.sm.getUsername(uid), s(truckinfo['name']), s(truckinfo['file'])), "game")
+        self.main.validate(self.channelID, self.sm.getUsername(uid), uid, s(truckinfo['file']))
 
     # [game] <username> is no longer driving <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamUnreg(self, uid, sid):
@@ -1672,7 +1673,7 @@ class eventHandler:
 
     def on_stream_register(self, source, stream):
         if(stream.type==TYPE_TRUCK):
-            if time.time()-self.connectTime > 60: # wait 60 seconds, as we don't want to spam the chat on join
+            if time.time()-self.connectTime > 10: # wait 10 seconds, as we don't want to spam the chat on join
                 self.discord.sayStreamReg(source,stream)
         return -1
 
