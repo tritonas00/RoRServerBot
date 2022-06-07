@@ -317,6 +317,9 @@ class Main(discord.Client):
                 self.RoRclients[ID].start()
 
     def validate(self, cid, user, uid, truck):
+        if os.path.isfile('truck.blacklist') == False:
+            return
+
         for item in self.vehiclebans['bans']:
             if truck == (item['filename']):
                 self.messageRoRclientByChannel(cid, ("msg", "User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (user, uid, truck)))
