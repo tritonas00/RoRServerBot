@@ -351,6 +351,15 @@ class Main(discord.Client):
             await channel.send("[info] truck.blacklist not found.")
             return
 
+        found = False
+        for item in self.vehiclebans['bans']:
+            if truck == item['filename']:
+                found = True
+
+        if found == False:
+            await channel.send("[info] %s not found." % truck)
+            return
+
         for x, item in enumerate(self.vehiclebans['bans']):
             if truck == item['filename']:
                 self.vehiclebans['bans'].pop(x)
