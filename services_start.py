@@ -378,6 +378,11 @@ class Main(discord.Client):
             else:
                 await channel.send("[info] Disconnected from %s" % ID)
 
+    async def sendVehicleBans(self, cid):
+        channel = bot.get_channel(int(cid))
+        if os.path.isfile('truck.blacklist') == True:
+            await channel.send(file=discord.File('truck.blacklist'))
+
     async def api(self, cid):
         channel = bot.get_channel(int(cid))
         request = requests.get('https://api.rigsofrods.org/server-list?json', timeout=2)
@@ -543,6 +548,9 @@ async def on_message(message):
     if message.content.startswith('!api') and bot.checkDiscordChannel(message.channel.id):
         await bot.api(message.channel.id)
 
+    if message.content.startswith('!vehiclebans') and bot.checkDiscordChannel(message.channel.id):
+        await bot.sendVehicleBans(message.channel.id)
+
     if message.content.startswith('!help') and bot.checkDiscordChannel(message.channel.id):
         str = """
 **!connect** Connects to a RoR server. Useful in the event of a server crash
@@ -560,6 +568,7 @@ async def on_message(message):
 **!unban** Unbans a user
 **!banvehicle** Bans a vehicle
 **!unbanvehicle** Unbans a vehicle
+**!vehiclebans** Sends vehicle blacklist file
 **!info** Returns server info
 **!stats** Returns various server stats. May not be accurate
 **!serverlist** Returns a list of servers the bot is connected to
