@@ -321,12 +321,11 @@ class Main(discord.Client):
             return
 
         for item in self.vehiclebans['bans']:
-            if truck == (item['filename']):
+            if truck == item['filename']:
                 self.messageRoRclientByChannel(cid, ("msg", "User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (user, uid, truck)))
                 self.messageRoRclientByChannel(cid, ("kick", int(uid), "spawning a banned vehicle"))
-                self.messageRoRclientByChannel(cid, ("msg", "User %s kicked." % user))
 
-    async def addvehicleban(self, cid, truck):
+    async def addVehicleBan(self, cid, truck):
         channel = bot.get_channel(int(cid))
 
         if os.path.isfile('truck.blacklist') == False:
@@ -334,7 +333,7 @@ class Main(discord.Client):
             return
 
         for item in self.vehiclebans['bans']:
-            if truck == (item['filename']):
+            if truck == item['filename']:
                 await channel.send("[info] %s already banned." % truck)
                 return
 
@@ -345,7 +344,7 @@ class Main(discord.Client):
             json.dump(self.vehiclebans, f)
             await channel.send("[info] %s banned." % truck)
 
-    async def removevehicleban(self, cid, truck):
+    async def removeVehicleBan(self, cid, truck):
         channel = bot.get_channel(int(cid))
 
         if os.path.isfile('truck.blacklist') == False:
@@ -353,7 +352,7 @@ class Main(discord.Client):
             return
 
         for x, item in enumerate(self.vehiclebans['bans']):
-            if truck == (item['filename']):
+            if truck == item['filename']:
                 self.vehiclebans['bans'].pop(x)
 
                 with open('truck.blacklist', 'w') as f:
@@ -484,9 +483,9 @@ async def on_message(message):
         elif bot.checkDiscordChannel(message.channel.id):
             await message.channel.send('[info] Syntax: !kick <uid> [reason]')
 
-    if message.content.startswith('!ban'):
+    if message.content.startswith('!ban') and bot.checkDiscordChannel(message.channel.id):
         if "!banvehicle" in message.content:
-            await bot.addvehicleban(message.channel.id, message.content.replace('!banvehicle ' , ''))
+            await bot.addVehicleBan(message.channel.id, message.content.replace('!banvehicle ' , ''))
         else:
             args = message.content.split(" ", 2)
 
@@ -517,9 +516,9 @@ async def on_message(message):
         elif bot.checkDiscordChannel(message.channel.id):
             await message.channel.send('[info] Syntax: !say [message] or !say <uid> [message]')
 
-    if message.content.startswith('!unban'):
+    if message.content.startswith('!unban') and bot.checkDiscordChannel(message.channel.id):
         if "!unbanvehicle" in message.content:
-            await bot.removevehicleban(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
+            await bot.removeVehicleBan(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
         else:
             bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
 
