@@ -500,7 +500,12 @@ async def on_message(message):
 
     if message.content.startswith('!ban') and bot.checkDiscordChannel(message.channel.id):
         if "!banvehicle" in message.content:
-            await bot.addVehicleBan(message.channel.id, message.content.replace('!banvehicle ' , ''))
+            args = message.content.split(" ", 1)
+
+            if len(args) == 2:
+                await bot.addVehicleBan(message.channel.id, message.content.replace('!banvehicle ' , ''))
+            else:
+                await message.channel.send('[info] Syntax: !banvehicle <truck>')
         else:
             args = message.content.split(" ", 2)
 
@@ -508,7 +513,7 @@ async def on_message(message):
                 bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), args[2]))
             elif len(args) == 2:
                 bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
-            elif bot.checkDiscordChannel(message.channel.id):
+            else:
                 await message.channel.send('[info] Syntax: !ban <uid> [reason]')
 
     if message.content.startswith('!warn'):
@@ -533,7 +538,12 @@ async def on_message(message):
 
     if message.content.startswith('!unban') and bot.checkDiscordChannel(message.channel.id):
         if "!unbanvehicle" in message.content:
-            await bot.removeVehicleBan(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
+            args = message.content.split(" ", 1)
+
+            if len(args) == 2:
+                await bot.removeVehicleBan(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
+            else:
+                await message.channel.send('[info] Syntax: !unbanvehicle <truck>')
         else:
             bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
 
