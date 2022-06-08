@@ -463,9 +463,6 @@ async def on_message(message):
     if message.content.startswith('!list'):
         bot.messageRoRclientByChannel(message.channel.id, ("msg", "!list"))
 
-    if message.content.startswith('!bans'):
-        bot.messageRoRclientByChannel(message.channel.id, ("msg", "!bans"))
-
     if message.content.startswith('!playerlist'):
         bot.messageRoRclientByChannel(message.channel.id, ("list_players",))
 
@@ -499,7 +496,9 @@ async def on_message(message):
             await message.channel.send('[info] Syntax: !kick <uid> [reason]')
 
     if message.content.startswith('!ban') and bot.checkDiscordChannel(message.channel.id):
-        if "!banvehicle" in message.content:
+        if "!bans" in message.content:
+            bot.messageRoRclientByChannel(message.channel.id, ("msg", "!bans"))
+        elif "!banvehicle" in message.content:
             args = message.content.split(" ", 1)
 
             if len(args) == 2:
