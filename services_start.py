@@ -381,7 +381,8 @@ class Main(discord.Client):
     async def sendVehicleBans(self, cid):
         channel = bot.get_channel(int(cid))
         if os.path.isfile('truck.blacklist') == True:
-            await channel.send(file=discord.File('truck.blacklist'))
+            result = "[info] %s bans recorded." % len(self.vehiclebans['bans'])
+            await channel.send(result, file=discord.File('truck.blacklist'))
 
     async def api(self, cid):
         channel = bot.get_channel(int(cid))
