@@ -322,7 +322,8 @@ class Main(discord.Client):
 
         for item in self.vehiclebans['bans']:
             if truck == item['filename']:
-                self.messageRoRclientByChannel(cid, ("msg", "User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (user, uid, truck)))
+                channel = bot.get_channel(int(cid))
+                asyncio.run_coroutine_threadsafe(channel.send("[info] User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (user, uid, truck)), bot.loop)
                 self.messageRoRclientByChannel(cid, ("kick", int(uid), "spawning a banned vehicle"))
 
     async def addVehicleBan(self, cid, truck):
