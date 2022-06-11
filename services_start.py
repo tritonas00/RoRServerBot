@@ -390,7 +390,11 @@ class Main(discord.Client):
         request = requests.get('https://api.rigsofrods.org/server-list?json', timeout=2)
         embed = discord.Embed(title="Servers", url="https://forum.rigsofrods.org/multiplayer/", colour=0x3498DB)
 
+        a = 0
+        b = 0
+
         for x, item in enumerate(request.json(), start=0):
+            a += 1
             name = item['name']
             users = item['current-users']
             max_users = item['max-clients']
@@ -409,6 +413,7 @@ class Main(discord.Client):
 
             players = ""
             for player in request.json()[x]['json-userlist']:
+                b += 1
                 if player['is_admin'] == 1 or player['is_mod'] == 4:
                     players += '***' + player['username'] + '***' + ', '
                 else:
@@ -416,6 +421,7 @@ class Main(discord.Client):
 
             embed.add_field(name="%s%s (%s/%s)%s" % (official, name, users, max_users, password), value="%s | %s\n%s:%s\n%s" % (version, terrain, ip, port, players[:-2]), inline=False)
 
+        embed.add_field(name="Summary", value="There are **%s** servers with **%s** players online." % (a, b), inline=False)
         await channel.send(embed=embed)
 
     async def on_ready(self):
