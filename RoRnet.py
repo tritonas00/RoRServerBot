@@ -149,7 +149,7 @@ def processRegisterTruckData(data):
 def processUserInfo(data):
     u = user_info_t()
     u.uniqueID, u.authstatus, u.slotnum, u.colournum, u.username, u.usertoken, u.serverpassword, u.language, u.clientname, u.clientversion, u.clientGUID, u.sessiontype, u.sessionoptions = struct.unpack('Iiii40s40s40s10s10s25s40s10s128s', data)
-    u.username       = u.username.decode('utf-8').strip('\0')
+    u.username       = u.username.decode('utf-8', 'ignore').strip('\0')
     u.usertoken      = u.usertoken.strip(b'\0')
     u.serverpassword = u.serverpassword.strip(b'\0')
     u.language       = u.language.strip(b'\0')
