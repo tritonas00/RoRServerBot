@@ -425,7 +425,7 @@ class Main(discord.Client):
         await channel.send(embed=embed)
 
     async def on_ready(self):
-        print ("Connected to Discord")
+        self.logger.info("Logged into Discord as %d", self.user)
 
         if not self.initialised:
             RoRclients_tmp = self.settings.getSetting('RoRclients')
@@ -459,8 +459,11 @@ class Main(discord.Client):
         # close loggers:
         logging.shutdown()
         await super().close()
-        
-bot = Main()
+
+intents = discord.Intents.default()
+intents.message_content = True
+       
+bot = Main(intents=intents)
 
 @bot.event
 async def on_message(message):
