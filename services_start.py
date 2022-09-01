@@ -5,9 +5,14 @@ import discord
 from discord.ext.tasks import loop
 import asyncio
 
+# pure black fucking magic, 
+# suppresses annoying proactor exceptions caused by windows asyncio and aiohttp
+if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 import logging
 logging.basicConfig(
-    level=logging.ERROR,
+    level=logging.INFO,
     style="{",
     format="{levelname:8s}; {threadName:21s}; {asctime:s}; {name:<15s} {lineno:4d}; {message:s}"
 )
@@ -296,9 +301,15 @@ class Main(discord.Client):
             return False
         return True
 
-    def messageDiscordclient(self, cid, message):
-        channel = bot.get_channel(int(cid))
-        asyncio.run_coroutine_threadsafe(channel.send(message), bot.loop)
+    # trying to call this from another thread causes exceptions and tasks to hang
+    #def messageDiscordclient(self, cid, message):
+    #    channel = self.get_channel(int(cid))
+    #    fut = asyncio.run_coroutine_threadsafe(channel.send(message), self.loop)
+    #    try:
+    #        fut.result()
+    #    except:
+    #        # an error happened sending the message
+    #        pass
 
     def checkDiscordChannel(self, cid):
         for RID in list(self.settings.getSetting('RoRclients').keys()):
@@ -316,18 +327,16 @@ class Main(discord.Client):
                 self.RoRclients[ID].setName('RoR_thread_'+ID)
                 self.RoRclients[ID].start()
 
-    def validate(self, cid, user, uid, truck):
+    def validate(self, truck):
         if os.path.isfile('truck.blacklist') == False:
-            return
+            return False
 
         for item in self.vehiclebans['bans']:
             if truck == item['filename']:
-                channel = bot.get_channel(int(cid))
-                asyncio.run_coroutine_threadsafe(channel.send("[info] User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (user, uid, truck)), bot.loop)
-                self.messageRoRclientByChannel(cid, ("kick", int(uid), "spawning a banned vehicle"))
+                return True
 
     async def addVehicleBan(self, cid, truck):
-        channel = bot.get_channel(int(cid))
+        channel = self.get_channel(int(cid))
 
         if os.path.isfile('truck.blacklist') == False:
             await channel.send("[info] truck.blacklist not found.")
@@ -346,7 +355,7 @@ class Main(discord.Client):
             await channel.send("[info] %s banned." % truck)
 
     async def removeVehicleBan(self, cid, truck):
-        channel = bot.get_channel(int(cid))
+        channel = self.get_channel(int(cid))
 
         if os.path.isfile('truck.blacklist') == False:
             await channel.send("[info] truck.blacklist not found.")
@@ -371,7 +380,7 @@ class Main(discord.Client):
                     break
 
     async def serverlist(self, cid):
-        channel = bot.get_channel(int(cid))
+        channel = self.get_channel(int(cid))
         RoRclients_tmp = self.settings.getSetting('RoRclients')
         for ID in list(RoRclients_tmp.keys()):
             if self.RoRclients[ID].is_alive():
@@ -380,13 +389,13 @@ class Main(discord.Client):
                 await channel.send("[info] Disconnected from %s" % ID)
 
     async def sendVehicleBans(self, cid):
-        channel = bot.get_channel(int(cid))
+        channel = self.get_channel(int(cid))
         if os.path.isfile('truck.blacklist') == True:
             result = "[info] %s bans recorded." % len(self.vehiclebans['bans'])
             await channel.send(result, file=discord.File('truck.blacklist'))
 
     async def api(self, cid):
-        channel = bot.get_channel(int(cid))
+        channel = self.get_channel(int(cid))
         request = requests.get('https://api.rigsofrods.org/server-list?json', timeout=2)
         embed = discord.Embed(title="Servers", url="https://forum.rigsofrods.org/multiplayer/", colour=0x3498DB)
 
@@ -425,7 +434,8 @@ class Main(discord.Client):
         await channel.send(embed=embed)
 
     async def on_ready(self):
-        self.logger.info("Logged into Discord as %d", self.user)
+        self.logger.info("Logged into Discord as %s", self.user)
+        print ("Logged into Discord as ", self.user)
 
         if not self.initialised:
             RoRclients_tmp = self.settings.getSetting('RoRclients')
@@ -436,6 +446,137 @@ class Main(discord.Client):
                 self.RoRclients[ID].setName('RoR_thread_'+ID)
                 self.RoRclients[ID].start()
             self.initialised = True
+
+    async def on_message(self, message):
+        if message.author == self.user:
+            return
+
+        if message.content.startswith('!list'):
+            self.messageRoRclientByChannel(message.channel.id, ("msg", "!list"))
+
+        if message.content.startswith('!playerlist'):
+            self.messageRoRclientByChannel(message.channel.id, ("list_players",))
+
+        if message.content.startswith('!info'):
+            self.messageRoRclientByChannel(message.channel.id, ("info", "full"))
+
+        if message.content.startswith('!msg'):
+            self.messageRoRclientByChannel(message.channel.id, ("msg_with_source", message.content.replace('!msg' , ''), message.author))
+
+        if message.content.startswith('!rawmsg'):
+            self.messageRoRclientByChannel(message.channel.id, ("msg", message.content.replace('!rawmsg ' , '')))
+
+        if message.content.startswith('!disconnect'):
+            self.messageRoRclientByChannel(message.channel.id, ("disconnect", "Leaving server..."))
+
+        if message.content.startswith('!connect'):
+            self.startRoRclientOnDemand(message.channel.id)
+
+        if message.content.startswith('!shutdown') and self.checkDiscordChannel(message.channel.id):
+            await message.channel.send('[info] Shutting down...')
+            await self.close()
+
+        if message.content.startswith('!kick'):
+            args = message.content.split(" ", 2)
+
+            if len(args) == 3:
+                self.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), args[2]))
+            elif len(args) == 2:
+                self.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), "an unspecified reason"))
+            elif self.checkDiscordChannel(message.channel.id):
+                await message.channel.send('[info] Syntax: !kick <uid> [reason]')
+
+        if message.content.startswith('!ban') and self.checkDiscordChannel(message.channel.id):
+            if "!bans" in message.content:
+                self.messageRoRclientByChannel(message.channel.id, ("msg", "!bans"))
+            elif "!banvehicle" in message.content:
+                args = message.content.split(" ", 1)
+
+                if len(args) == 2:
+                    await self.addVehicleBan(message.channel.id, message.content.replace('!banvehicle ' , ''))
+                else:
+                    await message.channel.send('[info] Syntax: !banvehicle <truck>')
+            else:
+                args = message.content.split(" ", 2)
+
+                if len(args) == 3:
+                    self.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), args[2]))
+                elif len(args) == 2:
+                    self.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
+                else:
+                    await message.channel.send('[info] Syntax: !ban <uid> [reason]')
+
+        if message.content.startswith('!warn'):
+            args = message.content.split(" ", 2)
+
+            if len(args) == 3:
+                self.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), args[2]))
+            elif len(args) == 2:
+                self.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), "This is an official warning. Please read our rules using the !rules command."))
+            elif self.checkDiscordChannel(message.channel.id):
+                await message.channel.send('[info] Syntax: !warn <uid> [reason]')
+
+        if message.content.startswith('!say'):
+            args = message.content.split(" ", 2)
+
+            if len(args) == 3:
+                self.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), args[2]))
+            elif len(args) == 2:
+                self.messageRoRclientByChannel(message.channel.id, ("say", int(-1), args[1]))
+            elif self.checkDiscordChannel(message.channel.id):
+                await message.channel.send('[info] Syntax: !say [message] or !say <uid> [message]')
+
+        if message.content.startswith('!unban') and self.checkDiscordChannel(message.channel.id):
+            if "!unbanvehicle" in message.content:
+                args = message.content.split(" ", 1)
+
+                if len(args) == 2:
+                    await self.removeVehicleBan(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
+                else:
+                    await message.channel.send('[info] Syntax: !unbanvehicle <truck>')
+            else:
+                self.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
+
+        if message.content.startswith('!stats'):
+            self.messageRoRclientByChannel(message.channel.id, ("global_stats",))
+
+        if message.content.startswith('!fps'):
+            self.messageRoRclientByChannel(message.channel.id, ("fps",))
+
+        if message.content.startswith('!serverlist') and self.checkDiscordChannel(message.channel.id):
+            await self.serverlist(message.channel.id)
+
+        if message.content.startswith('!api') and self.checkDiscordChannel(message.channel.id):
+            await self.api(message.channel.id)
+
+        if message.content.startswith('!vehiclebans') and self.checkDiscordChannel(message.channel.id):
+            await self.sendVehicleBans(message.channel.id)
+
+        if message.content.startswith('!help') and self.checkDiscordChannel(message.channel.id):
+            str = """
+    **!connect** Connects to a RoR server. Useful in the event of a server crash
+    **!disconnect** Disconnects from a RoR server
+    **!shutdown** Disconnects from all servers and closes the bot
+    **!msg** Sends a message to the server. Includes your Discord username
+    **!rawmsg** Sends a message to the server as the self. Can also be used for some in-game commands (e.g. !rawmsg !unban UID)
+    **!say** Sends a message as the host. Can be used to privately message players
+    **!playerlist** Displays player list with current vehicles
+    **!list** Displays a simplified player list (useful if you just need the UID)
+    **!warn** Sends a private warning message to a player. If no message is specified, (This is an official warning. Please read our rules using the !rules command.) will be sent instead
+    **!kick** Kicks a user
+    **!ban** Bans a user
+    **!bans** Displays current banned users
+    **!unban** Unbans a user
+    **!banvehicle** Bans a vehicle
+    **!unbanvehicle** Unbans a vehicle
+    **!vehiclebans** Sends vehicle blacklist file
+    **!info** Returns server info
+    **!stats** Returns various server stats. May not be accurate
+    **!serverlist** Returns a list of servers the bot is connected to
+    **!fps** Returns current bot FPS
+    **!api** Query the multiplayer API"""
+
+            await message.channel.send(str)
 
     async def close(self):
         self.logger.info("Starting global shutdown sequence")
@@ -454,7 +595,9 @@ class Main(discord.Client):
         for ID in self.RoRclients:
             if self.RoRclients[ID].is_alive():
                 self.logger.error("   x Failed to terminate RoRclient %s" % ID)
-        self.logger.info("Global shutdown sequence successfully finished.")
+        self.logger.info("RoRclients shutdown sequence successfully finished.")
+        self.logger.info("   - waiting for some tasks to finish before exiting.")
+        await asyncio.sleep(5) # let any remaining tasks queued by RoRclients finish
 
         # close loggers:
         logging.shutdown()
@@ -463,139 +606,6 @@ class Main(discord.Client):
 intents = discord.Intents.default()
 intents.message_content = True
        
-bot = Main(intents=intents)
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    if message.content.startswith('!list'):
-        bot.messageRoRclientByChannel(message.channel.id, ("msg", "!list"))
-
-    if message.content.startswith('!playerlist'):
-        bot.messageRoRclientByChannel(message.channel.id, ("list_players",))
-
-    if message.content.startswith('!info'):
-        bot.messageRoRclientByChannel(message.channel.id, ("info", "full"))
-
-    if message.content.startswith('!msg'):
-        bot.messageRoRclientByChannel(message.channel.id, ("msg_with_source", message.content.replace('!msg' , ''), message.author))
-
-    if message.content.startswith('!rawmsg'):
-        bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content.replace('!rawmsg ' , '')))
-
-    if message.content.startswith('!disconnect'):
-        bot.messageRoRclientByChannel(message.channel.id, ("disconnect", "Leaving server..."))
-
-    if message.content.startswith('!connect'):
-        bot.startRoRclientOnDemand(message.channel.id)
-
-    if message.content.startswith('!shutdown') and bot.checkDiscordChannel(message.channel.id):
-        await message.channel.send('[info] Shutting down...')
-        await bot.close()
-
-    if message.content.startswith('!kick'):
-        args = message.content.split(" ", 2)
-
-        if len(args) == 3:
-            bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), args[2]))
-        elif len(args) == 2:
-            bot.messageRoRclientByChannel(message.channel.id, ("kick", int(args[1]), "an unspecified reason"))
-        elif bot.checkDiscordChannel(message.channel.id):
-            await message.channel.send('[info] Syntax: !kick <uid> [reason]')
-
-    if message.content.startswith('!ban') and bot.checkDiscordChannel(message.channel.id):
-        if "!bans" in message.content:
-            bot.messageRoRclientByChannel(message.channel.id, ("msg", "!bans"))
-        elif "!banvehicle" in message.content:
-            args = message.content.split(" ", 1)
-
-            if len(args) == 2:
-                await bot.addVehicleBan(message.channel.id, message.content.replace('!banvehicle ' , ''))
-            else:
-                await message.channel.send('[info] Syntax: !banvehicle <truck>')
-        else:
-            args = message.content.split(" ", 2)
-
-            if len(args) == 3:
-                bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), args[2]))
-            elif len(args) == 2:
-                bot.messageRoRclientByChannel(message.channel.id, ("ban", int(args[1]), "an unspecified reason"))
-            else:
-                await message.channel.send('[info] Syntax: !ban <uid> [reason]')
-
-    if message.content.startswith('!warn'):
-        args = message.content.split(" ", 2)
-
-        if len(args) == 3:
-            bot.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), args[2]))
-        elif len(args) == 2:
-            bot.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), "This is an official warning. Please read our rules using the !rules command."))
-        elif bot.checkDiscordChannel(message.channel.id):
-            await message.channel.send('[info] Syntax: !warn <uid> [reason]')
-
-    if message.content.startswith('!say'):
-        args = message.content.split(" ", 2)
-
-        if len(args) == 3:
-            bot.messageRoRclientByChannel(message.channel.id, ("say", int(args[1]), args[2]))
-        elif len(args) == 2:
-            bot.messageRoRclientByChannel(message.channel.id, ("say", int(-1), args[1]))
-        elif bot.checkDiscordChannel(message.channel.id):
-            await message.channel.send('[info] Syntax: !say [message] or !say <uid> [message]')
-
-    if message.content.startswith('!unban') and bot.checkDiscordChannel(message.channel.id):
-        if "!unbanvehicle" in message.content:
-            args = message.content.split(" ", 1)
-
-            if len(args) == 2:
-                await bot.removeVehicleBan(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
-            else:
-                await message.channel.send('[info] Syntax: !unbanvehicle <truck>')
-        else:
-            bot.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
-
-    if message.content.startswith('!stats'):
-        bot.messageRoRclientByChannel(message.channel.id, ("global_stats",))
-
-    if message.content.startswith('!fps'):
-        bot.messageRoRclientByChannel(message.channel.id, ("fps",))
-
-    if message.content.startswith('!serverlist') and bot.checkDiscordChannel(message.channel.id):
-        await bot.serverlist(message.channel.id)
-
-    if message.content.startswith('!api') and bot.checkDiscordChannel(message.channel.id):
-        await bot.api(message.channel.id)
-
-    if message.content.startswith('!vehiclebans') and bot.checkDiscordChannel(message.channel.id):
-        await bot.sendVehicleBans(message.channel.id)
-
-    if message.content.startswith('!help') and bot.checkDiscordChannel(message.channel.id):
-        str = """
-**!connect** Connects to a RoR server. Useful in the event of a server crash
-**!disconnect** Disconnects from a RoR server
-**!shutdown** Disconnects from all servers and closes the bot
-**!msg** Sends a message to the server. Includes your Discord username
-**!rawmsg** Sends a message to the server as the bot. Can also be used for some in-game commands (e.g. !rawmsg !unban UID)
-**!say** Sends a message as the host. Can be used to privately message players
-**!playerlist** Displays player list with current vehicles
-**!list** Displays a simplified player list (useful if you just need the UID)
-**!warn** Sends a private warning message to a player. If no message is specified, (This is an official warning. Please read our rules using the !rules command.) will be sent instead
-**!kick** Kicks a user
-**!ban** Bans a user
-**!bans** Displays current banned users
-**!unban** Unbans a user
-**!banvehicle** Bans a vehicle
-**!unbanvehicle** Unbans a vehicle
-**!vehiclebans** Sends vehicle blacklist file
-**!info** Returns server info
-**!stats** Returns various server stats. May not be accurate
-**!serverlist** Returns a list of servers the bot is connected to
-**!fps** Returns current bot FPS
-**!api** Query the multiplayer API"""
-
-        await message.channel.send(str)
-
-
-bot.run(bot.settings.getSetting("Discordclient", "token"))
+client = Main(intents=intents)
+client.logger.warning('expect a slowdown when requesting guild information from Discord!')
+client.run(client.settings.getSetting("Discordclient", "token"), log_handler=None)

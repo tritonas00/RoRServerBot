@@ -1,6 +1,7 @@
 import sys, struct, threading, socket, random, time, string, os, os.path, math, copy, logging, queue, re, TruckToName, hashlib
 import pickle # needed for recording
 from RoRnet import *
+import asyncio
 
 def b(s, encoding="utf-8"):
     """ Convert `s` to bytes. """
@@ -421,7 +422,9 @@ class Discord_Layer:
 
     # queue to Discord client
     def __send(self, msg, prefix):
-        self.main.messageDiscordclient(self.channelID, "[%s] %s" % (prefix, msg))
+        #self.main.messageDiscordclient(self.channelID, "[%s] %s" % (prefix, msg))
+        channel = self.main.get_channel(int(self.channelID))
+        asyncio.run_coroutine_threadsafe(channel.send("[%s] %s" % (prefix, msg)), self.main.loop)
 
     # [chat] <username>: hi
     def sayChat(self, msg, uid):
@@ -467,7 +470,9 @@ class Discord_Layer:
     def sayStreamReg(self, uid, stream):
         truckinfo =  getTruckInfo(stream.name);
         self.__send("%s is now driving a %s  (**%s**)." % (self.sm.getUsername(uid), s(truckinfo['name']), s(truckinfo['file'])), "game")
-        self.main.validate(self.channelID, self.sm.getUsername(uid), uid, s(truckinfo['file']))
+        invalid = self.main.validate(s(truckinfo['file']))
+        if invalid:
+            self.sayInfo("[info] User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (self.sm.getUsername(uid), uid, s(truckinfo['file'])))
 
     # [game] <username> is no longer driving <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamUnreg(self, uid, sid):
