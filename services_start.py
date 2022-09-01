@@ -301,16 +301,6 @@ class Main(discord.Client):
             return False
         return True
 
-    # trying to call this from another thread causes exceptions and tasks to hang
-    #def messageDiscordclient(self, cid, message):
-    #    channel = self.get_channel(int(cid))
-    #    fut = asyncio.run_coroutine_threadsafe(channel.send(message), self.loop)
-    #    try:
-    #        fut.result()
-    #    except:
-    #        # an error happened sending the message
-    #        pass
-
     def checkDiscordChannel(self, cid):
         for RID in list(self.settings.getSetting('RoRclients').keys()):
             if self.settings.getSetting('RoRclients', RID, "discordchannel") == str(cid):
