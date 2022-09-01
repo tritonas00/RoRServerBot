@@ -422,7 +422,6 @@ class Discord_Layer:
 
     # queue to Discord client
     def __send(self, msg, prefix):
-        #self.main.messageDiscordclient(self.channelID, "[%s] %s" % (prefix, msg))
         channel = self.main.get_channel(int(self.channelID))
         asyncio.run_coroutine_threadsafe(channel.send("[%s] %s" % (prefix, msg)), self.main.loop)
 
