@@ -335,6 +335,8 @@ class Main(discord.Client):
             if truck == item['filename']:
                 return True
 
+        return False
+
     async def addVehicleBan(self, cid, truck):
         channel = self.get_channel(int(cid))
 
