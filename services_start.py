@@ -337,6 +337,9 @@ class Main(discord.Client):
 
         return False
 
+    def queueKick(self, cid, uid):
+        self.messageRoRclientByChannel(cid, ("kick", int(uid), "spawning a banned vehicle"))
+
     async def addVehicleBan(self, cid, truck):
         channel = self.get_channel(int(cid))
 
