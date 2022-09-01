@@ -559,27 +559,27 @@ class Main(discord.Client):
 
         if message.content.startswith('!help') and self.checkDiscordChannel(message.channel.id):
             str = """
-    **!connect** Connects to a RoR server. Useful in the event of a server crash
-    **!disconnect** Disconnects from a RoR server
-    **!shutdown** Disconnects from all servers and closes the bot
-    **!msg** Sends a message to the server. Includes your Discord username
-    **!rawmsg** Sends a message to the server as the self. Can also be used for some in-game commands (e.g. !rawmsg !unban UID)
-    **!say** Sends a message as the host. Can be used to privately message players
-    **!playerlist** Displays player list with current vehicles
-    **!list** Displays a simplified player list (useful if you just need the UID)
-    **!warn** Sends a private warning message to a player. If no message is specified, (This is an official warning. Please read our rules using the !rules command.) will be sent instead
-    **!kick** Kicks a user
-    **!ban** Bans a user
-    **!bans** Displays current banned users
-    **!unban** Unbans a user
-    **!banvehicle** Bans a vehicle
-    **!unbanvehicle** Unbans a vehicle
-    **!vehiclebans** Sends vehicle blacklist file
-    **!info** Returns server info
-    **!stats** Returns various server stats. May not be accurate
-    **!serverlist** Returns a list of servers the bot is connected to
-    **!fps** Returns current bot FPS
-    **!api** Query the multiplayer API"""
+**!connect** Connects to a RoR server. Useful in the event of a server crash
+**!disconnect** Disconnects from a RoR server
+**!shutdown** Disconnects from all servers and closes the bot
+**!msg** Sends a message to the server. Includes your Discord username
+**!rawmsg** Sends a message to the server as the self. Can also be used for some in-game commands (e.g. !rawmsg !unban UID)
+**!say** Sends a message as the host. Can be used to privately message players
+**!playerlist** Displays player list with current vehicles
+**!list** Displays a simplified player list (useful if you just need the UID)
+**!warn** Sends a private warning message to a player. If no message is specified, (This is an official warning. Please read our rules using the !rules command.) will be sent instead
+**!kick** Kicks a user
+**!ban** Bans a user
+**!bans** Displays current banned users
+**!unban** Unbans a user
+**!banvehicle** Bans a vehicle
+**!unbanvehicle** Unbans a vehicle
+**!vehiclebans** Sends vehicle blacklist file
+**!info** Returns server info
+**!stats** Returns various server stats. May not be accurate
+**!serverlist** Returns a list of servers the bot is connected to
+**!fps** Returns current bot FPS
+**!api** Query the multiplayer API"""
 
             await message.channel.send(str)
 
