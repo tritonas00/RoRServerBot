@@ -473,6 +473,7 @@ class Discord_Layer:
         invalid = self.main.validate(s(truckinfo['file']))
         if invalid:
             self.sayInfo("[info] User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (self.sm.getUsername(uid), uid, s(truckinfo['file'])))
+            self.main.queueKick(self.channelID, int(uid))
 
     # [game] <username> is no longer driving <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamUnreg(self, uid, sid):
