@@ -468,11 +468,12 @@ class Discord_Layer:
     # [game] <username> is now driving a <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamReg(self, uid, stream):
         truckinfo =  getTruckInfo(stream.name);
-        self.__send("%s is now driving a %s  (**%s**)." % (self.sm.getUsername(uid), s(truckinfo['name']), s(truckinfo['file'])), "game")
         invalid = self.main.validate(s(truckinfo['file']))
         if invalid:
             self.sayInfo("User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (self.sm.getUsername(uid), uid, s(truckinfo['file'])))
             self.main.queueKick(self.channelID, int(uid))
+        else:
+            self.__send("%s is now driving a %s  (**%s**)." % (self.sm.getUsername(uid), s(truckinfo['name']), s(truckinfo['file'])), "game")
 
     # [game] <username> is no longer driving <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamUnreg(self, uid, sid):
