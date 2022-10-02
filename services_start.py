@@ -12,7 +12,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.starts
 
 import logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     style="{",
     format="{levelname:8s}; {threadName:21s}; {asctime:s}; {name:<15s} {lineno:4d}; {message:s}"
 )
