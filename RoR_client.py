@@ -1,5 +1,6 @@
 import sys, struct, threading, socket, random, time, string, os, os.path, math, copy, logging, queue, re, TruckToName, hashlib
 import pickle # needed for recording
+import random # for gigi's -roll command. This can generate random integers and more
 from RoRnet import *
 import asyncio
 
@@ -1455,6 +1456,10 @@ class eventHandler:
         pass
 
     def on_chat(self, source, message):
+        global roll
+        global die
+        global block
+        # All of the above is needed for the -roll command        
         a = message.split(" ", 1)
         if len(a)>1:
             args = a[1].split(" ", 5)
@@ -1519,6 +1524,78 @@ class eventHandler:
 
         # Roleplay commands
 
+        # Dice rolling command by Trucker_Gigi
+        #
+        # The "print" lines can be uncommented if you want to print out the results in your console. Good for debugging
+        # Please dont mind be borrowing the "a" array with "die_com" & "die_com2" :D
+        # 
+        die_com = a[0]
+        # Check if the user used the command
+        if "-roll" == die_com[0:5]:
+            #print(len(a))
+            
+            if len(a) == 1:
+                self.__sendChat_delayed("Please use the command like this: '-roll 3d12' or just '-roll d12'") 
+            elif len(a) == 2:
+                die_com2 = a[1]
+                #print("Rolling " + str(die_com2) + "...")
+                #print(str(die_com2[0:2]))
+                
+                block = False # Disable the block first, we might enable it later
+                # Check the amount of dices
+                if "1" == str(die_com2[0:1]):
+                    roll = 1
+                elif "2" == str(die_com2[0:1]):
+                    roll = 2
+                elif "3" == str(die_com2[0:1]):
+                    roll = 3
+                elif "4" == str(die_com2[0:1]):
+                    roll = 4
+                elif "5" == str(die_com2[0:1]):
+                    roll = 5
+                elif "6" == str(die_com2[0:1]):
+                    roll = 6 # I guess that we dont need more
+                elif "d" == str(die_com2[0:1]):
+                    roll = 1 # The user did not input a number for the amount of dices, so we guess that he wants only one
+                else:
+                    self.__sendChat_delayed("Please use a number from 1-6 for the amount of dices!")
+                    block = True # Disable the calculation
+            
+            
+                # Check the die (4, 6, 8, 10, 12 or D20)
+                if "d4" in die_com2[0:4]:
+                    die = 4
+                elif "d6" in die_com2[0:4]:
+                    die = 6
+                elif "d8" in die_com2[0:4]:
+                    die = 8
+                elif "d10" in die_com2[0:4]:
+                    die = 10
+                elif "d12" in die_com2[0:4]:
+                    die = 12
+                elif "d20" in die_com2[0:4]:
+                    die = 20
+                else:
+                    self.__sendChat_delayed("Please use d4, d6, d8, d10, d12 or d20. There are no other 'regular' dices.")
+                    block = True # Disable the calculation
+            
+                # Do some math
+                res = 0 # Let's reset our result...
+                i = 0   # Our counter for the loop
+                if block != True:
+                    while i < roll:
+                        res1 = random.randint(1, die)
+                        res += res1
+                        #print("Rolled: " + str(res1))
+                        #print("Total: " + str(res))
+                        i += 1
+                        # Print out the result
+                    self.__sendChat_delayed("%s rolled a " % self.sm.getUsernameColoured(source) + str(res) + "!")
+                else:
+                    #print("Error")
+            return # DONE      
+        # End of Trucker_Gigi's command
+        
         elif a[0] == "-give":
             self.__sendChat_delayed("This command has been disabled because it's quite useless.")
 
