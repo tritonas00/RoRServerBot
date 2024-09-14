@@ -317,7 +317,7 @@ class Main(discord.Client):
                 self.RoRclients[ID].setName('RoR_thread_'+ID)
                 self.RoRclients[ID].start()
 
-    def validate(self, truck):
+    def isVehicleBanned(self, truck):
         if os.path.isfile('truck.blacklist') == False:
             return False
 
