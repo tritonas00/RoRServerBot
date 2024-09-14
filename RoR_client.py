@@ -64,6 +64,13 @@ playerColours = [
         "#999900"
 ];
 
+# Name may be in "bname:fname.truck" format, where 'bundle' is ZIP/subdir in modcache. See https://github.com/RigsOfRods/rigs-of-rods/pull/3171
+def getTruckFilenameFromStreamName(streamName):
+    if ':' in streamName:
+        return streamName.split(b':')[1]
+    else:
+        return streamName
+
 def getTruckName(filename):
     if filename in TruckToName.list:
         return TruckToName.list[filename]
@@ -72,7 +79,8 @@ def getTruckName(filename):
 def getTruckType(filename):
     return filename.split(b'.').pop().lower()
 
-def getTruckInfo(filename):
+def getTruckInfo(streamName):
+    filename = getTruckFilenameFromStreamName(streamName)
     return {
             'type': getTruckType(filename),
             'name': getTruckName(filename),
@@ -468,8 +476,8 @@ class Discord_Layer:
     # [game] <username> is now driving a <truckname> (streams: <number of streams>/<limit of streams>)
     def sayStreamReg(self, uid, stream):
         truckinfo =  getTruckInfo(stream.name);
-        invalid = self.main.validate(s(truckinfo['file']))
-        if invalid:
+        banned = self.main.isVehicleBanned(s(truckinfo['file']))
+        if banned:
             self.sayInfo("User **%s** with uid **%s** has spawned a **%s** which is a banned vehicle." % (self.sm.getUsername(uid), uid, s(truckinfo['file'])))
             self.main.queueKick(self.channelID, int(uid))
         else:
