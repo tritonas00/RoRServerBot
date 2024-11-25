@@ -84,8 +84,8 @@ class Config:
         # Fill the whole settings dictionary with default values
         self.settings = {
                 'general': {
-                        'version_str': 'RoR server-services v2022.12',
-                        'version_num': "2022.12",
+                        'version_str': 'RoR server-services v2022.04',
+                        'version_num': "2022.04",
                         'clientname': 'RoR_bot',
                 },
                 'Discordclient': {
@@ -275,6 +275,11 @@ class Main(discord.Client):
             self.vehiclebans = json.load(f)
             f.close()
 
+        if os.path.isfile('evader.blacklist') == True:
+            g = open('evader.blacklist')
+            self.evaderbans = json.load(g)
+            g.close()
+
         self.initialised = False
 
     def messageRoRclient(self, ID, data):
@@ -330,6 +335,19 @@ class Main(discord.Client):
     def queueKick(self, cid, uid):
         self.messageRoRclientByChannel(cid, ("kick", int(uid), "spawning a banned vehicle"))
 
+    def checkthrough(self, user):
+        if os.path.isfile('evader.blacklist') == False:
+            return False
+
+        for item in self.evaderbans['bans']:
+            if user == item['username']:
+                return True
+
+        return False
+
+    def queueBan(self, cid, uid):
+        self.messageRoRclientByChannel(cid, ("ban", int(uid), "performing excessive ban evasions"))
+
     async def addVehicleBan(self, cid, truck):
         channel = self.get_channel(int(cid))
 
@@ -374,6 +392,50 @@ class Main(discord.Client):
                     await channel.send("[info] %s ban removed." % truck)
                     break
 
+    async def addEvaderBan(self, cid, user):
+        channel = self.get_channel(int(cid))
+
+        if os.path.isfile('evader.blacklist') == False:
+            await channel.send("[info] evader.blacklist not found.")
+            return
+
+        for item in self.evaderbans['bans']:
+            if user == item['username']:
+                await channel.send("[info] %s already banned." % user)
+                return
+
+        entry = {'username': user}
+        self.evaderbans['bans'].append(entry)
+
+        with open('evader.blacklist', 'w') as f:
+            json.dump(self.evaderbans, f)
+            await channel.send("[info] %s banned." % user)
+
+    async def removeEvaderBan(self, cid, user):
+        channel = self.get_channel(int(cid))
+
+        if os.path.isfile('evader.blacklist') == False:
+            await channel.send("[info] evader.blacklist not found.")
+            return
+
+        found = False
+        for item in self.evaderbans['bans']:
+            if user == item['username']:
+                found = True
+
+        if found == False:
+            await channel.send("[info] %s not found." % user)
+            return
+
+        for x, item in enumerate(self.evaderbans['bans']):
+            if user == item['username']:
+                self.evaderbans['bans'].pop(x)
+
+                with open('evader.blacklist', 'w') as f:
+                    json.dump(self.evaderbans, f)
+                    await channel.send("[info] %s ban removed." % user)
+                    break
+
     async def serverlist(self, cid):
         channel = self.get_channel(int(cid))
         RoRclients_tmp = self.settings.getSetting('RoRclients')
@@ -388,6 +450,12 @@ class Main(discord.Client):
         if os.path.isfile('truck.blacklist') == True:
             result = "[info] %s bans recorded." % len(self.vehiclebans['bans'])
             await channel.send(result, file=discord.File('truck.blacklist'))
+
+    async def sendEvaderBans(self, cid):
+        channel = self.get_channel(int(cid))
+        if os.path.isfile('evader.blacklist') == True:
+            result = "[info] %s bans recorded." % len(self.evaderbans['bans'])
+            await channel.send(result, file=discord.File('evader.blacklist'))
 
     async def api(self, cid):
         channel = self.get_channel(int(cid))
@@ -491,6 +559,13 @@ class Main(discord.Client):
                     await self.addVehicleBan(message.channel.id, message.content.replace('!banvehicle ' , ''))
                 else:
                     await message.channel.send('[info] Syntax: !banvehicle <truck>')
+            elif "!banevader" in message.content:
+                args = message.content.split(" ", 1)
+
+                if len(args) == 2:
+                    await self.addEvaderBan(message.channel.id, message.content.replace('!banevader ' , ''))
+                else:
+                    await message.channel.send('[info] Syntax: !banevader <username>')
             else:
                 args = message.content.split(" ", 2)
 
@@ -529,6 +604,13 @@ class Main(discord.Client):
                     await self.removeVehicleBan(message.channel.id, message.content.replace('!unbanvehicle ' , ''))
                 else:
                     await message.channel.send('[info] Syntax: !unbanvehicle <truck>')
+            if "!unbanevader" in message.content:
+                args = message.content.split(" ", 1)
+
+                if len(args) == 2:
+                    await self.removeEvaderBan(message.channel.id, message.content.replace('!unbanevader ' , ''))
+                else:
+                    await message.channel.send('[info] Syntax: !unbanevader <username>')
             else:
                 self.messageRoRclientByChannel(message.channel.id, ("msg", message.content))
 
@@ -546,6 +628,9 @@ class Main(discord.Client):
 
         if message.content.startswith('!vehiclebans') and self.checkDiscordChannel(message.channel.id):
             await self.sendVehicleBans(message.channel.id)
+
+        if message.content.startswith('!evaderbans') and self.checkDiscordChannel(message.channel.id):
+            await self.sendEvaderBans(message.channel.id)
 
         if message.content.startswith('!help') and self.checkDiscordChannel(message.channel.id):
             str = """
@@ -565,6 +650,9 @@ class Main(discord.Client):
 **!banvehicle** Bans a vehicle
 **!unbanvehicle** Unbans a vehicle
 **!vehiclebans** Sends vehicle blacklist file
+**!banevader** Bans a ban evader
+**!unbanevader** Unbans a ban evader
+**!evaderbans** Sends evader blacklist file
 **!info** Returns server info
 **!stats** Returns various server stats. May not be accurate
 **!serverlist** Returns a list of servers the bot is connected to
