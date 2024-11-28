@@ -66,14 +66,14 @@ playerColours = [
 
 # Name may be in "bname:fname.truck" format, where 'bundle' is ZIP/subdir in modcache. See https://github.com/RigsOfRods/rigs-of-rods/pull/3171
 def getTruckFilenameFromStreamName(streamName):
-    if ':' in streamName:
+    if b':' in streamName:
         return streamName.split(b':')[1]
     else:
         return streamName
         
 # Name may be in "bname:fname.truck" format, where 'bundle' is ZIP/subdir in modcache. See https://github.com/RigsOfRods/rigs-of-rods/pull/3171
 def getTruckBundleNameFromStreamName(streamName):
-    if ':' in streamName:
+    if b':' in streamName:
         return streamName.split(b':')[0]
     else:
         return streamName
