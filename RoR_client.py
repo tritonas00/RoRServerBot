@@ -456,7 +456,13 @@ class Discord_Layer:
 
     # [game] <username> (<language>) joined the server, using <version>
     def sayJoin(self, uid):
-        self.__send("%s (%s) joined the server, using %s %s." % (self.sm.getUsername(uid),  s(self.sm.getLanguage(uid)), s(self.sm.getClientName(uid)), s(self.sm.getClientVersion(uid))), "game")
+        userinfo = self.sm.getUsername(uid);
+        invalid = self.main.checkthrough(userinfo)
+        if invalid:
+            self.sayInfo("User **%s** with uid **%s** was identified as a habitual ban evader and was banned again." % (self.sm.getUsername(uid), uid))
+            self.main.queueBan(self.channelID, int(uid))
+        else:
+            self.__send("%s (%s) joined the server, using %s %s." % (self.sm.getUsername(uid),  s(self.sm.getLanguage(uid)), s(self.sm.getClientName(uid)), s(self.sm.getClientVersion(uid))), "game")
 
     # [game] <username> left the server
     def sayLeave(self, uid):
